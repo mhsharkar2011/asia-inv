@@ -3,6 +3,7 @@
 namespace App\Models\Sales;
 
 use App\Models\Inventory\Company;
+use App\Models\Sales\SalesOrder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -48,19 +49,22 @@ class Customer extends Model
     // Get total sales amount
     public function getTotalSalesAttribute()
     {
-        return $this->salesOrders()->where('status', 'delivered')->sum('final_amount');
+        return 0; // Placeholder until we have sales orders
+        // return $this->salesOrders()->where('status', 'delivered')->sum('final_amount');
     }
 
     // Get pending sales orders count
     public function getPendingOrdersCountAttribute()
     {
-        return $this->salesOrders()->whereIn('status', ['draft', 'confirmed', 'packed', 'shipped'])->count();
+        return 0; // Placeholder until we have sales orders
+        // return $this->salesOrders()->whereIn('status', ['draft', 'confirmed', 'packed', 'shipped'])->count();
     }
 
     // Get completed sales orders count
     public function getCompletedOrdersCountAttribute()
     {
-        return $this->salesOrders()->where('status', 'delivered')->count();
+        return 0; // Placeholder until we have sales orders
+        // return $this->salesOrders()->where('status', 'delivered')->count();
     }
 
     // Get credit available

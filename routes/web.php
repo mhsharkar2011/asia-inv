@@ -88,13 +88,16 @@ Route::middleware(['auth'])->group(function () {
     // Sales Management
     Route::prefix('sales')->name('sales.')->group(function () {
         // Customers (placeholder)
-        Route::get('customers', function () {
-            return view('sales.customers.index');
-        })->name('customers.index');
+        // Customers routes
+        Route::resource('customers', \App\Http\Controllers\Sales\CustomerController::class);
 
-        Route::get('customers/create', function () {
-            return view('sales.customers.create');
-        })->name('customers.create');
+        // Additional customer routes
+        Route::post('customers/{id}/toggle-status', [\App\Http\Controllers\Sales\CustomerController::class, 'toggleStatus'])
+            ->name('customers.toggle-status');
+
+        // AJAX route for customer dropdown
+        Route::get('customers-ajax', [\App\Http\Controllers\Sales\CustomerController::class, 'getCustomers'])
+            ->name('customers.ajax');
 
         // Sales Orders (placeholder)
         Route::get('sales-orders', function () {

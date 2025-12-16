@@ -27,18 +27,18 @@ class ProductController extends Controller
 
         $products = Product::with('category')
             ->where('company_id', $companyId)
-            ->when($search, function($query) use ($search) {
-                return $query->where(function($q) use ($search) {
+            ->when($search, function ($query) use ($search) {
+                return $query->where(function ($q) use ($search) {
                     $q->where('product_code', 'like', "%{$search}%")
-                      ->orWhere('product_name', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%")
-                      ->orWhere('hsn_sac_code', 'like', "%{$search}%");
+                        ->orWhere('product_name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhere('hsn_sac_code', 'like', "%{$search}%");
                 });
             })
-            ->when($category, function($query) use ($category) {
+            ->when($category, function ($query) use ($category) {
                 return $query->where('category_id', $category);
             })
-            ->when($status !== 'all', function($query) use ($status) {
+            ->when($status !== 'all', function ($query) use ($status) {
                 if ($status === 'active') {
                     return $query->where('is_active', true);
                 } elseif ($status === 'inactive') {
@@ -80,6 +80,9 @@ class ProductController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
+        // Debug: Check what's coming in
+        \Log::info('Store request data:', $request->all());
+
         $validated = $request->validate([
             'product_code' => 'required|unique:products,product_code|max:50',
             'product_name' => 'required|max:255',
@@ -103,15 +106,27 @@ class ProductController extends Controller
         $validated['track_batch'] = $request->has('track_batch');
         $validated['track_expiry'] = $request->has('track_expiry');
 
-        Product::create($validated);
+        \Log::info('Final data to create:', $validated);
 
-        if ($request->has('save_and_new')) {
-            return redirect()->route('inventory.products.create')
+        try {
+            $product = Product::create($validated);
+            \Log::info('Product created successfully:', $product->toArray());
+
+            if ($request->has('save_and_new')) {
+                return redirect()->route('inventory.products.create')
+                    ->with('success', 'Product created successfully!');
+            }
+
+            return redirect()->route('inventory.products.index')
                 ->with('success', 'Product created successfully!');
-        }
+        } catch (\Exception $e) {
+            \Log::error('Product creation failed:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
-        return redirect()->route('inventory.products.index')
-            ->with('success', 'Product created successfully!');
+            return back()->withInput()->withErrors(['error' => 'Failed to create product: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -231,7 +246,7 @@ class ProductController extends Controller
 
         $products = Product::where('company_id', $companyId)
             ->where('is_active', true)
-            ->when($search, function($query) use ($search) {
+            ->when($search, function ($query) use ($search) {
                 return $query->where('product_name', 'like', "%{$search}%")
                     ->orWhere('product_code', 'like', "%{$search}%");
             })

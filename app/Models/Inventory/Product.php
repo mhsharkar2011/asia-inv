@@ -2,7 +2,6 @@
 
 namespace App\Models\Inventory;
 
-use App\Models\Inventory;
 use App\Models\Inventory\Category;
 use App\Models\Inventory\Company;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -52,29 +51,36 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
 
-    public function inventories()
-    {
-        return $this->hasMany(Inventory::class, 'product_id');
-    }
+    // Temporarily comment out until we create Inventory model
+    // public function inventories()
+    // {
+    //     return $this->hasMany(Inventory::class, 'product_id');
+    // }
 
     // Get total available stock across all warehouses
     public function getTotalStockAttribute()
     {
-        return $this->inventories->sum('quantity_available');
+        // Temporarily return 0 until we have inventory
+        return 0;
+        // return $this->inventories->sum('quantity_available');
     }
 
     // Get total reserved stock across all warehouses
     public function getTotalReservedAttribute()
     {
-        return $this->inventories->sum('quantity_reserved');
+        // Temporarily return 0 until we have inventory
+        return 0;
+        // return $this->inventories->sum('quantity_reserved');
     }
 
     // Get total inventory value
     public function getTotalInventoryValueAttribute()
     {
-        return $this->inventories->sum(function ($inventory) {
-            return $this->purchase_price * $inventory->quantity_available;
-        });
+        // Temporarily return 0 until we have inventory
+        return 0;
+        // return $this->inventories->sum(function ($inventory) {
+        //     return $this->purchase_price * $inventory->quantity_available;
+        // });
     }
 
     // Check if product is low stock
@@ -107,13 +113,19 @@ class Product extends Model
     // Scope for low stock products
     public function scopeLowStock($query)
     {
-        return $query->whereRaw('(SELECT COALESCE(SUM(quantity_available), 0) FROM inventories WHERE product_id = products.id) <= reorder_level')
-            ->whereRaw('(SELECT COALESCE(SUM(quantity_available), 0) FROM inventories WHERE product_id = products.id) > 0');
+        // Simplified for now - check only against reorder level
+        return $query->where('reorder_level', '>', 0);
+        // Original complex query:
+        // return $query->whereRaw('(SELECT COALESCE(SUM(quantity_available), 0) FROM inventories WHERE product_id = products.id) <= reorder_level')
+        //     ->whereRaw('(SELECT COALESCE(SUM(quantity_available), 0) FROM inventories WHERE product_id = products.id) > 0');
     }
 
     // Scope for out of stock products
     public function scopeOutOfStock($query)
     {
-        return $query->whereRaw('(SELECT COALESCE(SUM(quantity_available), 0) FROM inventories WHERE product_id = products.id) <= 0');
+        // Simplified for now - always return none
+        return $query->where('id', '<', 0);
+        // Original:
+        // return $query->whereRaw('(SELECT COALESCE(SUM(quantity_available), 0) FROM inventories WHERE product_id = products.id) <= 0');
     }
 }
