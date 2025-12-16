@@ -7,6 +7,7 @@ use App\Models\Inventory\Category;
 use App\Models\Inventory\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -81,7 +82,7 @@ class ProductController extends Controller
         $companyId = Auth::user()->company_id;
 
         // Debug: Check what's coming in
-        \Log::info('Store request data:', $request->all());
+        Log::info('Store request data:', $request->all());
 
         $validated = $request->validate([
             'product_code' => 'required|unique:products,product_code|max:50',
@@ -106,11 +107,11 @@ class ProductController extends Controller
         $validated['track_batch'] = $request->has('track_batch');
         $validated['track_expiry'] = $request->has('track_expiry');
 
-        \Log::info('Final data to create:', $validated);
+        Log::info('Final data to create:', $validated);
 
         try {
             $product = Product::create($validated);
-            \Log::info('Product created successfully:', $product->toArray());
+            Log::info('Product created successfully:', $product->toArray());
 
             if ($request->has('save_and_new')) {
                 return redirect()->route('inventory.products.create')
@@ -120,7 +121,7 @@ class ProductController extends Controller
             return redirect()->route('inventory.products.index')
                 ->with('success', 'Product created successfully!');
         } catch (\Exception $e) {
-            \Log::error('Product creation failed:', [
+            Log::error('Product creation failed:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

@@ -345,7 +345,7 @@
                                 <button type="button" class="btn btn-outline-warning" id="clearForm">
                                     <i class="fas fa-broom me-2"></i>Clear Form
                                 </button>
-                                <a href="{{ route('products.create') }}" target="_blank"
+                                <a href="{{ route('inventory.products.create') }}" target="_blank"
                                     class="btn btn-outline-success">
                                     <i class="fas fa-plus-circle me-2"></i>Add New Product
                                 </a>

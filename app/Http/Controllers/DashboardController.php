@@ -2,98 +2,92 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Inventory\Product;
-use App\Models\Inventory\Category;
-use App\Models\Purchase\Supplier;
+use App\Models\Invoice;
 use App\Models\Sales\Customer;
+use App\Models\Sales\SalesOrder;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function index()
     {
-        $companyId = Auth::user()->company_id;
+        // Get low stock products (stock less than or equal to 10)
+        $lowStockProducts = Product::where('stock_quantity', '<=', 10)
+            ->orderBy('stock_quantity', 'asc')
+            ->limit(10)
+            ->get();
 
-        try {
-            // Get basic counts - handle cases where tables might not exist yet
-            $productCount = 0;
-            $categoryCount = 0;
-            $supplierCount = 0;
-            $customerCount = 0;
+        // Get recent invoices
+        $recentInvoices = Invoice::with('customer')
+            ->latest()
+            ->limit(10)
+            ->get();
 
-            // Check if table exists before counting
-            if (\Schema::hasTable('products')) {
-                $productCount = Product::where('company_id', $companyId)->count();
-            }
+        // Get recent sales orders
+        $recentSalesOrders = SalesOrder::with('customer')
+            ->latest()
+            ->limit(10)
+            ->get();
 
-            if (\Schema::hasTable('categories')) {
-                $categoryCount = Category::where('company_id', $companyId)->count();
-            }
+        // Get recent customers
+        $recentCustomers = Customer::latest()
+            ->limit(10)
+            ->get();
 
-            if (\Schema::hasTable('suppliers')) {
-                $supplierCount = Supplier::where('company_id', $companyId)->count();
-            }
+        // Calculate dashboard statistics
+        $totalCustomers = Customer::count();
+        $totalProducts = Product::count();
 
-            if (\Schema::hasTable('customers')) {
-                $customerCount = Customer::where('company_id', $companyId)->count();
-            }
+        $totalInvoices = Invoice::count();
+        $totalInvoiceAmount = Invoice::sum('total_amount');
+        $pendingInvoices = Invoice::where('status', '!=', 'paid')->count();
 
-            // For now, use placeholder data until we have real inventory data
-            $totalStockValue = 0;
-            $lowStockItems = 0;
-            $pendingOrders = 0;
-            $monthlyRevenue = 0;
+        $totalSalesOrders = SalesOrder::count();
+        $totalSalesAmount = SalesOrder::sum('total_amount');
+        $pendingOrders = SalesOrder::where('status', 'draft')->orWhere('status', 'confirmed')->count();
 
-            // Get recent products (simplified)
-            $recentProducts = [];
-            if (\Schema::hasTable('products')) {
-                $recentProducts = Product::where('company_id', $companyId)
-                    ->where('is_active', true)
-                    ->with('category')
-                    ->latest()
-                    ->limit(5)
-                    ->get();
-            }
+        // Get monthly revenue data for chart
+        $monthlyRevenue = $this->getMonthlyRevenue();
 
-            // Sales data for chart (placeholder)
-            $salesData = [
-                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                'values' => [50000, 75000, 60000, 90000, 85000, 95000]
+        return view('dashboard.index', compact(
+            'lowStockProducts',
+            'recentInvoices',
+            'recentSalesOrders',
+            'recentCustomers',
+            'totalCustomers',
+            'totalProducts',
+            'totalInvoices',
+            'totalInvoiceAmount',
+            'pendingInvoices',
+            'totalSalesOrders',
+            'totalSalesAmount',
+            'pendingOrders',
+            'monthlyRevenue'
+        ));
+    }
+
+    private function getMonthlyRevenue()
+    {
+        $revenueData = [];
+
+        // Get last 6 months revenue
+        for ($i = 5; $i >= 0; $i--) {
+            $month = Carbon::now()->subMonths($i);
+            $monthStart = $month->copy()->startOfMonth();
+            $monthEnd = $month->copy()->endOfMonth();
+
+            $monthlyInvoices = Invoice::whereBetween('invoice_date', [$monthStart, $monthEnd])
+                ->where('status', 'paid')
+                ->sum('total_amount');
+
+            $revenueData[] = [
+                'month' => $month->format('M Y'),
+                'revenue' => $monthlyInvoices ?? 0
             ];
-
-            // Recent activities (placeholder)
-            $recentActivities = collect([
-                (object)[
-                    'created_at' => now()->subHours(2),
-                    'description' => 'System initialized successfully',
-                    'user' => (object)['name' => 'System'],
-                    'reference' => 'System'
-                ]
-            ]);
-
-            return view('dashboard.index', compact(
-                'totalStockValue',
-                'lowStockItems',
-                'pendingOrders',
-                'monthlyRevenue',
-                'recentProducts',
-                'salesData',
-                'recentActivities',
-                'productCount',
-                'categoryCount',
-                'supplierCount',
-                'customerCount'
-            ));
-
-        } catch (\Exception $e) {
-            // If there's an error, show a simplified dashboard
-            return view('dashboard.welcome');
         }
+
+        return $revenueData;
     }
 }

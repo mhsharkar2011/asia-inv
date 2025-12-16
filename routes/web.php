@@ -8,7 +8,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\InvoiceCOntroller;
-use App\Models\Sales\SalesOrder;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Sales\SalesOrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,15 +103,41 @@ Route::middleware(['auth'])->group(function () {
             ->name('customers.ajax');
 
         // Sales Orders (placeholder)
-        Route::resource('sales-orders',SalesOrder::class);
+        Route::resource('sales-orders', SalesOrderController::class);
+        // Additional sales order routes
+        Route::post('sales-orders/{salesOrder}/change-status', [SalesOrderController::class, 'changeStatus'])
+            ->name('sales-orders.change-status');
+        Route::get('sales-orders/{salesOrder}/convert-to-invoice', [SalesOrderController::class, 'convertToInvoice'])
+            ->name('sales-orders.convert-to-invoice');
+        Route::get('sales-orders/{salesOrder}/print', [SalesOrderController::class, 'print'])
+            ->name('sales-orders.print');
+
         // Invoice Routes
         Route::resource('invoices', InvoiceCOntroller::class);
-
         // Additional invoice routes
         Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
         Route::get('invoices/{invoice}/send', [InvoiceController::class, 'send'])->name('invoices.send');
         Route::post('invoices/{invoice}/payment', [InvoiceController::class, 'recordPayment'])->name('invoices.payment');
         Route::get('invoices/{invoice}/print', [InvoiceController::class, 'print'])->name('invoices.print');
+    });
+
+    // Reports Routes
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/sales', [ReportController::class, 'salesReport'])->name('sales');
+        Route::get('/customers', [ReportController::class, 'customerReport'])->name('customers');
+        Route::get('/products', [ReportController::class, 'productReport'])->name('products');
+        Route::get('/tax', [ReportController::class, 'taxReport'])->name('tax');
+        Route::post('/export/pdf', [ReportController::class, 'exportPdf'])->name('export.pdf');
+        Route::post('/export/excel', [ReportController::class, 'exportExcel'])->name('export.excel');
+
+        Route::get('/reports', function () {
+            return redirect()->route('dashboard.index')->with('info', 'Reports module is under development');
+        })->name('reports.index');
+
+        Route::get('/reports', function () {
+            return view('reports.placeholder');
+        })->name('reports.index');
     });
 
     // Admin Routes

@@ -6,32 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
+    public function up()
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
-            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->string('product_code')->unique();
             $table->string('product_name');
             $table->text('description')->nullable();
-            $table->string('unit_of_measure')->default('PCS');
-            $table->integer('reorder_level')->default(0);
-            $table->integer('min_stock')->default(0);
-            $table->integer('max_stock')->nullable();
-            $table->string('hsn_sac_code')->nullable();
-            $table->decimal('tax_rate', 5, 2)->default(0);
-            $table->decimal('purchase_price', 15, 2)->nullable();
-            $table->decimal('selling_price', 15, 2)->nullable();
-            $table->decimal('mrp', 15, 2)->nullable();
-            $table->boolean('track_batch')->default(false);
-            $table->boolean('track_expiry')->default(false);
-            $table->boolean('is_active')->default(true);
+            $table->string('category')->nullable();
+            $table->string('unit')->nullable();
+            $table->decimal('cost_price', 10, 2)->default(0);
+            $table->decimal('selling_price', 10, 2)->default(0);
+            $table->integer('stock_quantity')->default(0);
+            $table->integer('reorder_level')->default(10);
+            $table->string('hsn_code')->nullable();
+            $table->decimal('gst_rate', 5, 2)->default(0);
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }
 
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('products');
     }
