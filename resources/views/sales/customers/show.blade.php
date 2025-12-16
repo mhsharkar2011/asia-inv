@@ -191,11 +191,11 @@
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2">
-                            <a href="{{ route('invoices.create', ['customer_id' => $customer->id]) }}"
+                            <a href="{{ route('sales.invoices.create', ['customer_id' => $customer->id]) }}"
                                 class="btn btn-success">
                                 <i class="fas fa-file-invoice me-2"></i>Create Invoice
                             </a>
-                            <a href="{{ route('orders.create', ['customer_id' => $customer->id]) }}"
+                            <a href="{{ route('sales.sales-orders.create', ['customer_id' => $customer->id]) }}"
                                 class="btn btn-warning">
                                 <i class="fas fa-shopping-cart me-2"></i>New Order
                             </a>
@@ -296,7 +296,7 @@
                                 <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
                                 <h5 class="text-muted">No Orders Found</h5>
                                 <p class="text-muted">This customer hasn't placed any orders yet.</p>
-                                <a href="{{ route('orders.create', ['customer_id' => $customer->id]) }}"
+                                <a href="{{ route('sales.sales-orders.create', ['customer_id' => $customer->id]) }}"
                                     class="btn btn-primary">
                                     <i class="fas fa-plus me-2"></i>Create First Order
                                 </a>
@@ -336,11 +336,11 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <a href="{{ route('invoices.show', $invoice->id) }}"
+                                                    <a href="{{ route('sales.invoices.show', $invoice->id) }}"
                                                         class="btn btn-sm btn-outline-primary me-1">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    <a href="{{ route('invoices.download', $invoice->id) }}"
+                                                    <a href="{{ route('sales.invoices.download', $invoice->id) }}"
                                                         class="btn btn-sm btn-outline-secondary">
                                                         <i class="fas fa-download"></i>
                                                     </a>
@@ -352,7 +352,7 @@
                             </div>
                             @if ($customer->invoices->count() > 5)
                                 <div class="text-center mt-3">
-                                    <a href="{{ route('invoices.index', ['customer_id' => $customer->id]) }}"
+                                    <a href="{{ route('sales.invoices.index', ['customer_id' => $customer->id]) }}"
                                         class="btn btn-sm btn-outline-primary">
                                         View All Invoices ({{ $customer->invoices->count() }})
                                     </a>
@@ -363,7 +363,7 @@
                                 <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
                                 <h5 class="text-muted">No Invoices Found</h5>
                                 <p class="text-muted">This customer doesn't have any invoices yet.</p>
-                                <a href="{{ route('invoices.create', ['customer_id' => $customer->id]) }}"
+                                <a href="{{ route('sales.invoices.create', ['customer_id' => $customer->id]) }}"
                                     class="btn btn-primary">
                                     <i class="fas fa-plus me-2"></i>Create First Invoice
                                 </a>

@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\InvoiceCOntroller;
 
 /*
 |--------------------------------------------------------------------------
@@ -107,6 +108,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('sales-orders/create', function () {
             return view('sales.sales-orders.create');
         })->name('sales-orders.create');
+
+        // Invoice Routes
+        Route::resource('invoices', InvoiceCOntroller::class);
+
+        // Additional invoice routes
+        Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
+        Route::get('invoices/{invoice}/send', [InvoiceController::class, 'send'])->name('invoices.send');
+        Route::post('invoices/{invoice}/payment', [InvoiceController::class, 'recordPayment'])->name('invoices.payment');
+        Route::get('invoices/{invoice}/print', [InvoiceController::class, 'print'])->name('invoices.print');
     });
 
     // Admin Routes
