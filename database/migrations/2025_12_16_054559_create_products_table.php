@@ -4,12 +4,13 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProductsTable extends Migration
+return new class extends Migration
 {
     public function up()
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id('product_id');
+            $table->id();
+            $table->string('product_id')->nullable();
             $table->foreignId('category_id')->constrained('categories');
             $table->foreignId('company_id')->constrained('companies');
             $table->string('product_code')->unique();
@@ -32,4 +33,4 @@ class CreateProductsTable extends Migration
     {
         Schema::dropIfExists('products');
     }
-}
+};

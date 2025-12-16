@@ -17,96 +17,74 @@ use App\Http\Controllers\Sales\CustomerController;
 // Authentication Routes
 Auth::routes(['register' => false]);
 
-// Main Routes
+Route::get('/login', function () {
+    return redirect('/login');
+})->name('login');
+
+// Protected Routes
 Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
-    // Company & Admin Routes (Admin only)
-    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::resource('companies', \App\Http\Controllers\Admin\CompanyController::class);
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-        Route::resource('branches', \App\Http\Controllers\Admin\BranchController::class);
-        Route::resource('warehouses', \App\Http\Controllers\Admin\WarehouseController::class);
-        Route::resource('taxes', \App\Http\Controllers\Admin\TaxController::class);
-    });
-
-    // Inventory Management Routes
+    // Inventory Management
     Route::prefix('inventory')->name('inventory.')->group(function () {
         Route::resource('products', ProductController::class);
         Route::resource('categories', CategoryController::class);
 
-        // Stock Management
-        Route::get('stock', [\App\Http\Controllers\Inventory\StockController::class, 'index'])->name('stock.index');
-        Route::get('stock/alert', [\App\Http\Controllers\Inventory\StockController::class, 'alerts'])->name('stock.alerts');
-        Route::post('stock/adjust', [\App\Http\Controllers\Inventory\StockController::class, 'adjust'])->name('stock.adjust');
-
-        // Stock Transfers
-        Route::resource('transfers', \App\Http\Controllers\Inventory\TransferController::class);
+        // Stock Management (placeholder routes)
+        Route::get('stock', function () {
+            return view('inventory.stock.index');
+        })->name('stock.index');
     });
 
-    // Purchase Management Routes
+    // Purchase Management
     Route::prefix('purchase')->name('purchase.')->group(function () {
         Route::resource('suppliers', SupplierController::class);
-        Route::resource('purchase-orders', \App\Http\Controllers\Purchase\PurchaseOrderController::class);
-        Route::post('purchase-orders/{id}/receive',
-            [\App\Http\Controllers\Purchase\PurchaseOrderController::class, 'receive'])->name('purchase-orders.receive');
 
-        // Goods Receipt
-        Route::resource('goods-receipt', \App\Http\Controllers\Purchase\GoodsReceiptController::class);
+        // Purchase Orders (placeholder routes)
+        Route::get('purchase-orders', function () {
+            return view('purchase.purchase-orders.index');
+        })->name('purchase-orders.index');
+
+        Route::get('purchase-orders/create', function () {
+            return view('purchase.purchase-orders.create');
+        })->name('purchase-orders.create');
     });
 
-    // Sales Management Routes
+    // Sales Management
     Route::prefix('sales')->name('sales.')->group(function () {
         Route::resource('customers', CustomerController::class);
-        Route::resource('sales-orders', \App\Http\Controllers\Sales\SalesOrderController::class);
-        Route::post('sales-orders/{id}/deliver',
-            [\App\Http\Controllers\Sales\SalesOrderController::class, 'deliver'])->name('sales-orders.deliver');
 
-        // Invoices
-        Route::resource('invoices', \App\Http\Controllers\Sales\InvoiceController::class);
-        Route::get('invoices/{id}/print',
-            [\App\Http\Controllers\Sales\InvoiceController::class, 'print'])->name('invoices.print');
-        Route::post('invoices/{id}/email',
-            [\App\Http\Controllers\Sales\InvoiceController::class, 'email'])->name('invoices.email');
+        // Sales Orders (placeholder routes)
+        Route::get('sales-orders', function () {
+            return view('sales.sales-orders.index');
+        })->name('sales-orders.index');
+
+        Route::get('sales-orders/create', function () {
+            return view('sales.sales-orders.create');
+        })->name('sales-orders.create');
     });
 
-    // Accounting Routes
-    Route::prefix('accounting')->name('accounting.')->group(function () {
-        Route::resource('ledgers', \App\Http\Controllers\Accounting\LedgerController::class);
-        Route::resource('transactions', \App\Http\Controllers\Accounting\TransactionController::class);
+    // Reports (placeholder)
+    Route::get('reports/inventory/summary', function () {
+        return view('reports.inventory.summary');
+    })->name('reports.inventory.summary');
 
-        // Reports
-        Route::get('reports/trial-balance',
-            [\App\Http\Controllers\Accounting\ReportController::class, 'trialBalance'])->name('reports.trial-balance');
-        Route::get('reports/profit-loss',
-            [\App\Http\Controllers\Accounting\ReportController::class, 'profitLoss'])->name('reports.profit-loss');
-        Route::get('reports/balance-sheet',
-            [\App\Http\Controllers\Accounting\ReportController::class, 'balanceSheet'])->name('reports.balance-sheet');
+    // Admin Routes (for admin users only)
+    Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('users', function () {
+            return view('admin.users.index');
+        })->name('users.index');
+
+        Route::get('companies', function () {
+            return view('admin.companies.index');
+        })->name('companies.index');
     });
-
-    // Tax & Compliance
-    Route::prefix('tax')->name('tax.')->group(function () {
-        Route::get('gstr1', [\App\Http\Controllers\Tax\GSTController::class, 'gstr1'])->name('gstr1');
-        Route::get('gstr3b', [\App\Http\Controllers\Tax\GSTController::class, 'gstr3b'])->name('gstr3b');
-        Route::get('e-way-bills', [\App\Http\Controllers\Tax\GSTController::class, 'eWayBills'])->name('e-way-bills');
-    });
-
-    // Reports
-    Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('inventory/summary',
-            [\App\Http\Controllers\Reports\InventoryReportController::class, 'summary'])->name('inventory.summary');
-        Route::get('inventory/movement',
-            [\App\Http\Controllers\Reports\InventoryReportController::class, 'movement'])->name('inventory.movement');
-        Route::get('financial/sales',
-            [\App\Http\Controllers\Reports\FinancialReportController::class, 'sales'])->name('financial.sales');
-        Route::get('financial/purchase',
-            [\App\Http\Controllers\Reports\FinancialReportController::class, 'purchase'])->name('financial.purchase');
-    });
-
-    // Profile & Settings
-    Route::get('profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
-    Route::post('profile/change-language',
-        [\App\Http\Controllers\ProfileController::class, 'changeLanguage'])->name('profile.change-language');
 });
+
+// Logout Route
+Route::post('/logout', function () {
+    Auth::logout();
+    return redirect('/login');
+})->name('logout');

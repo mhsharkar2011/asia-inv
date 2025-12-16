@@ -3,14 +3,15 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Company;
-use App\Models\Tax;
+use App\Models\Branch;
+use App\Models\User;
+use App\Models\Category;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         // Create default company
         $company = Company::create([
@@ -24,41 +25,106 @@ class DatabaseSeeder extends Seeder
             'gst_registered' => true,
         ]);
 
+        // Create main branch
+        $branch = Branch::create([
+            'company_id' => $company->id,
+            'branch_code' => 'BR001',
+            'branch_name' => 'Main Branch',
+            'address' => '123 Main Street, Mumbai, Maharashtra',
+            'contact_person' => 'John Doe',
+            'phone' => '+91-9876543210',
+            'email' => 'main@asiaenterprise.com',
+            'is_main_branch' => true,
+        ]);
+
         // Create admin user
         User::create([
-            'company_id' => $company->company_id,
+            'name' => 'System Administrator',
+            'email' => 'admin@asiaenterprise.com',
+            'password' => Hash::make('admin@123'),
+            'company_id' => $company->id,
+            'branch_id' => $branch->id,
             'username' => 'admin',
-            'password_hash' => Hash::make('admin@123'),
             'full_name' => 'System Administrator',
             'role' => 'admin',
-            'email' => 'admin@asiaenterprise.com',
             'phone' => '+91-9876543210',
             'language_preference' => 'en',
             'is_active' => true,
         ]);
 
-        // Create default tax rates (India GST)
-        $gstRates = [
-            ['tax_code' => 'GST0', 'tax_name' => 'GST 0%', 'tax_rate' => 0, 'tax_type' => 'exclusive'],
-            ['tax_code' => 'GST5', 'tax_name' => 'GST 5%', 'tax_rate' => 5, 'tax_type' => 'exclusive'],
-            ['tax_code' => 'GST12', 'tax_name' => 'GST 12%', 'tax_rate' => 12, 'tax_type' => 'exclusive'],
-            ['tax_code' => 'GST18', 'tax_name' => 'GST 18%', 'tax_rate' => 18, 'tax_type' => 'exclusive'],
-            ['tax_code' => 'GST28', 'tax_name' => 'GST 28%', 'tax_rate' => 28, 'tax_type' => 'exclusive'],
+        // Create categories
+        $categories = [
+            // Parent Categories
+            [
+                'company_id' => $company->id,
+                'category_code' => 'ELEC',
+                'category_name' => 'Electronics',
+                'parent_category_id' => null,
+                'description' => 'Electronic items and gadgets',
+                'tax_rate_applicable' => 18.00,
+            ],
+            [
+                'company_id' => $company->id,
+                'category_code' => 'CLOTH',
+                'category_name' => 'Clothing',
+                'parent_category_id' => null,
+                'description' => 'Apparel and clothing items',
+                'tax_rate_applicable' => 12.00,
+            ],
+            [
+                'company_id' => $company->id,
+                'category_code' => 'FURN',
+                'category_name' => 'Furniture',
+                'parent_category_id' => null,
+                'description' => 'Home and office furniture',
+                'tax_rate_applicable' => 18.00,
+            ],
+            [
+                'company_id' => $company->id,
+                'category_code' => 'FOOD',
+                'category_name' => 'Food & Beverages',
+                'parent_category_id' => null,
+                'description' => 'Food items and beverages',
+                'tax_rate_applicable' => 5.00,
+            ],
         ];
 
-        foreach ($gstRates as $rate) {
-            Tax::create(array_merge($rate, [
-                'company_id' => $company->company_id,
-                'effective_date' => '2024-01-01',
-                'country_applicable' => 'India'
-            ]));
-        }
+        foreach ($categories as $categoryData) {
+            $category = Category::create($categoryData);
 
-        $this->call([
-            CategorySeeder::class,
-            ProductSeeder::class,
-            SupplierSeeder::class,
-            CustomerSeeder::class,
-        ]);
+            // Create subcategories for Electronics
+            if ($category->category_code == 'ELEC') {
+                $subcategories = [
+                    [
+                        'company_id' => $company->id,
+                        'category_code' => 'MOB',
+                        'category_name' => 'Mobile Phones',
+                        'parent_category_id' => $category->id,
+                        'description' => 'Smartphones and mobile phones',
+                        'tax_rate_applicable' => 18.00,
+                    ],
+                    [
+                        'company_id' => $company->id,
+                        'category_code' => 'LAP',
+                        'category_name' => 'Laptops',
+                        'parent_category_id' => $category->id,
+                        'description' => 'Laptops and notebooks',
+                        'tax_rate_applicable' => 18.00,
+                    ],
+                    [
+                        'company_id' => $company->id,
+                        'category_code' => 'TV',
+                        'category_name' => 'Televisions',
+                        'parent_category_id' => $category->id,
+                        'description' => 'LED, LCD, and Smart TVs',
+                        'tax_rate_applicable' => 28.00,
+                    ],
+                ];
+
+                foreach ($subcategories as $subcatData) {
+                    Category::create($subcatData);
+                }
+            }
+        }
     }
 }

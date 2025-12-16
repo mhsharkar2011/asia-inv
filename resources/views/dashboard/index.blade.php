@@ -17,36 +17,67 @@
 <!-- Quick Stats Cards -->
 <div class="row mb-4">
     <div class="col-md-3">
-        @include('components.widgets.stats-card', [
-            'title' => 'Total Stock Value',
-            'value' => '₹' . number_format($totalStockValue, 2),
-            'icon' => 'bi-box-seam',
-            'color' => 'primary'
-        ])
+        <div class="card stats-card border-primary">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <h6 class="text-muted fw-normal">Total Stock Value</h6>
+                        <h4 class="mb-0">₹{{ number_format($totalStockValue, 2) }}</h4>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="bi bi-box-seam display-4 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
     <div class="col-md-3">
-        @include('components.widgets.stats-card', [
-            'title' => 'Low Stock Items',
-            'value' => $lowStockItems,
-            'icon' => 'bi-exclamation-triangle',
-            'color' => 'warning'
-        ])
+        <div class="card stats-card border-warning">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <h6 class="text-muted fw-normal">Low Stock Items</h6>
+                        <h4 class="mb-0">{{ $lowStockItems }}</h4>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="bi bi-exclamation-triangle display-4 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
     <div class="col-md-3">
-        @include('components.widgets.stats-card', [
-            'title' => 'Pending Orders',
-            'value' => $pendingOrders,
-            'icon' => 'bi-cart',
-            'color' => 'info'
-        ])
+        <div class="card stats-card border-info">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <h6 class="text-muted fw-normal">Pending Orders</h6>
+                        <h4 class="mb-0">{{ $pendingOrders }}</h4>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="bi bi-cart display-4 text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
     <div class="col-md-3">
-        @include('components.widgets.stats-card', [
-            'title' => 'Monthly Revenue',
-            'value' => '₹' . number_format($monthlyRevenue, 2),
-            'icon' => 'bi-currency-rupee',
-            'color' => 'success'
-        ])
+        <div class="card stats-card border-success">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <h6 class="text-muted fw-normal">Monthly Revenue</h6>
+                        <h4 class="mb-0">₹{{ number_format($monthlyRevenue, 2) }}</h4>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="bi bi-currency-rupee display-4 text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -62,20 +93,75 @@
             </div>
         </div>
     </div>
+
     <div class="col-md-4">
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">Stock Alerts</h5>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 <div class="list-group list-group-flush">
-                    @foreach($stockAlerts as $alert)
-                    <a href="{{ route('inventory.products.show', $alert->product_id) }}"
-                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                        {{ $alert->product_name }}
-                        <span class="badge bg-warning">{{ $alert->quantity_available }}</span>
-                    </a>
-                    @endforeach
+                    @forelse($stockAlerts as $product)
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ $product->product_name }}</strong><br>
+                                <small class="text-muted">{{ $product->product_code }}</small>
+                            </div>
+                            <span class="badge bg-warning rounded-pill">
+                                {{ $product->inventories->sum('quantity_available') }}
+                            </span>
+                        </a>
+                    @empty
+                        <div class="list-group-item text-center text-muted py-4">
+                            <i class="bi bi-check-circle display-4 mb-2"></i><br>
+                            No stock alerts
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <a href="{{ route('inventory.products.create') }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-plus-circle display-6 d-block mb-2"></i>
+                            New Product
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{{ route('purchase.purchase-orders.create') }}" class="btn btn-outline-success w-100">
+                            <i class="bi bi-file-text display-6 d-block mb-2"></i>
+                            New PO
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{{ route('sales.sales-orders.create') }}" class="btn btn-outline-info w-100">
+                            <i class="bi bi-receipt display-6 d-block mb-2"></i>
+                            New Invoice
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{{ route('inventory.stock.index') }}" class="btn btn-outline-warning w-100">
+                            <i class="bi bi-clipboard-data display-6 d-block mb-2"></i>
+                            Stock Check
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{{ route('reports.inventory.summary') }}" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-graph-up display-6 d-block mb-2"></i>
+                            Reports
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -106,7 +192,7 @@
                                 <td>{{ $activity->created_at->format('d/m/Y H:i') }}</td>
                                 <td>{{ $activity->description }}</td>
                                 <td>{{ $activity->user->full_name }}</td>
-                                <td>{{ $activity->reference }}</td>
+                                <td><span class="badge bg-secondary">{{ $activity->reference }}</span></td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -130,6 +216,7 @@
                 label: 'Sales Amount',
                 data: @json($salesData['values']),
                 borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 tension: 0.1
             }]
         },
@@ -137,7 +224,24 @@
             responsive: true,
             plugins: {
                 legend: {
-                    position: 'top',
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return '₹' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString();
+                        }
+                    }
                 }
             }
         }
