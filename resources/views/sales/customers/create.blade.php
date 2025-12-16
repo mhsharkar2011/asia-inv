@@ -106,23 +106,22 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <label for="gstin" class="form-label">GSTIN</label>
-                                        <input type="text" class="form-control @error('gstin') is-invalid @enderror"
-                                            id="gstin" name="gstin" value="{{ old('gstin') }}"
-                                            pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}"
-                                            title="Enter valid 15-digit GSTIN">
-                                        <div class="form-text">15-digit GSTIN</div>
-                                        @error('gstin')
+                                        <label for="tin" class="form-label">TIN</label>
+                                        <input type="text" class="form-control @error('tin') is-invalid @enderror"
+                                            id="tin" name="tin" value="{{ old('tin') }}"
+                                            title="Enter valid 15-digit tin">
+                                        <div class="form-text">15-digit tin</div>
+                                        @error('tin')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="pan_number" class="form-label">PAN Number</label>
+                                        <label for="bin_number" class="form-label">BIN Number</label>
                                         <input type="text"
-                                            class="form-control @error('pan_number') is-invalid @enderror" id="pan_number"
-                                            name="pan_number" value="{{ old('pan_number') }}"
-                                            pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" title="Enter valid PAN (e.g., ABCDE1234F)">
-                                        @error('pan_number')
+                                            class="form-control @error('bin_number') is-invalid @enderror" id="bin_number"
+                                            name="bin_number" value="{{ old('bin_number') }}"
+                                            title="Enter valid BIN (e.g., ABCDE1234F)">
+                                        @error('bin_number')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -211,15 +210,15 @@
             }
         });
 
-        // Format GSTIN input
-        document.getElementById('gstin').addEventListener('input', function(e) {
-            let value = e.target.value.toUpperCase();
-            value = value.replace(/[^A-Z0-9]/g, '');
-            e.target.value = value;
-        });
+        // // Format tin input
+        // document.getElementById('tin').addEventListener('input', function(e) {
+        //     let value = e.target.value.toUpperCase();
+        //     value = value.replace(/[^A-Z0-9]/g, '');
+        //     e.target.value = value;
+        // });
 
         // Format PAN input
-        document.getElementById('pan_number').addEventListener('input', function(e) {
+        document.getElementById('bin_number').addEventListener('input', function(e) {
             let value = e.target.value.toUpperCase();
             value = value.replace(/[^A-Z0-9]/g, '');
             e.target.value = value;
