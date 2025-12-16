@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Product;
-use App\Models\PurchaseOrder;
-use App\Models\SalesOrder;
-use App\Models\Inventory;
+use App\Models\Inventory\Product;
+use App\Models\Inventory\Category;
+use App\Models\Purchase\Supplier;
+use App\Models\Sales\Customer;
 
 class DashboardController extends Controller
 {
@@ -20,76 +20,80 @@ class DashboardController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        // Calculate total stock value
-        $totalStockValue = Inventory::whereHas('product', function($query) use ($companyId) {
-            $query->where('company_id', $companyId);
-        })->get()->sum(function($inventory) {
-            return $inventory->quantity_available * $inventory->average_purchase_price;
-        });
+        try {
+            // Get basic counts - handle cases where tables might not exist yet
+            $productCount = 0;
+            $categoryCount = 0;
+            $supplierCount = 0;
+            $customerCount = 0;
 
-        // Get low stock items
-        $lowStockItems = Product::where('company_id', $companyId)
-            ->whereHas('inventories', function($query) {
-                $query->whereRaw('quantity_available <= reorder_level')
-                      ->where('quantity_available', '>', 0);
-            })
-            ->count();
+            // Check if table exists before counting
+            if (\Schema::hasTable('products')) {
+                $productCount = Product::where('company_id', $companyId)->count();
+            }
 
-        // Get pending orders
-        $pendingOrders = PurchaseOrder::where('company_id', $companyId)
-            ->where('status', 'pending')
-            ->count();
+            if (\Schema::hasTable('categories')) {
+                $categoryCount = Category::where('company_id', $companyId)->count();
+            }
 
-        // Get monthly revenue
-        $monthlyRevenue = SalesOrder::where('company_id', $companyId)
-            ->where('status', 'delivered')
-            ->whereMonth('order_date', now()->month)
-            ->whereYear('order_date', now()->year)
-            ->sum('final_amount');
+            if (\Schema::hasTable('suppliers')) {
+                $supplierCount = Supplier::where('company_id', $companyId)->count();
+            }
 
-        // Get stock alerts
-        $stockAlerts = Product::where('company_id', $companyId)
-            ->with(['inventories' => function($query) {
-                $query->whereRaw('quantity_available <= reorder_level')
-                      ->where('quantity_available', '>', 0);
-            }])
-            ->whereHas('inventories', function($query) {
-                $query->whereRaw('quantity_available <= reorder_level')
-                      ->where('quantity_available', '>', 0);
-            })
-            ->limit(5)
-            ->get();
+            if (\Schema::hasTable('customers')) {
+                $customerCount = Customer::where('company_id', $companyId)->count();
+            }
 
-        // Sales data for chart
-        $salesData = [
-            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            'values' => [50000, 75000, 60000, 90000, 85000, 95000]
-        ];
+            // For now, use placeholder data until we have real inventory data
+            $totalStockValue = 0;
+            $lowStockItems = 0;
+            $pendingOrders = 0;
+            $monthlyRevenue = 0;
 
-        // Recent activities (simplified for now)
-        $recentActivities = collect([
-            (object)[
-                'created_at' => now()->subHours(2),
-                'description' => 'Created new purchase order #PO-001',
-                'user' => (object)['full_name' => Auth::user()->full_name],
-                'reference' => 'PO-001'
-            ],
-            (object)[
-                'created_at' => now()->subDays(1),
-                'description' => 'Added new product "Product A"',
-                'user' => (object)['full_name' => Auth::user()->full_name],
-                'reference' => 'P-001'
-            ]
-        ]);
+            // Get recent products (simplified)
+            $recentProducts = [];
+            if (\Schema::hasTable('products')) {
+                $recentProducts = Product::where('company_id', $companyId)
+                    ->where('is_active', true)
+                    ->with('category')
+                    ->latest()
+                    ->limit(5)
+                    ->get();
+            }
 
-        return view('dashboard.index', compact(
-            'totalStockValue',
-            'lowStockItems',
-            'pendingOrders',
-            'monthlyRevenue',
-            'stockAlerts',
-            'salesData',
-            'recentActivities'
-        ));
+            // Sales data for chart (placeholder)
+            $salesData = [
+                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                'values' => [50000, 75000, 60000, 90000, 85000, 95000]
+            ];
+
+            // Recent activities (placeholder)
+            $recentActivities = collect([
+                (object)[
+                    'created_at' => now()->subHours(2),
+                    'description' => 'System initialized successfully',
+                    'user' => (object)['name' => 'System'],
+                    'reference' => 'System'
+                ]
+            ]);
+
+            return view('dashboard.index', compact(
+                'totalStockValue',
+                'lowStockItems',
+                'pendingOrders',
+                'monthlyRevenue',
+                'recentProducts',
+                'salesData',
+                'recentActivities',
+                'productCount',
+                'categoryCount',
+                'supplierCount',
+                'customerCount'
+            ));
+
+        } catch (\Exception $e) {
+            // If there's an error, show a simplified dashboard
+            return view('dashboard.welcome');
+        }
     }
 }

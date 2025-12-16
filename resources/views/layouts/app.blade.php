@@ -70,7 +70,7 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle me-1"></i>{{ Auth::user()->full_name }}
+                    <i class="bi bi-person-circle me-1"></i>{{ Auth::user()->name }}
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>

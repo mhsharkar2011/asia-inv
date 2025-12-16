@@ -21,43 +21,11 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-8">
-                        <h6 class="text-muted fw-normal">Total Stock Value</h6>
-                        <h4 class="mb-0">₹{{ number_format($totalStockValue, 2) }}</h4>
+                        <h6 class="text-muted fw-normal">Products</h6>
+                        <h4 class="mb-0">{{ $productCount }}</h4>
                     </div>
                     <div class="col-4 text-end">
-                        <i class="bi bi-box-seam display-4 text-primary"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card stats-card border-warning">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-8">
-                        <h6 class="text-muted fw-normal">Low Stock Items</h6>
-                        <h4 class="mb-0">{{ $lowStockItems }}</h4>
-                    </div>
-                    <div class="col-4 text-end">
-                        <i class="bi bi-exclamation-triangle display-4 text-warning"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card stats-card border-info">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-8">
-                        <h6 class="text-muted fw-normal">Pending Orders</h6>
-                        <h4 class="mb-0">{{ $pendingOrders }}</h4>
-                    </div>
-                    <div class="col-4 text-end">
-                        <i class="bi bi-cart display-4 text-info"></i>
+                        <i class="bi bi-box display-4 text-primary"></i>
                     </div>
                 </div>
             </div>
@@ -69,11 +37,43 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-8">
-                        <h6 class="text-muted fw-normal">Monthly Revenue</h6>
-                        <h4 class="mb-0">₹{{ number_format($monthlyRevenue, 2) }}</h4>
+                        <h6 class="text-muted fw-normal">Categories</h6>
+                        <h4 class="mb-0">{{ $categoryCount }}</h4>
                     </div>
                     <div class="col-4 text-end">
-                        <i class="bi bi-currency-rupee display-4 text-success"></i>
+                        <i class="bi bi-tags display-4 text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stats-card border-info">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <h6 class="text-muted fw-normal">Suppliers</h6>
+                        <h4 class="mb-0">{{ $supplierCount }}</h4>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="bi bi-people display-4 text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stats-card border-warning">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <h6 class="text-muted fw-normal">Customers</h6>
+                        <h4 class="mb-0">{{ $customerCount }}</h4>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="bi bi-person-badge display-4 text-warning"></i>
                     </div>
                 </div>
             </div>
@@ -97,24 +97,24 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Stock Alerts</h5>
+                <h5 class="card-title mb-0">Recent Products</h5>
             </div>
             <div class="card-body p-0">
                 <div class="list-group list-group-flush">
-                    @forelse($stockAlerts as $product)
+                    @forelse($lowStockProducts as $product)
                         <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                             <div>
                                 <strong>{{ $product->product_name }}</strong><br>
                                 <small class="text-muted">{{ $product->product_code }}</small>
                             </div>
-                            <span class="badge bg-warning rounded-pill">
-                                {{ $product->inventories->sum('quantity_available') }}
+                            <span class="badge bg-primary rounded-pill">
+                                {{ $product->category->category_code ?? 'N/A' }}
                             </span>
                         </a>
                     @empty
                         <div class="list-group-item text-center text-muted py-4">
-                            <i class="bi bi-check-circle display-4 mb-2"></i><br>
-                            No stock alerts
+                            <i class="bi bi-box display-4 mb-2"></i><br>
+                            No products yet
                         </div>
                     @endforelse
                 </div>
@@ -139,27 +139,27 @@
                         </a>
                     </div>
                     <div class="col-md-2">
-                        <a href="{{ route('purchase.purchase-orders.create') }}" class="btn btn-outline-success w-100">
-                            <i class="bi bi-file-text display-6 d-block mb-2"></i>
-                            New PO
+                        <a href="{{ route('inventory.categories.create') }}" class="btn btn-outline-success w-100">
+                            <i class="bi bi-tags display-6 d-block mb-2"></i>
+                            New Category
                         </a>
                     </div>
                     <div class="col-md-2">
-                        <a href="{{ route('sales.sales-orders.create') }}" class="btn btn-outline-info w-100">
-                            <i class="bi bi-receipt display-6 d-block mb-2"></i>
-                            New Invoice
+                        <a href="{{ route('purchase.suppliers.create') }}" class="btn btn-outline-info w-100">
+                            <i class="bi bi-person-plus display-6 d-block mb-2"></i>
+                            New Supplier
                         </a>
                     </div>
                     <div class="col-md-2">
-                        <a href="{{ route('inventory.stock.index') }}" class="btn btn-outline-warning w-100">
-                            <i class="bi bi-clipboard-data display-6 d-block mb-2"></i>
-                            Stock Check
+                        <a href="{{ route('sales.customers.create') }}" class="btn btn-outline-warning w-100">
+                            <i class="bi bi-person-plus display-6 d-block mb-2"></i>
+                            New Customer
                         </a>
                     </div>
                     <div class="col-md-2">
-                        <a href="{{ route('reports.inventory.summary') }}" class="btn btn-outline-secondary w-100">
-                            <i class="bi bi-graph-up display-6 d-block mb-2"></i>
-                            Reports
+                        <a href="{{ route('inventory.categories.index') }}" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-list-ul display-6 d-block mb-2"></i>
+                            View Categories
                         </a>
                     </div>
                 </div>
@@ -168,35 +168,21 @@
     </div>
 </div>
 
-<!-- Recent Activities -->
+<!-- Welcome Message -->
 <div class="row mt-4">
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Recent Activities</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Activity</th>
-                                <th>User</th>
-                                <th>Reference</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($recentActivities as $activity)
-                            <tr>
-                                <td>{{ $activity->created_at->format('d/m/Y H:i') }}</td>
-                                <td>{{ $activity->description }}</td>
-                                <td>{{ $activity->user->full_name }}</td>
-                                <td><span class="badge bg-secondary">{{ $activity->reference }}</span></td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+            <div class="card-body text-center">
+                <i class="bi bi-box-seam display-1 text-primary mb-3"></i>
+                <h3>Welcome to Asia Enterprise Inventory System</h3>
+                <p class="text-muted">Get started by adding products, categories, suppliers, and customers.</p>
+                <div class="mt-3">
+                    <a href="{{ route('inventory.products.create') }}" class="btn btn-primary me-2">
+                        <i class="bi bi-plus-circle me-1"></i> Add First Product
+                    </a>
+                    <a href="{{ route('inventory.categories.index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-tags me-1"></i> Manage Categories
+                    </a>
                 </div>
             </div>
         </div>

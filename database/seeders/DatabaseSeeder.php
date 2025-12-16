@@ -3,18 +3,27 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Company;
-use App\Models\Branch;
-use App\Models\User;
-use App\Models\Category;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create default company
-        $company = Company::create([
+        // Disable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        // Clear tables
+        DB::table('categories')->truncate();
+        DB::table('users')->truncate();
+        DB::table('branches')->truncate();
+        DB::table('companies')->truncate();
+
+        // Enable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        // Insert company
+        $companyId = DB::table('companies')->insertGetId([
             'company_name' => 'Asia Enterprises Ltd.',
             'registration_no' => 'ABC123456',
             'tax_id' => 'GSTIN123456789',
@@ -23,11 +32,13 @@ class DatabaseSeeder extends Seeder
             'currency_base' => 'INR',
             'fiscal_year_start' => '2024-04-01',
             'gst_registered' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        // Create main branch
-        $branch = Branch::create([
-            'company_id' => $company->id,
+        // Insert branch
+        $branchId = DB::table('branches')->insertGetId([
+            'company_id' => $companyId,
             'branch_code' => 'BR001',
             'branch_name' => 'Main Branch',
             'address' => '123 Main Street, Mumbai, Maharashtra',
@@ -35,96 +46,116 @@ class DatabaseSeeder extends Seeder
             'phone' => '+91-9876543210',
             'email' => 'main@asiaenterprise.com',
             'is_main_branch' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        // Create admin user
-        User::create([
-            'name' => 'System Administrator',
-            'email' => 'admin@asiaenterprise.com',
-            'password' => Hash::make('admin@123'),
-            'company_id' => $company->id,
-            'branch_id' => $branch->id,
-            'username' => 'admin',
-            'full_name' => 'System Administrator',
-            'role' => 'admin',
-            'phone' => '+91-9876543210',
-            'language_preference' => 'en',
-            'is_active' => true,
-        ]);
-
-        // Create categories
-        $categories = [
-            // Parent Categories
+        // Insert users
+        DB::table('users')->insert([
             [
-                'company_id' => $company->id,
-                'category_code' => 'ELEC',
-                'category_name' => 'Electronics',
-                'parent_category_id' => null,
-                'description' => 'Electronic items and gadgets',
-                'tax_rate_applicable' => 18.00,
+                'name' => 'System Administrator',
+                'email' => 'admin@asiaenterprise.com',
+                'password' => Hash::make('admin@123'),
+                'company_id' => $companyId,
+                'branch_id' => $branchId,
+                'username' => 'admin',
+                'full_name' => 'System Administrator',
+                'role' => 'admin',
+                'phone' => '+91-9876543210',
+                'language_preference' => 'en',
+                'is_active' => true,
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
-                'company_id' => $company->id,
-                'category_code' => 'CLOTH',
-                'category_name' => 'Clothing',
-                'parent_category_id' => null,
-                'description' => 'Apparel and clothing items',
+                'name' => 'John Staff',
+                'email' => 'staff@asiaenterprise.com',
+                'password' => Hash::make('staff@123'),
+                'company_id' => $companyId,
+                'branch_id' => $branchId,
+                'username' => 'staff',
+                'full_name' => 'John Staff',
+                'role' => 'staff',
+                'phone' => '+91-9876543211',
+                'language_preference' => 'en',
+                'is_active' => true,
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        // Insert categories
+        $electronicsId = DB::table('categories')->insertGetId([
+            'company_id' => $companyId,
+            'category_code' => 'ELEC',
+            'category_name' => 'Electronics',
+            'parent_category_id' => null,
+            'description' => 'Electronic items and gadgets',
+            'tax_rate_applicable' => 18.00,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $clothingId = DB::table('categories')->insertGetId([
+            'company_id' => $companyId,
+            'category_code' => 'CLOTH',
+            'category_name' => 'Clothing',
+            'parent_category_id' => null,
+            'description' => 'Apparel and clothing items',
+            'tax_rate_applicable' => 12.00,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Insert subcategories
+        DB::table('categories')->insert([
+            [
+                'company_id' => $companyId,
+                'category_code' => 'MOB',
+                'category_name' => 'Mobile Phones',
+                'parent_category_id' => $electronicsId,
+                'description' => 'Smartphones and mobile phones',
+                'tax_rate_applicable' => 18.00,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'company_id' => $companyId,
+                'category_code' => 'LAP',
+                'category_name' => 'Laptops',
+                'parent_category_id' => $electronicsId,
+                'description' => 'Laptops and notebooks',
+                'tax_rate_applicable' => 18.00,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'company_id' => $companyId,
+                'category_code' => 'MEN',
+                'category_name' => "Men's Wear",
+                'parent_category_id' => $clothingId,
+                'description' => 'Clothing for men',
                 'tax_rate_applicable' => 12.00,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
-                'company_id' => $company->id,
-                'category_code' => 'FURN',
-                'category_name' => 'Furniture',
-                'parent_category_id' => null,
-                'description' => 'Home and office furniture',
-                'tax_rate_applicable' => 18.00,
+                'company_id' => $companyId,
+                'category_code' => 'WOMEN',
+                'category_name' => "Women's Wear",
+                'parent_category_id' => $clothingId,
+                'description' => 'Clothing for women',
+                'tax_rate_applicable' => 12.00,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
-            [
-                'company_id' => $company->id,
-                'category_code' => 'FOOD',
-                'category_name' => 'Food & Beverages',
-                'parent_category_id' => null,
-                'description' => 'Food items and beverages',
-                'tax_rate_applicable' => 5.00,
-            ],
-        ];
+        ]);
 
-        foreach ($categories as $categoryData) {
-            $category = Category::create($categoryData);
-
-            // Create subcategories for Electronics
-            if ($category->category_code == 'ELEC') {
-                $subcategories = [
-                    [
-                        'company_id' => $company->id,
-                        'category_code' => 'MOB',
-                        'category_name' => 'Mobile Phones',
-                        'parent_category_id' => $category->id,
-                        'description' => 'Smartphones and mobile phones',
-                        'tax_rate_applicable' => 18.00,
-                    ],
-                    [
-                        'company_id' => $company->id,
-                        'category_code' => 'LAP',
-                        'category_name' => 'Laptops',
-                        'parent_category_id' => $category->id,
-                        'description' => 'Laptops and notebooks',
-                        'tax_rate_applicable' => 18.00,
-                    ],
-                    [
-                        'company_id' => $company->id,
-                        'category_code' => 'TV',
-                        'category_name' => 'Televisions',
-                        'parent_category_id' => $category->id,
-                        'description' => 'LED, LCD, and Smart TVs',
-                        'tax_rate_applicable' => 28.00,
-                    ],
-                ];
-
-                foreach ($subcategories as $subcatData) {
-                    Category::create($subcatData);
-                }
-            }
-        }
+        $this->command->info('Database seeded successfully!');
+        $this->command->info('Login credentials:');
+        $this->command->info('Admin: admin / admin@123');
+        $this->command->info('Staff: staff / staff@123');
     }
 }

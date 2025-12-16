@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CustomUser;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
 
-class CustomUserController extends Controller
+class InventoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class CustomUserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(CustomUser $customUser)
+    public function show(Inventory $inventory)
     {
         //
     }
@@ -42,7 +42,7 @@ class CustomUserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(CustomUser $customUser)
+    public function edit(Inventory $inventory)
     {
         //
     }
@@ -50,7 +50,7 @@ class CustomUserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, CustomUser $customUser)
+    public function update(Request $request, Inventory $inventory)
     {
         //
     }
@@ -58,7 +58,7 @@ class CustomUserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CustomUser $customUser)
+    public function destroy(Inventory $inventory)
     {
         //
     }

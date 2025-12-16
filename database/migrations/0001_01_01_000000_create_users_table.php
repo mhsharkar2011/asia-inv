@@ -14,6 +14,14 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->unsignedBigInteger('company_id')->nullable();
+            $table->unsignedBigInteger('branch_id')->nullable();
+            $table->string('full_name')->nullable();
+            $table->string('username')->unique();
+            $table->string('phone')->nullable();
+            $table->string('role')->default('user');
+            $table->boolean('is_active')->default(true);
+            $table->string('language_preference')->default('en');
             $table->rememberToken();
             $table->timestamps();
         });
