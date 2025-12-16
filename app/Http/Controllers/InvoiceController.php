@@ -36,7 +36,7 @@ class InvoiceController extends Controller
 
         $invoices = $query->paginate(20);
 
-        return view('invoices.index', compact('invoices'));
+        return view('sales.invoices.index', compact('invoices'));
     }
 
     /**
@@ -44,13 +44,13 @@ class InvoiceController extends Controller
      */
     public function create(Request $request)
     {
-        $customers = Customer::where('status', 'active')->orderBy('name')->get();
+        $customers = Customer::where('is_active', '1')->orderBy('customer_name')->get();
         $invoice_number = Invoice::generateInvoiceNumber();
 
         // Pre-select customer if coming from customer page
         $selected_customer_id = $request->customer_id;
 
-        return view('invoices.create', compact('customers', 'invoice_number', 'selected_customer_id'));
+        return view('sales.invoices.create', compact('customers', 'invoice_number', 'selected_customer_id'));
     }
 
     /**
@@ -103,7 +103,7 @@ class InvoiceController extends Controller
 
             DB::commit();
 
-            return redirect()->route('invoices.show', $invoice->id)
+            return redirect()->route('sales.invoices.show', $invoice->id)
                 ->with('success', 'Invoice created successfully.');
 
         } catch (\Exception $e) {
@@ -120,7 +120,7 @@ class InvoiceController extends Controller
     public function show(Invoice $invoice)
     {
         $invoice->load(['customer', 'items']);
-        return view('invoices.show', compact('invoice'));
+        return view('sales.invoices.show', compact('invoice'));
     }
 
     /**
@@ -129,14 +129,14 @@ class InvoiceController extends Controller
     public function edit(Invoice $invoice)
     {
         if ($invoice->status !== 'draft') {
-            return redirect()->route('invoices.show', $invoice->id)
+            return redirect()->route('sales.invoices.show', $invoice->id)
                 ->with('error', 'Only draft invoices can be edited.');
         }
 
         $invoice->load('items');
         $customers = Customer::where('status', 'active')->orderBy('name')->get();
 
-        return view('invoices.edit', compact('invoice', 'customers'));
+        return view('sales.invoices.edit', compact('invoice', 'customers'));
     }
 
     /**
@@ -145,7 +145,7 @@ class InvoiceController extends Controller
     public function update(Request $request, Invoice $invoice)
     {
         if ($invoice->status !== 'draft') {
-            return redirect()->route('invoices.show', $invoice->id)
+            return redirect()->route('sales.invoices.show', $invoice->id)
                 ->with('error', 'Only draft invoices can be edited.');
         }
 
@@ -212,7 +212,7 @@ class InvoiceController extends Controller
 
             DB::commit();
 
-            return redirect()->route('invoices.show', $invoice->id)
+            return redirect()->route('sales.invoices.show', $invoice->id)
                 ->with('success', 'Invoice updated successfully.');
 
         } catch (\Exception $e) {
@@ -229,13 +229,13 @@ class InvoiceController extends Controller
     public function destroy(Invoice $invoice)
     {
         if ($invoice->status !== 'draft') {
-            return redirect()->route('invoices.show', $invoice->id)
+            return redirect()->route('sales.invoices.show', $invoice->id)
                 ->with('error', 'Only draft invoices can be deleted.');
         }
 
         $invoice->delete();
 
-        return redirect()->route('invoices.index')
+        return redirect()->route('sales.invoices.index')
             ->with('success', 'Invoice deleted successfully.');
     }
 
@@ -246,7 +246,7 @@ class InvoiceController extends Controller
     {
         // This would generate a PDF
         // For now, redirect to print view
-        return redirect()->route('invoices.print', $invoice);
+        return redirect()->route('sales.invoices.print', $invoice);
     }
 
     /**
@@ -287,9 +287,26 @@ class InvoiceController extends Controller
     /**
      * Print invoice view.
      */
+    // public function print(Invoice $invoice)
+    // {
+    //     $invoice->load(['customer', 'items']);
+    //     return view('sales.invoices.print', compact('invoice'));
+    // }
+
     public function print(Invoice $invoice)
-    {
-        $invoice->load(['customer', 'items']);
-        return view('invoices.print', compact('invoice'));
-    }
+{
+    $invoice->load(['customer', 'items']);
+
+    // You can pass company details if you have them
+    $company = [
+        'name' => config('app.name', 'Your Company'),
+        'address' => '123 Business Street, City, State 12345',
+        'phone' => '(123) 456-7890',
+        'email' => 'billing@company.com',
+        'gstin' => '22AAAAA0000A1Z5',
+        'logo' => null // Add if you have logo
+    ];
+
+    return view('sales.invoices.print', compact('invoice', 'company'));
+}
 }

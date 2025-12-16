@@ -9,20 +9,20 @@
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('invoices.index') }}">Invoices</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('sales.invoices.index') }}">Invoices</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Create Invoice</li>
                     </ol>
                 </nav>
                 <h1 class="h3 mb-0">Create New Invoice</h1>
             </div>
             <div>
-                <a href="{{ route('invoices.index') }}" class="btn btn-outline-secondary">
+                <a href="{{ route('sales.invoices.index') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Cancel
                 </a>
             </div>
         </div>
 
-        <form action="{{ route('invoices.store') }}" method="POST" id="invoiceForm">
+        <form action="{{ route('sales.invoices.store') }}" method="POST" id="invoiceForm">
             @csrf
 
             <div class="row">

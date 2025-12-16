@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\InvoiceCOntroller;
+use App\Models\Sales\SalesOrder;
 
 /*
 |--------------------------------------------------------------------------
@@ -101,14 +102,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('customers.ajax');
 
         // Sales Orders (placeholder)
-        Route::get('sales-orders', function () {
-            return view('sales.sales-orders.index');
-        })->name('sales-orders.index');
-
-        Route::get('sales-orders/create', function () {
-            return view('sales.sales-orders.create');
-        })->name('sales-orders.create');
-
+        Route::resource('sales-orders',SalesOrder::class);
         // Invoice Routes
         Route::resource('invoices', InvoiceCOntroller::class);
 

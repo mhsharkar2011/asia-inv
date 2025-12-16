@@ -10,7 +10,7 @@
                 <p class="text-muted mb-0">Manage all customer invoices</p>
             </div>
             <div>
-                <a href="{{ route('invoices.create') }}" class="btn btn-primary">
+                <a href="{{ route('sales.invoices.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Create Invoice
                 </a>
             </div>
@@ -19,7 +19,7 @@
         <!-- Filters -->
         <div class="card shadow-sm mb-4">
             <div class="card-body">
-                <form action="{{ route('invoices.index') }}" method="GET">
+                <form action="{{ route('sales.invoices.index') }}" method="GET">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <input type="text" name="search" class="form-control"
@@ -69,7 +69,7 @@
                                         <strong>{{ $invoice->invoice_number }}</strong>
                                     </td>
                                     <td>
-                                        <a href="{{ route('customers.show', $invoice->customer_id) }}"
+                                        <a href="{{ route('sales.customers.show', $invoice->customer_id) }}"
                                             class="text-decoration-none">
                                             {{ $invoice->customer->name }}
                                         </a>
@@ -91,16 +91,16 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-2">
-                                            <a href="{{ route('invoices.show', $invoice->id) }}"
+                                            <a href="{{ route('sales.invoices.show', $invoice->id) }}"
                                                 class="btn btn-sm btn-outline-primary">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="{{ route('invoices.edit', $invoice->id) }}"
+                                            <a href="{{ route('sales.invoices.edit', $invoice->id) }}"
                                                 class="btn btn-sm btn-outline-secondary">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             @if ($invoice->status == 'draft')
-                                                <form action="{{ route('invoices.destroy', $invoice->id) }}" method="POST"
+                                                <form action="{{ route('sales.invoices.destroy', $invoice->id) }}" method="POST"
                                                     class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
@@ -119,7 +119,7 @@
                                         <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
                                         <h5 class="text-muted">No Invoices Found</h5>
                                         <p class="text-muted">Create your first invoice to get started</p>
-                                        <a href="{{ route('invoices.create') }}" class="btn btn-primary">
+                                        <a href="{{ route('sales.invoices.create') }}" class="btn btn-primary">
                                             <i class="fas fa-plus me-2"></i>Create Invoice
                                         </a>
                                     </td>
