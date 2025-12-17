@@ -107,7 +107,7 @@
                                     </td>
                                     <td>
                                         @php
-                                            $totalStock = $product->total_stock;
+                                            $totalStock = $product->stock_quantity;
                                             $stockStatus =
                                                 $totalStock > $product->reorder_level
                                                     ? 'success'
@@ -126,7 +126,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        @if ($product->is_active)
+                                        @if ($product->status)
                                             <span class="badge bg-success">Active</span>
                                         @else
                                             <span class="badge bg-secondary">Inactive</span>

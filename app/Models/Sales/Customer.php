@@ -20,12 +20,16 @@ class Customer extends Model
         'phone',
         'email',
         'address',
-        'gstin',
-        'pan_number',
+        'tin',
+        'bin_number',
+        'bank_account',
+        'bank_name',
         'credit_limit',
         'outstanding_balance',
         'is_active',
-        'notes'
+        'notes',
+        'web_address',
+        'industry',
     ];
 
     protected $casts = [

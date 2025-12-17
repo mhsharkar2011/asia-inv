@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Sales\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use phpDocumentor\Reflection\Types\Nullable;
 
 class CustomerController extends Controller
 {
@@ -32,7 +33,7 @@ class CustomerController extends Controller
                         ->orWhere('contact_person', 'like', "%{$search}%")
                         ->orWhere('phone', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
-                        ->orWhere('gstin', 'like', "%{$search}%");
+                        ->orWhere('tin', 'like', "%{$search}%");
                 });
             })
             ->when($type !== 'all', function ($query) use ($type) {
@@ -76,11 +77,15 @@ class CustomerController extends Controller
             'phone' => 'nullable|max:20',
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|max:1000',
-            'gstin' => 'nullable|max:15',
-            'pan_number' => 'nullable|max:10',
+            'tin' => 'nullable|max:15',
+            'bin_number' => 'nullable|max:10',
+            'bank_account' => 'nullable|max:15',
+            'bank_name' => 'nullable',
             'credit_limit' => 'nullable|numeric|min:0',
             'outstanding_balance' => 'nullable|numeric|min:0',
             'notes' => 'nullable|max:1000',
+            'web_address' => 'nullable|max:1000',
+            'industry' => 'nullable|max:200'
         ]);
 
         $validated['company_id'] = $companyId;
@@ -129,18 +134,22 @@ class CustomerController extends Controller
             ->findOrFail($id);
 
         $validated = $request->validate([
-            'customer_code' => 'required|unique:customers,customer_code,' . $id . '|max:50',
+           'customer_code' => 'required|unique:customers,customer_code|max:50',
             'customer_name' => 'required|max:255',
             'customer_type' => 'required|in:retail,wholesale,corporate',
             'contact_person' => 'nullable|max:255',
             'phone' => 'nullable|max:20',
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|max:1000',
-            'gstin' => 'nullable|max:15',
-            'pan_number' => 'nullable|max:10',
+            'tin' => 'nullable|max:15',
+            'bin_number' => 'nullable|max:10',
+            'bank_account' => 'nullable|max:15',
+            'bank_name' => 'nullable',
             'credit_limit' => 'nullable|numeric|min:0',
             'outstanding_balance' => 'nullable|numeric|min:0',
             'notes' => 'nullable|max:1000',
+            'web_address' => 'nullable|max:1000',
+            'industry' => 'nullable|max:200'
         ]);
 
         $validated['is_active'] = $request->has('is_active');
@@ -189,7 +198,7 @@ class CustomerController extends Controller
             })
             ->orderBy('customer_name')
             ->limit(20)
-            ->get(['id', 'customer_code', 'customer_name', 'gstin', 'customer_type']);
+            ->get(['id', 'customer_code', 'customer_name', 'tin', 'customer_type']);
 
         return response()->json($customers);
     }

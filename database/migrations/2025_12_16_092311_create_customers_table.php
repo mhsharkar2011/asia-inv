@@ -18,12 +18,16 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->text('address')->nullable();
-            $table->string('gstin')->nullable();
-            $table->string('pan_number')->nullable();
+            $table->string('tin')->nullable();
+            $table->string('bin_number')->nullable();
+            $table->string('bank_account')->nullable();
+            $table->string('bank_name')->nullable();
             $table->decimal('credit_limit', 15, 2)->nullable();
             $table->decimal('outstanding_balance', 15, 2)->default(0);
             $table->boolean('is_active')->default(true);
             $table->text('notes')->nullable();
+            $table->string('web_address')->nullable();
+            $table->string('industry')->nullable();
             $table->timestamps();
 
             $table->index(['company_id', 'customer_code']);

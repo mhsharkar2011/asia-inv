@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->text('address')->nullable();
-            $table->string('gstin')->nullable();
-            $table->string('pan_number')->nullable();
+            $table->string('tin')->nullable();
+            $table->string('bin_number')->nullable();
             $table->decimal('credit_limit', 15, 2)->nullable();
             $table->string('payment_terms')->nullable();
             $table->decimal('outstanding_balance', 15, 2)->default(0);

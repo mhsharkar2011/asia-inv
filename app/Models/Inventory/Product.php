@@ -10,6 +10,8 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+        'company_id',
+        'category_id',
         'product_code',
         'product_name',
         'description',
@@ -19,8 +21,8 @@ class Product extends Model
         'selling_price',
         'stock_quantity',
         'reorder_level',
-        'hsn_code',
-        'gst_rate',
+        'hs_code',
+        'ait_rate',
         'status',
     ];
 
@@ -29,18 +31,29 @@ class Product extends Model
         'selling_price' => 'decimal:2',
         'stock_quantity' => 'integer',
         'reorder_level' => 'integer',
-        'gst_rate' => 'decimal:2',
+        'ait_rate' => 'decimal:2',
     ];
+
 
     /**
      * Scope a query to only include low stock products.
      */
+
     public function scopeLowStock($query)
     {
         return $query->whereColumn('stock_quantity', '<=', 'reorder_level')
-                    ->where('status', 'active');
+            ->where('stock_quantity', '>', 0);
     }
 
+    public function scopeOutOfStock($query)
+    {
+        return $query->where('stock_quantity', '<=', 0);
+    }
+    public function scopeInStock($query)
+    {
+        return $query->where('stock_quantity', '>', 0)
+            ->whereColumn('stock_quantity', '>', 'reorder_level');
+    }
     /**
      * Check if product is low in stock.
      */
@@ -70,5 +83,9 @@ class Product extends Model
         }
 
         return $prefix . $year . $month . $nextNumber;
+    }
+
+    public function category() {
+        return $this->belongsTo(Category::class);
     }
 }

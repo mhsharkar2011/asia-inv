@@ -25,39 +25,53 @@ class ProductController extends Controller
         $search = $request->get('search');
         $category = $request->get('category');
         $status = $request->get('status', 'all');
+        $stockStatus = $request->get('stock_status', 'all');
 
-        $products = Product::with('category')
-            ->where('company_id', $companyId)
-            ->when($search, function ($query) use ($search) {
-                return $query->where(function ($q) use ($search) {
-                    $q->where('product_code', 'like', "%{$search}%")
-                        ->orWhere('product_name', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%")
-                        ->orWhere('hsn_sac_code', 'like', "%{$search}%");
-                });
-            })
-            ->when($category, function ($query) use ($category) {
-                return $query->where('category_id', $category);
-            })
-            ->when($status !== 'all', function ($query) use ($status) {
-                if ($status === 'active') {
-                    return $query->where('is_active', true);
-                } elseif ($status === 'inactive') {
-                    return $query->where('is_active', false);
-                } elseif ($status === 'low_stock') {
-                    return $query->lowStock();
-                } elseif ($status === 'out_of_stock') {
-                    return $query->outOfStock();
-                }
-            })
-            ->orderBy('product_name')
-            ->paginate(20);
+        // Start building the query
+        $query = Product::with('category')
+            ->where('company_id', $companyId);
+
+        // Apply search filter
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('product_code', 'like', "%{$search}%")
+                    ->orWhere('product_name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('hsn_sac_code', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply category filter
+        if ($category) {
+            $query->where('category_id', $category);
+        }
+
+        // Apply status filter
+        if ($status !== 'all') {
+            $query->where('status', $status === 'active');
+        }
+
+        // Apply stock status filter
+        if ($stockStatus !== 'all') {
+            if ($stockStatus === 'low_stock') {
+                $query->whereColumn('stock_quantity', '<=', 'reorder_level')
+                    ->where('stock_quantity', '>', 0);
+            } elseif ($stockStatus === 'out_of_stock') {
+                $query->where('stock_quantity', '<=', 0);
+            } elseif ($stockStatus === 'in_stock') {
+                $query->where('stock_quantity', '>', 0)
+                    ->whereColumn('stock_quantity', '>', 'reorder_level');
+            }
+        }
+
+        // Order and paginate
+        $products = $query->orderBy('product_name')->paginate(20);
 
         $categories = Category::where('company_id', $companyId)
             ->orderBy('category_name')
             ->get();
 
-        return view('inventory.products.index', compact('products', 'search', 'category', 'status', 'categories'));
+        return view('inventory.products.index', compact('products', 'search', 'category', 'status', 'stockStatus', 'categories'));
     }
 
     /**

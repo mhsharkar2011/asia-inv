@@ -10,6 +10,8 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->string('product_code')->unique();
             $table->string('product_name');
             $table->text('description')->nullable();
@@ -19,8 +21,8 @@ return new class extends Migration
             $table->decimal('selling_price', 10, 2)->default(0);
             $table->integer('stock_quantity')->default(0);
             $table->integer('reorder_level')->default(10);
-            $table->string('hsn_code')->nullable();
-            $table->decimal('gst_rate', 5, 2)->default(0);
+            $table->string('hs_code')->nullable();
+            $table->decimal('ait_rate', 5, 2)->default(0);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
