@@ -2,10 +2,9 @@
 
 namespace App\Models\Sales;
 
-use App\Models\Inventory\Company;
-use App\Models\Sales\SalesOrder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Customer extends Model
 {
@@ -20,120 +19,131 @@ class Customer extends Model
         'phone',
         'email',
         'address',
+        'notes',
         'tin',
         'bin_number',
-        'bank_account',
-        'bank_name',
+        'tax_reg_number',
         'credit_limit',
-        'outstanding_balance',
-        'is_active',
-        'notes',
-        'web_address',
+        'payment_terms',
+        'opening_balance',
+        'account_number',
+        'bank_name',
+        'ifsc_code',
+        'website',
         'industry',
+        'status',
     ];
 
     protected $casts = [
         'credit_limit' => 'decimal:2',
-        'outstanding_balance' => 'decimal:2',
-        'is_active' => 'boolean',
+        'opening_balance' => 'decimal:2',
     ];
 
-    // Relationship with Company
-    public function company()
+    /**
+     * Get the invoices for the customer.
+     */
+    public function invoices(): HasMany
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->hasMany(\App\Models\Invoice::class, 'customer_id');
     }
 
-    // Relationship with Sales Orders
-    public function salesOrders()
+    /**
+     * Get the sales orders for the customer.
+     */
+    public function salesOrders(): HasMany
     {
-        return $this->hasMany(SalesOrder::class, 'customer_id');
+        return $this->hasMany(\App\Models\Sales\SalesOrder::class, 'customer_id');
     }
 
-    // Get total sales amount
-    public function getTotalSalesAttribute()
+    /**
+     * Get the total invoice amount for the customer.
+     */
+    public function getTotalInvoiceAmountAttribute()
     {
-        return 0; // Placeholder until we have sales orders
-        // return $this->salesOrders()->where('status', 'delivered')->sum('final_amount');
+        return $this->invoices()->sum('total_amount');
     }
 
-    // Get pending sales orders count
-    public function getPendingOrdersCountAttribute()
+    /**
+     * Get the total sales order amount for the customer.
+     */
+    public function getTotalOrderAmountAttribute()
     {
-        return 0; // Placeholder until we have sales orders
-        // return $this->salesOrders()->whereIn('status', ['draft', 'confirmed', 'packed', 'shipped'])->count();
+        return $this->salesOrders()->sum('total_amount');
     }
 
-    // Get completed sales orders count
-    public function getCompletedOrdersCountAttribute()
+    /**
+     * Get the total outstanding amount for the customer.
+     */
+    public function getTotalOutstandingAttribute()
     {
-        return 0; // Placeholder until we have sales orders
-        // return $this->salesOrders()->where('status', 'delivered')->count();
+        return $this->invoices()->where('status', '!=', 'paid')->sum('balance_due');
     }
 
-    // Get credit available
-    public function getCreditAvailableAttribute()
-    {
-        if (!$this->credit_limit) {
-            return 0;
-        }
-        return max(0, $this->credit_limit - $this->outstanding_balance);
-    }
-
-    // Get credit usage percentage
-    public function getCreditUsagePercentageAttribute()
-    {
-        if (!$this->credit_limit || $this->credit_limit <= 0) {
-            return 0;
-        }
-        return ($this->outstanding_balance / $this->credit_limit) * 100;
-    }
-
-    // Check if credit limit exceeded
-    public function getIsCreditLimitExceededAttribute()
+    /**
+     * Check if customer has exceeded credit limit.
+     */
+    public function hasExceededCreditLimit(): bool
     {
         if (!$this->credit_limit) {
             return false;
         }
-        return $this->outstanding_balance > $this->credit_limit;
+
+        $totalOutstanding = $this->getTotalOutstandingAttribute();
+        return $totalOutstanding > $this->credit_limit;
     }
 
-    // Scope for active customers
+    /**
+     * Get customer's credit utilization percentage.
+     */
+    public function getCreditUtilizationAttribute()
+    {
+        if (!$this->credit_limit) {
+            return 0;
+        }
+
+        $totalOutstanding = $this->getTotalOutstandingAttribute();
+        return ($totalOutstanding / $this->credit_limit) * 100;
+    }
+
+    /**
+     * Scope a query to only include active customers.
+     */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('status', 'active');
     }
 
-    // Scope for customers with credit limit
-    public function scopeHasCreditLimit($query)
+    /**
+     * Scope a query to only include customers with outstanding balance.
+     */
+    public function scopeWithOutstanding($query)
     {
-        return $query->whereNotNull('credit_limit')->where('credit_limit', '>', 0);
+        return $query->whereHas('invoices', function ($q) {
+            $q->where('status', '!=', 'paid')
+                ->where('balance_due', '>', 0);
+        });
     }
 
-    // Scope for customers with outstanding balance
-    public function scopeHasOutstandingBalance($query)
+    /**
+     * Generate customer code.
+     */
+    public static function generateCustomerCode()
     {
-        return $query->where('outstanding_balance', '>', 0);
-    }
+        $prefix = 'CUST-';
+        $year = date('Y');
+        $month = date('m');
 
-    // Scope by customer type
-    public function scopeByType($query, $type)
-    {
-        return $query->where('customer_type', $type);
-    }
+        $lastCustomer = self::where('customer_code', 'like', $prefix . $year . $month . '%')
+            ->orderBy('customer_code', 'desc')
+            ->first();
 
-    // Format GSTIN for display
-    public function getFormattedGstinAttribute()
-    {
-        if (!$this->gstin) {
-            return null;
+        if ($lastCustomer) {
+            $lastNumber = intval(substr($lastCustomer->customer_code, -4));
+            $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $nextNumber = '0001';
         }
 
-        $gstin = strtoupper($this->gstin);
-        if (strlen($gstin) === 15) {
-            return substr($gstin, 0, 2) . '-' . substr($gstin, 2, 10) . '-' . substr($gstin, 12, 3);
-        }
-
-        return $gstin;
+        return $prefix . $year . $month . $nextNumber;
     }
 }

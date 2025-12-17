@@ -8,6 +8,7 @@ use App\Models\Inventory\Product;
 use App\Models\Sales\SalesOrder;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -64,6 +65,36 @@ class ReportController extends Controller
         return view('reports.customers', compact('customers'));
     }
 
+
+    /**
+     * Show the form for creating a customer report.
+     */
+    // public function customerReport(Request $request)
+    // {
+    //     $customers = Customer::withCount([
+    //         'invoices as invoices_count' => function ($query) {
+    //             $query->select(DB::raw('COUNT(*)'));
+    //         },
+    //         'salesOrders as sales_orders_count' => function ($query) {
+    //             $query->select(DB::raw('COUNT(*)'));
+    //         }
+    //     ])
+    //         ->withSum([
+    //             'invoices as total_invoice_amount' => function ($query) {
+    //                 $query->select(DB::raw('COALESCE(SUM(total_amount), 0)'));
+    //             }
+    //         ])
+    //         ->withSum([
+    //             'salesOrders as total_order_amount' => function ($query) {
+    //                 $query->select(DB::raw('COALESCE(SUM(total_amount), 0)'));
+    //             }
+    //         ])
+    //         ->orderBy('total_invoice_amount', 'desc')
+    //         ->get();
+
+    //     return view('reports.customers', compact('customers'));
+    // }
+
     /**
      * Show the form for creating a product report.
      */
@@ -92,9 +123,9 @@ class ReportController extends Controller
             ->get();
 
         // Group by GST rate
-        $gstSummary = $invoices->groupBy(function($invoice) {
+        $gstSummary = $invoices->groupBy(function ($invoice) {
             return $invoice->tax_rate ?? 18; // Default 18%
-        })->map(function($group) {
+        })->map(function ($group) {
             return [
                 'count' => $group->count(),
                 'taxable_amount' => $group->sum('taxable_amount'),

@@ -142,7 +142,7 @@
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <a href="{{ route('products.edit', $product->id) }}"
+                                                    <a href="{{ route('inventory.products.edit', $product->id) }}"
                                                         class="btn btn-sm btn-outline-primary">
                                                         <i class="fas fa-edit"></i>
                                                     </a>

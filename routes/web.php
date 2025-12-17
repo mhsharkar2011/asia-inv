@@ -7,8 +7,11 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Inventory\CategoryController;
+use App\Http\Controllers\Inventory\ProductController;
 use App\Http\Controllers\InvoiceCOntroller;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Sales\CustomerController;
 use App\Http\Controllers\Sales\SalesOrderController;
 
 /*
@@ -40,19 +43,15 @@ Route::middleware(['auth'])->group(function () {
 
     // Inventory Management
     Route::prefix('inventory')->name('inventory.')->group(function () {
-        Route::resource('categories', \App\Http\Controllers\Inventory\CategoryController::class);
+        Route::resource('categories', CategoryController::class);
 
-        // Products routes (placeholder for now)
         // Products routes
-        Route::resource('products', \App\Http\Controllers\Inventory\ProductController::class);
-
+        Route::resource('products', ProductController::class);
         // Additional product routes
-        Route::post('products/{id}/toggle-status', [\App\Http\Controllers\Inventory\ProductController::class, 'toggleStatus'])
-            ->name('products.toggle-status');
-
+        Route::post('products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggle-status');
         // AJAX route for product dropdown
-        Route::get('products-ajax', [\App\Http\Controllers\Inventory\ProductController::class, 'getProducts'])
-            ->name('products.ajax');
+        Route::get('products-ajax', [ProductController::class, 'getProducts'])->name('products.ajax');
+        Route::post('inventory/products/{product}/update-stock', [ProductController::class, 'updateStock'])->name('products.update-stock');
 
         // Stock routes (placeholder)
         Route::get('stock', function () {
@@ -60,9 +59,9 @@ Route::middleware(['auth'])->group(function () {
         })->name('stock.index');
 
         // AJAX routes for category dropdowns
-        Route::get('categories-ajax', [\App\Http\Controllers\Inventory\CategoryController::class, 'getCategories'])
+        Route::get('categories-ajax', [CategoryController::class, 'getCategories'])
             ->name('categories.ajax');
-        Route::get('categories/{parentId}/subcategories', [\App\Http\Controllers\Inventory\CategoryController::class, 'getSubcategories'])
+        Route::get('categories/{parentId}/subcategories', [CategoryController::class, 'getSubcategories'])
             ->name('categories.subcategories');
     });
 
@@ -92,14 +91,14 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('sales')->name('sales.')->group(function () {
         // Customers (placeholder)
         // Customers routes
-        Route::resource('customers', \App\Http\Controllers\Sales\CustomerController::class);
+        Route::resource('customers', CustomerController::class);
 
         // Additional customer routes
-        Route::post('customers/{id}/toggle-status', [\App\Http\Controllers\Sales\CustomerController::class, 'toggleStatus'])
+        Route::post('customers/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])
             ->name('customers.toggle-status');
 
         // AJAX route for customer dropdown
-        Route::get('customers-ajax', [\App\Http\Controllers\Sales\CustomerController::class, 'getCustomers'])
+        Route::get('customers-ajax', [CustomerController::class, 'getCustomers'])
             ->name('customers.ajax');
 
         // Sales Orders (placeholder)

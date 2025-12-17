@@ -190,7 +190,7 @@ class ProductController extends Controller
             'product_name' => 'required|max:255',
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|max:1000',
-            'unit_of_measure' => 'required|max:20',
+            'unit_of_measure' => 'nullable|max:20',
             'reorder_level' => 'required|integer|min:0',
             'min_stock' => 'required|integer|min:0',
             'max_stock' => 'nullable|integer|min:0',
@@ -270,5 +270,39 @@ class ProductController extends Controller
             ->get(['id', 'product_code', 'product_name', 'selling_price', 'tax_rate']);
 
         return response()->json($products);
+    }
+
+
+    /**
+     * Update stock quantity.
+     */
+    public function updateStock(Request $request, Product $product)
+    {
+        $validated = $request->validate([
+            'adjustment_type' => 'required|in:add,subtract,set',
+            'quantity' => 'required|integer|min:1',
+            'notes' => 'nullable|string',
+        ]);
+
+        $oldQuantity = $product->stock_quantity;
+
+        switch ($validated['adjustment_type']) {
+            case 'add':
+                $newQuantity = $oldQuantity + $validated['quantity'];
+                break;
+            case 'subtract':
+                $newQuantity = max(0, $oldQuantity - $validated['quantity']);
+                break;
+            case 'set':
+                $newQuantity = $validated['quantity'];
+                break;
+        }
+
+        $product->update(['stock_quantity' => $newQuantity]);
+
+        // You can log this stock adjustment in a separate table here
+
+        return redirect()->back()
+            ->with('success', 'Stock updated successfully. New quantity: ' . $newQuantity);
     }
 }

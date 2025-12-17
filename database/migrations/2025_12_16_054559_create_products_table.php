@@ -15,15 +15,20 @@ return new class extends Migration
             $table->string('product_code')->unique();
             $table->string('product_name');
             $table->text('description')->nullable();
-            $table->string('category')->nullable();
-            $table->string('unit')->nullable();
-            $table->decimal('cost_price', 10, 2)->default(0);
+            $table->string('unit_of_measure')->nullable();
+            $table->decimal('purchase_price', 10, 2)->default(0);
             $table->decimal('selling_price', 10, 2)->default(0);
+            $table->decimal('mrp', 10, 2)->nullable();
             $table->integer('stock_quantity')->default(0);
             $table->integer('reorder_level')->default(10);
             $table->string('hs_code')->nullable();
             $table->decimal('ait_rate', 5, 2)->default(0);
-            $table->enum('status', ['active', 'inactive'])->default('active');
+             $table->decimal('tax_rate', 5, 2)->nullable()->after('ait_rate');
+            $table->integer('min_stock')->default(0);
+            $table->integer('max_stock')->nullable();
+            $table->boolean('track_batch')->default(false);
+            $table->boolean('track_expiry')->default(false);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
