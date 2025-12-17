@@ -34,24 +34,8 @@ class SalesOrder extends Model
     // ];
 
 
-    protected $fillable = [
-    'company_id',
-    'order_number',
-    'customer_id',
-    'order_date',
-    'expected_delivery_date',
-    'payment_terms',
-    'delivery_method',
-    'sales_rep_id',
-    'notes',
-    'status',
-    'subtotal',
-    'tax_amount',
-    'total_amount',
-    'created_by',
-    'updated_by',
-];
-
+   protected $guarded = [];
+   
     protected $casts = [
         'order_date' => 'date',
         'delivery_date' => 'date',

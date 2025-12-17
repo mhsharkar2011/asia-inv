@@ -11,17 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Create sales_order_items table
         Schema::create('sales_order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sales_order_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->nullable()->constrained('products')->onDelete('set null');
             $table->string('description');
-            $table->integer('quantity')->default(1);
-            $table->decimal('unit_price', 10, 2);
+            $table->decimal('quantity', 10, 2);
+            $table->decimal('unit_price', 12, 2);
             $table->decimal('discount_percentage', 5, 2)->default(0);
-            $table->decimal('discount_amount', 10, 2)->default(0);
-            $table->decimal('tax_amount', 10, 2)->default(0);
-            $table->decimal('total_amount', 10, 2);
+            $table->decimal('amount', 12, 2);
             $table->timestamps();
+
+            // Add indexes
+            $table->index('sales_order_id');
+            $table->index('product_id');
         });
     }
 

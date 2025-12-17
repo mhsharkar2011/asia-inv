@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('reorder_level')->default(10);
             $table->string('hs_code')->nullable();
             $table->decimal('ait_rate', 5, 2)->default(0);
-             $table->decimal('tax_rate', 5, 2)->nullable()->after('ait_rate');
+             $table->decimal('tax_rate', 5, 2)->nullable();
             $table->integer('min_stock')->default(0);
             $table->integer('max_stock')->nullable();
             $table->boolean('track_batch')->default(false);
