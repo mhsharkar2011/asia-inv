@@ -18,8 +18,10 @@ class SalesOrderItem extends Model
         'discount_percentage',
         'discount',
         'tax_amount',
-        'total_amount',
+        'amount',
     ];
+
+    // protected $guarded = [];
 
     protected $casts = [
         'quantity' => 'integer',
@@ -44,10 +46,10 @@ class SalesOrderItem extends Model
     public function calculateTotals()
     {
         $itemTotal = $this->quantity * $this->unit_price;
-        $this->discount = $itemTotal * ($this->discount_percentage / 100);
+        $this->discount = (string)($itemTotal * ($this->discount_percentage / 100));
         $taxableAmount = $itemTotal - $this->discount;
-        $this->tax_amount = $taxableAmount * 0.18; // 18% GST
-        $this->total_amount = $taxableAmount + $this->tax_amount;
+        $this->tax_amount = (string)($taxableAmount * 0.18); // 18% GST
+        $this->total_amount = (string)($taxableAmount + $this->tax_amount);
 
         return $this;
     }

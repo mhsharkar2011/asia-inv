@@ -74,7 +74,8 @@ class SalesOrderController extends Controller
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|numeric|min:0.0001',
             'items.*.unit_price' => 'required|numeric|min:0',
-            'items.*.discount' => 'nullable|numeric|min:0|max:100',
+            'items.*.discount' => 'nullable|numeric|min:0|max:1000000',
+            'items.*.amount' => 'nullable|numeric|min:0|max:10000000',
             'tax_rate' => 'nullable|numeric|min:0|max:100',
             'shipping_charges' => 'nullable|numeric|min:0',
             'adjustment' => 'nullable|numeric',
@@ -83,8 +84,50 @@ class SalesOrderController extends Controller
         DB::beginTransaction();
 
         try {
+            // Calculate totals from items
+            $subtotal = 0;
+            $totalDiscount = 0;
+            $itemsData = []; // Store processed items
+
+            foreach ($request->items as $itemData) {
+                // Skip if product_id is empty
+                if (empty($itemData['product_id'])) {
+                    continue;
+                }
+
+                // Get product to get description
+                $product = Product::find($itemData['product_id']);
+                if (!$product) {
+                    throw new \Exception("Product with ID {$itemData['product_id']} not found");
+                }
+
+                $itemTotal = $itemData['quantity'] * $itemData['unit_price'];
+                $itemDiscountAmount = $itemTotal * ($itemData['discount'] ?? 0) / 100;
+
+                $subtotal += $itemTotal;
+                $totalDiscount += $itemDiscountAmount;
+
+                // Store processed item data
+                $itemsData[] = [
+                    'product' => $product,
+                    'data' => $itemData,
+                    'item_total' => $itemTotal,
+                    'total_discount' => $itemDiscountAmount,
+                    'total_amount' => $itemTotal - $itemDiscountAmount,
+                ];
+            }
+
+            // Check if any valid items were found
+            if (empty($itemsData)) {
+                throw new \Exception('No valid items were added to the order');
+            }
+
+            $taxableAmount = $subtotal - $totalDiscount;
+            $taxAmount = $taxableAmount * ($request->tax_rate ?? 15) / 100;
+            $totalAmount = $taxableAmount + $taxAmount + ($request->shipping_charges ?? 0) + ($request->adjustment ?? 0);
+
             // Create sales order
-            $salesOrder = SalesOrder::create([
+            $salesOrder = new SalesOrder([
                 'order_number' => $request->order_number ?? 'SO-' . date('YmdHis'),
                 'customer_id' => $request->customer_id,
                 'order_date' => $request->order_date,
@@ -105,50 +148,59 @@ class SalesOrderController extends Controller
                 'terms_conditions' => $request->terms_conditions,
                 'currency' => $request->currency ?? 'BDT',
                 'created_by' => auth()->id(),
-                'subtotal' => $request->subtotal ?? 0,
-                'total_discount' => $request->total_discount ?? 0,
-                'taxable_amount' => $request->taxable_amount ?? 0,
-                'tax_amount' => $request->tax_amount ?? 0,
-                'total_amount' => $request->total_amount ?? 0,
+                'subtotal' => $subtotal,
+                'total_discount' => $totalDiscount,
+                'taxable_amount' => $taxableAmount,
+                'tax_amount' => $taxAmount,
+                'total_amount' => $totalAmount,
             ]);
 
-            if (!$salesOrder) {
+            // Save the sales order
+            if (!$salesOrder->save()) {
                 throw new \Exception('Failed to create sales order record');
             }
 
+            \Log::info('Sales order created with ID:', ['id' => $salesOrder->id]);
+
             // Create order items
-            foreach ($request->items as $itemData) {
-                // Skip if product_id is empty
-                if (empty($itemData['product_id'])) {
-                    continue;
-                }
+            $createdItems = 0;
+            foreach ($itemsData as $itemInfo) {
+                $product = $itemInfo['product'];
+                $itemData = $itemInfo['data'];
 
-                $itemTotal = $itemData['quantity'] * $itemData['unit_price'];
-                $itemDiscount = $itemTotal * ($itemData['discount'] ?? 0) / 100;
-                $itemAmount = $itemTotal - $itemDiscount;
-
-                $item = SalesOrderItem::create([
+                $item = new SalesOrderItem([
                     'sales_order_id' => $salesOrder->id,
                     'product_id' => $itemData['product_id'],
+                    'description' => $product->product_name,
                     'quantity' => $itemData['quantity'],
                     'unit_price' => $itemData['unit_price'],
-                    'discount_percentage' => $itemData['discount'] ?? 0,
-                    'discount' => $itemDiscount,
-                    'total_amount' => $itemAmount,
-                    'item_total' => $itemTotal,
+                    'discount_percentage' => $itemData['total_discount'] ?? 0,
+                    'discount' => $itemInfo['total_discount'],
+                    'amount' => $itemInfo['total_amount'],
+                    'item_total' => $itemInfo['item_total'],
                 ]);
 
-                if (!$item) {
-                    throw new \Exception('Failed to create order item');
+                if ($item->save()) {
+                    $createdItems++;
+                    \Log::info('Order item created:', ['product_id' => $itemData['product_id']]);
+                } else {
+                    throw new \Exception("Failed to create order item for product: {$product->product_name}");
                 }
             }
 
-            // Check if any items were added
-            if ($salesOrder->items()->count() === 0) {
-                throw new \Exception('No valid items were added to the order');
+            // Check if any items were created
+            if ($createdItems === 0) {
+                throw new \Exception('Failed to create any order items');
             }
 
             DB::commit();
+
+            \Log::info('Sales order created successfully:', [
+                'order_id' => $salesOrder->id,
+                'order_number' => $salesOrder->order_number,
+                'item_count' => $createdItems,
+                'total_amount' => $salesOrder->total_amount,
+            ]);
 
             return redirect()
                 ->route('sales.sales-orders.show', $salesOrder)
@@ -159,7 +211,8 @@ class SalesOrderController extends Controller
             \Log::error('Sales order creation failed:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'request_data' => $request->all()
+                'request_data' => $request->all(),
+                'user_id' => auth()->id(),
             ]);
 
             return back()
@@ -338,7 +391,7 @@ class SalesOrderController extends Controller
      */
     public function convertToInvoice(SalesOrder $salesOrder)
     {
-        return redirect()->route('invoices.create', ['sales_order_id' => $salesOrder->id])
+        return redirect()->route('sales.invoices.create', ['sales_order_id' => $salesOrder->id])
             ->with('info', 'Creating invoice from sales order...');
     }
 }

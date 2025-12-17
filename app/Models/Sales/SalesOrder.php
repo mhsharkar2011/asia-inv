@@ -12,35 +12,35 @@ class SalesOrder extends Model
     use HasFactory;
 
     // In SalesOrder model
-    protected $fillable = [
-        'order_number',
-        'customer_id',
-        'order_date',
-        'delivery_date',
-        'sales_person',
-        'reference_number',
-        'shipping_address',
-        'billing_address',
-        'shipping_method',
-        'payment_terms',
-        'payment_status',
-        'due_date',
-        'status',
-        'tax_rate',
-        'shipping_charges',
-        'adjustment',
-        'notes',
-        'terms_conditions',
-        'currency',
-        'created_by',
-        'subtotal',
-        'discount',
-        'total_amount',
-        'taxable_amount',
-        'tax_amount',
-        'total_amount',
-        'description',
-    ];
+    // protected $fillable = [
+    //     'order_number',
+    //     'customer_id',
+    //     'order_date',
+    //     'delivery_date',
+    //     'sales_person',
+    //     'reference_number',
+    //     'shipping_address',
+    //     'billing_address',
+    //     'shipping_method',
+    //     'payment_terms',
+    //     'payment_status',
+    //     'due_date',
+    //     'status',
+    //     'tax_rate',
+    //     'shipping_charges',
+    //     'adjustment',
+    //     'notes',
+    //     'terms_conditions',
+    //     'currency',
+    //     'created_by',
+    //     'subtotal',
+    //     'discount',
+    //     'total_amount',
+    //     'taxable_amount',
+    //     'tax_amount',
+    //     'total_amount',
+    //     'description',
+    // ];
 
 
     protected $guarded = [];
@@ -49,7 +49,7 @@ class SalesOrder extends Model
         'order_date' => 'date',
         'delivery_date' => 'date',
         'subtotal' => 'decimal:2',
-        'discount' => 'decimal:2',
+        'total_discount' => 'decimal:2',
         'taxable_amount' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'shipping_charges' => 'decimal:2',
@@ -69,7 +69,7 @@ class SalesOrder extends Model
      */
     public function items()
     {
-        // return $this->hasMany(SalesOrderItem::class);
+        return $this->hasMany(SalesOrderItem::class);
     }
 
     /**
@@ -121,7 +121,7 @@ class SalesOrder extends Model
 
         foreach ($this->items as $item) {
             $subtotal += $item->quantity * $item->unit_price;
-            $totalDiscount += $item->discount;
+            $totalDiscount += $item->total_discount;
         }
 
         $taxableAmount = $subtotal - $totalDiscount;
@@ -130,7 +130,7 @@ class SalesOrder extends Model
 
         $this->update([
             'subtotal' => $subtotal,
-            'discount' => $totalDiscount,
+            'total_discount' => $totalDiscount,
             'taxable_amount' => $taxableAmount,
             'tax_amount' => $taxAmount,
             'total_amount' => $totalAmount,

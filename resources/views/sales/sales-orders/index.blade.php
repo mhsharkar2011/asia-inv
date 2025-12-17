@@ -79,7 +79,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('customers.show', $order->customer_id) }}"
+                                        <a href="{{ route('sales.customers.show', $order->customer_id) }}"
                                             class="text-decoration-none">
                                             {{ $order->customer->name }}
                                         </a>
