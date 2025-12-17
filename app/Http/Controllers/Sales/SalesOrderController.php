@@ -7,9 +7,11 @@ use App\Models\Inventory\Product;
 use App\Models\Sales\SalesOrder;
 use App\Models\Sales\Customer;
 use App\Models\Sales\SalesOrderItem;
+use App\Models\Sales\SalesOrderStatusHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class SalesOrderController extends Controller
@@ -55,7 +57,7 @@ class SalesOrderController extends Controller
 
             return view('sales.sales-orders.create', compact('order_number', 'customers', 'products'));
         } catch (\Exception $e) {
-            \Log::error('Error loading create sales order form: ' . $e->getMessage());
+            Log::error('Error loading create sales order form: ' . $e->getMessage());
             return redirect()->route('sales.sales-orders.index')
                 ->with('error', 'Error loading form: ' . $e->getMessage());
         }
@@ -63,7 +65,7 @@ class SalesOrderController extends Controller
 
     public function store(Request $request)
     {
-        \Log::info('Store request data:', $request->all());
+        Log::info('Store request data:', $request->all());
 
         // Validate the request
         $validated = $request->validate([
@@ -147,7 +149,7 @@ class SalesOrderController extends Controller
                 'notes' => $request->notes,
                 'terms_conditions' => $request->terms_conditions,
                 'currency' => $request->currency ?? 'BDT',
-                'created_by' => auth()->id(),
+                'created_by' => Auth::id(),
                 'subtotal' => $subtotal,
                 'total_discount' => $totalDiscount,
                 'taxable_amount' => $taxableAmount,
@@ -160,7 +162,7 @@ class SalesOrderController extends Controller
                 throw new \Exception('Failed to create sales order record');
             }
 
-            \Log::info('Sales order created with ID:', ['id' => $salesOrder->id]);
+            Log::info('Sales order created with ID:', ['id' => $salesOrder->id]);
 
             // Create order items
             $createdItems = 0;
@@ -182,7 +184,7 @@ class SalesOrderController extends Controller
 
                 if ($item->save()) {
                     $createdItems++;
-                    \Log::info('Order item created:', ['product_id' => $itemData['product_id']]);
+                    Log::info('Order item created:', ['product_id' => $itemData['product_id']]);
                 } else {
                     throw new \Exception("Failed to create order item for product: {$product->product_name}");
                 }
@@ -195,7 +197,7 @@ class SalesOrderController extends Controller
 
             DB::commit();
 
-            \Log::info('Sales order created successfully:', [
+            Log::info('Sales order created successfully:', [
                 'order_id' => $salesOrder->id,
                 'order_number' => $salesOrder->order_number,
                 'item_count' => $createdItems,
@@ -208,11 +210,11 @@ class SalesOrderController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            \Log::error('Sales order creation failed:', [
+            Log::error('Sales order creation failed:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'request_data' => $request->all(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
 
             return back()
@@ -240,9 +242,10 @@ class SalesOrderController extends Controller
         }
 
         $salesOrder->load('items');
-        $customers = Customer::where('status', 'active')->orderBy('name')->get();
+        $products = Product::where('is_active', '1')->orderBy('product_name')->get();
+        $customers = Customer::where('is_active', '1')->orderBy('customer_name')->get();
 
-        return view('sales.sales-orders.edit', compact('salesOrder', 'customers'));
+        return view('sales.sales-orders.edit', compact('salesOrder','products', 'customers'));
     }
 
     /**
@@ -393,5 +396,48 @@ class SalesOrderController extends Controller
     {
         return redirect()->route('sales.invoices.create', ['sales_order_id' => $salesOrder->id])
             ->with('info', 'Creating invoice from sales order...');
+    }
+
+
+    public function confirm(SalesOrder $salesOrder)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Validate that order can be confirmed
+            if ($salesOrder->status != 'draft') {
+                return redirect()->route('sales.sales-orders.show', $salesOrder)
+                    ->with('error', 'Only draft orders can be confirmed.');
+            }
+
+            // Update the status
+            $salesOrder->update([
+                'status' => 'confirmed',
+                'confirmed_at' => now(),
+                'confirmed_by' => Auth::id(),
+            ]);
+
+            // Optional: Create status history record
+            if (class_exists('App\Models\SalesOrderStatusHistory')) {
+                SalesOrderStatusHistory::create([
+                    'sales_order_id' => $salesOrder->id,
+                    'status' => 'confirmed',
+                    'notes' => 'Order confirmed',
+                    'changed_by' => Auth::id(),
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('sales.sales-orders.show', $salesOrder)
+                ->with('success', 'Order confirmed successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Error confirming order: ' . $e->getMessage());
+
+            return redirect()->route('sales.sales-orders.show', $salesOrder)
+                ->with('error', 'Failed to confirm order: ' . $e->getMessage());
+        }
     }
 }

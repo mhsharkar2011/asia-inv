@@ -104,12 +104,10 @@ Route::middleware(['auth'])->group(function () {
         // Sales Orders (placeholder)
         Route::resource('sales-orders', SalesOrderController::class);
         // Additional sales order routes
-        Route::post('sales-orders/{salesOrder}/change-status', [SalesOrderController::class, 'changeStatus'])
-            ->name('sales-orders.change-status');
-        Route::get('sales-orders/{salesOrder}/convert-to-invoice', [SalesOrderController::class, 'convertToInvoice'])
-            ->name('sales-orders.convert-to-invoice');
-        Route::get('sales-orders/{salesOrder}/print', [SalesOrderController::class, 'print'])
-            ->name('sales-orders.print');
+        Route::post('sales-orders/{salesOrder}/change-status', [SalesOrderController::class, 'changeStatus'])->name('sales-orders.change-status');
+        Route::get('sales-orders/{salesOrder}/convert-to-invoice', [SalesOrderController::class, 'convertToInvoice'])->name('sales-orders.convert-to-invoice');
+        Route::get('sales-orders/{salesOrder}/print', [SalesOrderController::class, 'print'])->name('sales-orders.print');
+        Route::post('sales-orders/{sales_order}/confirm', [SalesOrderController::class, 'confirm'])->name('sales-orders.confirm');
 
         // Invoice Routes
         Route::resource('invoices', InvoiceCOntroller::class);

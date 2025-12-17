@@ -2,6 +2,7 @@
 
 namespace App\Models\Sales;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -135,5 +136,46 @@ class SalesOrder extends Model
             'tax_amount' => $taxAmount,
             'total_amount' => $totalAmount,
         ]);
+    }
+
+    /**
+     * Get status color for display
+     */
+    public function getStatusColorAttribute()
+    {
+        $colors = [
+            'draft' => 'secondary',
+            'pending' => 'warning',
+            'confirmed' => 'success',
+            'processing' => 'info',
+            'completed' => 'primary',
+            'cancelled' => 'danger',
+        ];
+
+        return $colors[$this->status] ?? 'secondary';
+    }
+
+
+    /**
+     * Get payment status color for display
+     */
+    public function getPaymentStatusColorAttribute()
+    {
+        $colors = [
+            'pending' => 'warning',
+            'partial' => 'info',
+            'paid' => 'success',
+            'overdue' => 'danger',
+        ];
+
+        return $colors[$this->payment_status] ?? 'secondary';
+    }
+    
+    /**
+     * Get the user who created the sales order
+     */
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }
