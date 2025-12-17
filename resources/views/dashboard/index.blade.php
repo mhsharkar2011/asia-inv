@@ -188,7 +188,7 @@
                                         @foreach ($recentInvoices as $invoice)
                                             <tr>
                                                 <td>
-                                                    <a href="{{ route('invoices.show', $invoice->id) }}">
+                                                    <a href="{{ route('sales.invoices.show', $invoice->id) }}">
                                                         {{ $invoice->invoice_number }}
                                                     </a>
                                                 </td>

@@ -94,7 +94,7 @@
                                     BDT{{ number_format($totalInvoiceAmount, 2) }}
                                 </div>
                             </div>
-                           
+
                         </div>
                     </div>
                 </div>
@@ -159,7 +159,7 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <a href="{{ route('invoices.show', $invoice->id) }}"
+                                            <a href="{{ route('sales.invoices.show', $invoice->id) }}"
                                                 class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-eye"></i>
                                             </a>
