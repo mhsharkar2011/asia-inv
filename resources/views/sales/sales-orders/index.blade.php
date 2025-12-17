@@ -264,7 +264,7 @@
                                                     <button type="submit" class="btn btn-sm btn-outline-danger"
                                                         onclick="return confirm('Are you sure you want to delete this order?')"
                                                         title="Delete">
-                                                        <i class="fas fa-trash"></i>
+                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
                                             @else
