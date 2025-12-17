@@ -91,7 +91,7 @@
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                     Taxable Amount</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    ₹{{ number_format($invoices->sum('taxable_amount'), 2) }}
+                                    BDT{{ number_format($invoices->sum('taxable_amount'), 2) }}
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -110,11 +110,11 @@
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                     Total GST Collected</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    ₹{{ number_format($invoices->sum('tax_amount'), 2) }}
+                                    BDT{{ number_format($invoices->sum('tax_amount'), 2) }}
                                 </div>
                             </div>
                             <div class="col-auto">
-                                <i class="bi bi-currency-rupee fa-2x text-gray-300"></i>
+                                <i class="bi bi-currency-taka fa-2x text-gray-300"></i>
                             </div>
                         </div>
                     </div>
@@ -129,7 +129,7 @@
                                 <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                     Total Invoice Amount</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    ₹{{ number_format($invoices->sum('total_amount'), 2) }}
+                                    BDT{{ number_format($invoices->sum('total_amount'), 2) }}
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -193,11 +193,11 @@
                                             <span class="badge bg-info">{{ $rate }}%</span>
                                         </td>
                                         <td class="text-center">{{ $summary['count'] }}</td>
-                                        <td class="text-end">₹{{ number_format($summary['taxable_amount'], 2) }}</td>
-                                        <td class="text-end">₹{{ number_format($cgst, 2) }}</td>
-                                        <td class="text-end">₹{{ number_format($sgst, 2) }}</td>
-                                        <td class="text-end">₹{{ number_format($summary['tax_amount'], 2) }}</td>
-                                        <td class="text-end">₹{{ number_format($summary['total_amount'], 2) }}</td>
+                                        <td class="text-end">BDT{{ number_format($summary['taxable_amount'], 2) }}</td>
+                                        <td class="text-end">BDT{{ number_format($cgst, 2) }}</td>
+                                        <td class="text-end">BDT{{ number_format($sgst, 2) }}</td>
+                                        <td class="text-end">BDT{{ number_format($summary['tax_amount'], 2) }}</td>
+                                        <td class="text-end">BDT{{ number_format($summary['total_amount'], 2) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -205,11 +205,11 @@
                                 <tr class="table-secondary">
                                     <td><strong>Total</strong></td>
                                     <td class="text-center"><strong>{{ $totalInvoices }}</strong></td>
-                                    <td class="text-end"><strong>₹{{ number_format($totalTaxable, 2) }}</strong></td>
-                                    <td class="text-end"><strong>₹{{ number_format($totalCGST, 2) }}</strong></td>
-                                    <td class="text-end"><strong>₹{{ number_format($totalSGST, 2) }}</strong></td>
-                                    <td class="text-end"><strong>₹{{ number_format($totalGST, 2) }}</strong></td>
-                                    <td class="text-end"><strong>₹{{ number_format($totalAmount, 2) }}</strong></td>
+                                    <td class="text-end"><strong>BDT{{ number_format($totalTaxable, 2) }}</strong></td>
+                                    <td class="text-end"><strong>BDT{{ number_format($totalCGST, 2) }}</strong></td>
+                                    <td class="text-end"><strong>BDT{{ number_format($totalSGST, 2) }}</strong></td>
+                                    <td class="text-end"><strong>BDT{{ number_format($totalGST, 2) }}</strong></td>
+                                    <td class="text-end"><strong>BDT{{ number_format($totalAmount, 2) }}</strong></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -260,13 +260,13 @@
                                             <small>{{ $invoice->customer->gstin ?? 'N/A' }}</small>
                                         </td>
                                         <td class="text-end">
-                                            ₹{{ number_format($invoice->taxable_amount ?? $invoice->total_amount - $invoice->tax_amount, 2) }}
+                                            BDT{{ number_format($invoice->taxable_amount ?? $invoice->total_amount - $invoice->tax_amount, 2) }}
                                         </td>
                                         <td class="text-center">
                                             <span class="badge bg-info">{{ $invoice->tax_rate ?? 18 }}%</span>
                                         </td>
-                                        <td class="text-end">₹{{ number_format($invoice->tax_amount, 2) }}</td>
-                                        <td class="text-end">₹{{ number_format($invoice->total_amount, 2) }}</td>
+                                        <td class="text-end">BDT{{ number_format($invoice->tax_amount, 2) }}</td>
+                                        <td class="text-end">BDT{{ number_format($invoice->total_amount, 2) }}</td>
                                         <td>
                                             @if ($invoice->status == 'paid')
                                                 <span class="badge bg-success">Paid</span>
@@ -317,20 +317,20 @@
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Total Taxable Amount:</span>
-                                <span class="fw-bold">₹{{ number_format($invoices->sum('taxable_amount'), 2) }}</span>
+                                <span class="fw-bold">BDT{{ number_format($invoices->sum('taxable_amount'), 2) }}</span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Total CGST Collected:</span>
-                                <span class="fw-bold">₹{{ number_format($invoices->sum('tax_amount') / 2, 2) }}</span>
+                                <span class="fw-bold">BDT{{ number_format($invoices->sum('tax_amount') / 2, 2) }}</span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Total SGST Collected:</span>
-                                <span class="fw-bold">₹{{ number_format($invoices->sum('tax_amount') / 2, 2) }}</span>
+                                <span class="fw-bold">BDT{{ number_format($invoices->sum('tax_amount') / 2, 2) }}</span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center bg-light">
                                 <span class="fw-bold">Total GST Collected:</span>
                                 <span
-                                    class="fw-bold text-success">₹{{ number_format($invoices->sum('tax_amount'), 2) }}</span>
+                                    class="fw-bold text-success">BDT{{ number_format($invoices->sum('tax_amount'), 2) }}</span>
                             </div>
                         </div>
                     </div>
@@ -351,7 +351,7 @@
                                             <div class="h4 mb-1">{{ $rate }}%</div>
                                             <small class="text-muted">
                                                 {{ $summary['count'] }} invoices<br>
-                                                ₹{{ number_format($summary['tax_amount'], 2) }} GST
+                                                BDT{{ number_format($summary['tax_amount'], 2) }} GST
                                             </small>
                                         </div>
                                     </div>

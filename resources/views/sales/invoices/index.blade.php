@@ -71,13 +71,13 @@
                                     <td>
                                         <a href="{{ route('sales.customers.show', $invoice->customer_id) }}"
                                             class="text-decoration-none">
-                                            {{ $invoice->customer->name }}
+                                            {{ $invoice->customer->customer_name }}
                                         </a>
                                     </td>
                                     <td>{{ $invoice->invoice_date->format('d M, Y') }}</td>
                                     <td>{{ $invoice->due_date->format('d M, Y') }}</td>
-                                    <td>₹{{ number_format($invoice->total_amount, 2) }}</td>
-                                    <td>₹{{ number_format($invoice->balance_due, 2) }}</td>
+                                    <td>BDT{{ number_format($invoice->total_amount, 2) }}</td>
+                                    <td>BDT{{ number_format($invoice->balance_due, 2) }}</td>
                                     <td>
                                         @if ($invoice->status == 'draft')
                                             <span class="badge bg-secondary">Draft</span>

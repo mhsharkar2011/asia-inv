@@ -11,27 +11,46 @@ class SalesOrder extends Model
 {
     use HasFactory;
 
+    // protected $fillable = [
+    //     'order_number',
+    //     'customer_id',
+    //     'order_date',
+    //     'delivery_date',
+    //     'sales_person',
+    //     'reference_number',
+    //     'shipping_address',
+    //     'billing_address',
+    //     'subtotal',
+    //     'discount_amount',
+    //     'taxable_amount',
+    //     'tax_amount',
+    //     'shipping_charges',
+    //     'total_amount',
+    //     'shipping_method',
+    //     'payment_terms',
+    //     'status',
+    //     'notes',
+    //     'terms_conditions',
+    // ];
+
+
     protected $fillable = [
-        'order_number',
-        'customer_id',
-        'order_date',
-        'delivery_date',
-        'sales_person',
-        'reference_number',
-        'shipping_address',
-        'billing_address',
-        'subtotal',
-        'discount_amount',
-        'taxable_amount',
-        'tax_amount',
-        'shipping_charges',
-        'total_amount',
-        'shipping_method',
-        'payment_terms',
-        'status',
-        'notes',
-        'terms_conditions',
-    ];
+    'company_id',
+    'order_number',
+    'customer_id',
+    'order_date',
+    'expected_delivery_date',
+    'payment_terms',
+    'delivery_method',
+    'sales_rep_id',
+    'notes',
+    'status',
+    'subtotal',
+    'tax_amount',
+    'total_amount',
+    'created_by',
+    'updated_by',
+];
 
     protected $casts = [
         'order_date' => 'date',

@@ -193,7 +193,7 @@
                                                     </a>
                                                 </td>
                                                 <td>{{ $invoice->customer->name ?? 'N/A' }}</td>
-                                                <td>₹{{ number_format($invoice->total_amount, 2) }}</td>
+                                                <td>BDT{{ number_format($invoice->total_amount, 2) }}</td>
                                                 <td>
                                                     @if ($invoice->status == 'paid')
                                                         <span class="badge bg-success">Paid</span>
@@ -246,7 +246,7 @@
                                                     </a>
                                                 </td>
                                                 <td>{{ $order->customer->name ?? 'N/A' }}</td>
-                                                <td>₹{{ number_format($order->total_amount, 2) }}</td>
+                                                <td>BDT{{ number_format($order->total_amount, 2) }}</td>
                                                 <td>
                                                     @if ($order->status == 'draft')
                                                         <span class="badge bg-secondary">Draft</span>
@@ -288,7 +288,7 @@
                     data: {
                         labels: @json(array_column($monthlyRevenue, 'month')),
                         datasets: [{
-                            label: 'Revenue (₹)',
+                            label: 'Revenue (BDT)',
                             data: @json(array_column($monthlyRevenue, 'revenue')),
                             backgroundColor: 'rgba(78, 115, 223, 0.05)',
                             borderColor: 'rgba(78, 115, 223, 1)',
@@ -312,7 +312,7 @@
                             y: {
                                 ticks: {
                                     callback: function(value) {
-                                        return '₹' + value.toLocaleString();
+                                        return 'BDT' + value.toLocaleString();
                                     }
                                 },
                                 grid: {
@@ -327,7 +327,7 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        return 'Revenue: ₹' + context.parsed.y.toLocaleString();
+                                        return 'Revenue: BDT' + context.parsed.y.toLocaleString();
                                     }
                                 }
                             }

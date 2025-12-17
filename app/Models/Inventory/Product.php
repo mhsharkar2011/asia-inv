@@ -123,7 +123,7 @@ class Product extends Model
      */
     public function getFormattedInventoryValueAttribute()
     {
-        return '₹' . number_format($this->inventory_value, 2);
+        return 'BDT' . number_format($this->inventory_value, 2);
     }
 
     /**

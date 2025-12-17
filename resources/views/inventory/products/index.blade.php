@@ -95,7 +95,7 @@
                                     <td>{{ $product->unit_of_measure }}</td>
                                     <td>
                                         @if ($product->selling_price)
-                                            ₹{{ number_format($product->selling_price, 2) }}
+                                            BDT{{ number_format($product->selling_price, 2) }}
                                         @else
                                             <span class="text-muted">N/A</span>
                                         @endif

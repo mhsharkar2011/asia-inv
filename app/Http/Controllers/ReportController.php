@@ -103,7 +103,7 @@ class ReportController extends Controller
         $products = Product::orderBy('stock_quantity')->get();
 
         $lowStockProducts = Product::whereColumn('stock_quantity', '<=', 'reorder_level')
-            ->where('status', 'active')
+            ->where('is_active', '1')
             ->get();
 
         return view('reports.products', compact('products', 'lowStockProducts'));

@@ -118,7 +118,7 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <label for="credit_limit" class="form-label">Credit Limit (₹)</label>
+                                        <label for="credit_limit" class="form-label">Credit Limit (BDT)</label>
                                         <input type="number" step="0.01"
                                             class="form-control @error('credit_limit') is-invalid @enderror"
                                             id="credit_limit" name="credit_limit"
@@ -129,7 +129,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label for="outstanding_balance" class="form-label">Outstanding Balance
-                                            (₹)</label>
+                                            (BDT)</label>
                                         <input type="number" step="0.01"
                                             class="form-control @error('outstanding_balance') is-invalid @enderror"
                                             id="outstanding_balance" name="outstanding_balance"
@@ -212,7 +212,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Total Purchase Orders:</strong> {{ $supplier->purchaseOrders->count() }}</p>
-                            <p><strong>Total Purchases:</strong> ₹{{ number_format($supplier->total_purchases ?? 0, 2) }}
+                            <p><strong>Total Purchases:</strong> BDT{{ number_format($supplier->total_purchases ?? 0, 2) }}
                             </p>
                         </div>
                         <div class="col-md-6">

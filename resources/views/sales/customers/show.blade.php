@@ -127,19 +127,10 @@
                         <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Address Details</h6>
                     </div>
                     <div class="card-body">
-                        @if ($customer->address_line1)
+                        @if ($customer->address)
                             <div class="mb-2">
                                 <label class="form-label text-muted small mb-1">Address</label>
-                                <p class="mb-1">{{ $customer->address_line1 }}</p>
-                                @if ($customer->address_line2)
-                                    <p class="mb-1">{{ $customer->address_line2 }}</p>
-                                @endif
-                                <p class="mb-0">
-                                    {{ $customer->city }},
-                                    {{ $customer->state }} -
-                                    {{ $customer->pincode }}
-                                </p>
-                                <p class="mb-0">{{ $customer->country ?? 'India' }}</p>
+                                <p class="mb-1">{{ $customer->address }}</p>
                             </div>
                         @else
                             <div class="text-center py-3">
@@ -157,25 +148,25 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            @if ($customer->gstin)
+                            @if ($customer->tin)
                                 <div class="col-12 mb-3">
-                                    <label class="form-label text-muted small mb-1">GSTIN</label>
+                                    <label class="form-label text-muted small mb-1">TIN</label>
                                     <p class="mb-0">
-                                        <code class="bg-light p-1 rounded">{{ $customer->gstin }}</code>
+                                        <code class="bg-light p-1 rounded">{{ $customer->tin }}</code>
                                     </p>
                                 </div>
                             @endif
 
-                            @if ($customer->pan_number)
+                            @if ($customer->bin_number)
                                 <div class="col-12">
-                                    <label class="form-label text-muted small mb-1">PAN Number</label>
+                                    <label class="form-label text-muted small mb-1">BIN Number</label>
                                     <p class="mb-0">
-                                        <code class="bg-light p-1 rounded">{{ $customer->pan_number }}</code>
+                                        <code class="bg-light p-1 rounded">{{ $customer->bin_number }}</code>
                                     </p>
                                 </div>
                             @endif
 
-                            @if (!$customer->gstin && !$customer->pan_number)
+                            @if (!$customer->tin && !$customer->bin_number)
                                 <div class="col-12 text-center py-2">
                                     <p class="text-muted mb-0">No tax information available</p>
                                 </div>
@@ -265,7 +256,7 @@
                                                 <td>{{ $order->order_number }}</td>
                                                 <td>{{ $order->created_at->format('d M, Y') }}</td>
                                                 <td>{{ $order->items_count }}</td>
-                                                <td>₹{{ number_format($order->total_amount, 2) }}</td>
+                                                <td>BDT{{ number_format($order->total_amount, 2) }}</td>
                                                 <td>
                                                     <span
                                                         class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'secondary') }}">
@@ -325,7 +316,7 @@
                                                 <td>{{ $invoice->invoice_number }}</td>
                                                 <td>{{ $invoice->invoice_date->format('d M, Y') }}</td>
                                                 <td>{{ $invoice->due_date->format('d M, Y') }}</td>
-                                                <td>₹{{ number_format($invoice->total_amount, 2) }}</td>
+                                                <td>BDT{{ number_format($invoice->total_amount, 2) }}</td>
                                                 <td>
                                                     @if ($invoice->status == 'paid')
                                                         <span class="badge bg-success">Paid</span>

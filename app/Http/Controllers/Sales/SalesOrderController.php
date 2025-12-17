@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Sales;
 use App\Http\Controllers\Controller;
 use App\Models\Sales\SalesOrder;
 use App\Models\Sales\Customer;
+use App\Models\Sales\SalesOrderItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SalesOrderController extends Controller
@@ -20,13 +22,13 @@ class SalesOrderController extends Controller
         // Search functionality
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhere('reference_number', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function($q2) use ($search) {
-                      $q2->where('name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%");
-                  });
+                    ->orWhere('reference_number', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -55,87 +57,92 @@ class SalesOrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'order_date' => 'required|date',
-            'delivery_date' => 'required|date|after_or_equal:order_date',
-            'sales_person' => 'nullable|string|max:255',
-            'reference_number' => 'nullable|string|max:255',
-            'shipping_address' => 'nullable|string',
-            'billing_address' => 'nullable|string',
-            'shipping_method' => 'nullable|string',
-            'payment_terms' => 'nullable|string',
-            'shipping_charges' => 'nullable|numeric|min:0',
-            'notes' => 'nullable|string',
-            'terms_conditions' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.unit_price' => 'required|numeric|min:0',
-            'items.*.discount_percentage' => 'nullable|numeric|min:0|max:100',
+public function store(Request $request)
+{
+    \Log::info('Request data:', $request->all());
+
+    $companyId = Auth::user()->company_id;
+
+    // Use simpler validation matching your form
+    $validated = $request->validate([
+        'customer_id' => 'required|exists:customers,id',
+        'order_date' => 'required|date',
+        'delivery_date' => 'required|date',
+        'sales_person' => 'nullable',
+        'reference_number' => 'nullable',
+        'shipping_address' => 'nullable',
+        'billing_address' => 'nullable',
+        'shipping_method' => 'nullable',
+        'payment_terms' => 'nullable',
+        'shipping_charges' => 'nullable|numeric',
+        'notes' => 'nullable',
+        'terms_conditions' => 'nullable',
+        'items' => 'required|array|min:1',
+    ]);
+
+    \Log::info('Validated data:', $validated);
+
+    DB::beginTransaction();
+
+    try {
+        // Simple create with only required fields
+        $salesOrder = SalesOrder::create([
+            'company_id' => $companyId,
+            'order_number' => SalesOrder::generateOrderNumber(),
+            'customer_id' => $validated['customer_id'],
+            'order_date' => $validated['order_date'],
+            'delivery_date' => $validated['delivery_date'],
+            'sales_person' => $validated['sales_person'] ?? null,
+            'reference_number' => $validated['reference_number'] ?? null,
+            'shipping_address' => $validated['shipping_address'] ?? null,
+            'billing_address' => $validated['billing_address'] ?? null,
+            'shipping_method' => $validated['shipping_method'] ?? null,
+            'payment_terms' => $validated['payment_terms'] ?? null,
+            'shipping_charges' => $validated['shipping_charges'] ?? 0,
+            'notes' => $validated['notes'] ?? null,
+            'terms_conditions' => $validated['terms_conditions'] ?? null,
+            'status' => 'draft',
+            'created_by' => Auth::id(),
         ]);
 
-        DB::beginTransaction();
+        \Log::info('Sales order created:', ['id' => $salesOrder->id]);
 
-        try {
-            // Create sales order
-            $salesOrder = SalesOrder::create([
-                'order_number' => SalesOrder::generateOrderNumber(),
-                'customer_id' => $validated['customer_id'],
-                'order_date' => $validated['order_date'],
-                'delivery_date' => $validated['delivery_date'],
-                'sales_person' => $validated['sales_person'] ?? null,
-                'reference_number' => $validated['reference_number'] ?? null,
-                'shipping_address' => $validated['shipping_address'] ?? null,
-                'billing_address' => $validated['billing_address'] ?? null,
-                'shipping_method' => $validated['shipping_method'] ?? null,
-                'payment_terms' => $validated['payment_terms'] ?? null,
-                'shipping_charges' => $validated['shipping_charges'] ?? 0,
-                'notes' => $validated['notes'] ?? null,
-                'terms_conditions' => $validated['terms_conditions'] ?? null,
-                'status' => $request->input('action') == 'save_draft' ? 'draft' : 'confirmed',
+        // Add items (simplified)
+        foreach ($request->items as $index => $itemData) {
+            $item = new SalesOrderItem([
+                'description' => $itemData['description'] ?? 'Item ' . ($index + 1),
+                'quantity' => $itemData['quantity'] ?? 1,
+                'unit_price' => $itemData['unit_price'] ?? 0,
+                'discount_percentage' => $itemData['discount'] ?? 0,
             ]);
 
-            // Create order items
-            foreach ($validated['items'] as $itemData) {
-                $item = new \App\Models\Sales\SalesOrderItem([
-                    'description' => $itemData['description'],
-                    'quantity' => $itemData['quantity'],
-                    'unit_price' => $itemData['unit_price'],
-                    'discount_percentage' => $itemData['discount_percentage'] ?? 0,
-                ]);
+            // Calculate item totals
+            $itemTotal = $item->quantity * $item->unit_price;
+            $itemDiscount = $itemTotal * ($item->discount_percentage / 100);
+            $item->amount = $itemTotal - $itemDiscount;
 
-                $item->calculateTotals();
-                $salesOrder->items()->save($item);
-            }
-
-            // Calculate totals
-            $salesOrder->calculateTotals();
-
-            DB::commit();
-
-            // Redirect based on action
-            $redirectRoute = route('sales.sales-orders.show', $salesOrder->id);
-
-            if ($request->input('action') == 'save_invoice') {
-                // Create invoice from sales order
-                return redirect()->route('invoices.create', ['sales_order_id' => $salesOrder->id])
-                    ->with('success', 'Sales order created successfully. Now creating invoice...');
-            }
-
-            return redirect()->route('sales.sales-orders.show', $salesOrder->id)
-                ->with('success', 'Sales order created successfully.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Error creating sales order: ' . $e->getMessage())
-                ->withInput();
+            $salesOrder->items()->save($item);
         }
-    }
 
+        // Calculate order totals
+        $salesOrder->calculateTotals();
+
+        DB::commit();
+
+        return redirect()->route('sales.sales-orders.show', $salesOrder->id)
+            ->with('success', 'Sales order created successfully!');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        \Log::error('Error creating sales order: ' . $e->getMessage());
+        \Log::error('Trace: ' . $e->getTraceAsString());
+
+        return back()
+            ->withInput()
+            ->withErrors(['error' => 'Failed to create sales order. Please check the form data.']);
+    }
+}
     /**
      * Display the specified resource.
      */
@@ -255,7 +262,6 @@ class SalesOrderController extends Controller
 
             return redirect()->route('sales.sales-orders.show', $salesOrder->id)
                 ->with('success', 'Sales order updated successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()

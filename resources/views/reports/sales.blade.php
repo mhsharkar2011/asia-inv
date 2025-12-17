@@ -91,12 +91,10 @@
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                     Invoice Revenue</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    ₹{{ number_format($totalInvoiceAmount, 2) }}
+                                    BDT{{ number_format($totalInvoiceAmount, 2) }}
                                 </div>
                             </div>
-                            <div class="col-auto">
-                                <i class="bi bi-currency-rupee fa-2x text-gray-300"></i>
-                            </div>
+                           
                         </div>
                     </div>
                 </div>
@@ -110,7 +108,7 @@
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                     Total Sales (Invoices + Orders)</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    ₹{{ number_format($totalSales, 2) }}
+                                    BDT{{ number_format($totalSales, 2) }}
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -150,7 +148,7 @@
                                         </td>
                                         <td>{{ $invoice->invoice_date->format('d M, Y') }}</td>
                                         <td>{{ $invoice->customer->name ?? 'N/A' }}</td>
-                                        <td>₹{{ number_format($invoice->total_amount, 2) }}</td>
+                                        <td>BDT{{ number_format($invoice->total_amount, 2) }}</td>
                                         <td>
                                             @if ($invoice->status == 'paid')
                                                 <span class="badge bg-success">Paid</span>
@@ -172,7 +170,7 @@
                             <tfoot>
                                 <tr class="table-secondary">
                                     <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                    <td><strong>₹{{ number_format($totalInvoiceAmount, 2) }}</strong></td>
+                                    <td><strong>BDT{{ number_format($totalInvoiceAmount, 2) }}</strong></td>
                                     <td colspan="2"></td>
                                 </tr>
                             </tfoot>
@@ -216,7 +214,7 @@
                                         </td>
                                         <td>{{ $order->order_date->format('d M, Y') }}</td>
                                         <td>{{ $order->customer->name ?? 'N/A' }}</td>
-                                        <td>₹{{ number_format($order->total_amount, 2) }}</td>
+                                        <td>BDT{{ number_format($order->total_amount, 2) }}</td>
                                         <td>
                                             @if ($order->status == 'draft')
                                                 <span class="badge bg-secondary">Draft</span>
@@ -240,7 +238,7 @@
                             <tfoot>
                                 <tr class="table-secondary">
                                     <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                    <td><strong>₹{{ number_format($totalOrdersAmount, 2) }}</strong></td>
+                                    <td><strong>BDT{{ number_format($totalOrdersAmount, 2) }}</strong></td>
                                     <td colspan="2"></td>
                                 </tr>
                             </tfoot>
@@ -276,7 +274,7 @@
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Total Invoice Amount:</span>
-                                <span class="fw-bold">₹{{ number_format($totalInvoiceAmount, 2) }}</span>
+                                <span class="fw-bold">BDT{{ number_format($totalInvoiceAmount, 2) }}</span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Total Sales Orders:</span>
@@ -284,11 +282,11 @@
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Total Orders Amount:</span>
-                                <span class="fw-bold">₹{{ number_format($totalOrdersAmount, 2) }}</span>
+                                <span class="fw-bold">BDT{{ number_format($totalOrdersAmount, 2) }}</span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center bg-light">
                                 <span class="fw-bold">Total Sales:</span>
-                                <span class="fw-bold text-success">₹{{ number_format($totalSales, 2) }}</span>
+                                <span class="fw-bold text-success">BDT{{ number_format($totalSales, 2) }}</span>
                             </div>
                         </div>
                     </div>

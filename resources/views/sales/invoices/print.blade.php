@@ -412,9 +412,9 @@
                             <td style="text-align: center;">{{ $index + 1 }}</td>
                             <td>{{ $item->description }}</td>
                             <td style="text-align: center;">{{ $item->quantity }}</td>
-                            <td style="text-align: right;">₹{{ number_format($item->unit_price, 2) }}</td>
+                            <td style="text-align: right;">BDT{{ number_format($item->unit_price, 2) }}</td>
                             <td style="text-align: right;">{{ $item->tax_rate ?? 18 }}%</td>
-                            <td style="text-align: right;">₹{{ number_format($item->total, 2) }}</td>
+                            <td style="text-align: right;">BDT{{ number_format($item->total, 2) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -429,7 +429,7 @@
                         <tr>
                             <td style="text-align: right; font-weight: 600; padding: 10px;">Subtotal:</td>
                             <td style="text-align: right; padding: 10px; width: 150px;">
-                                ₹{{ number_format($invoice->subtotal, 2) }}
+                                BDT{{ number_format($invoice->subtotal, 2) }}
                             </td>
                         </tr>
 
@@ -437,7 +437,7 @@
                             <tr>
                                 <td style="text-align: right; font-weight: 600; padding: 10px;">Discount:</td>
                                 <td style="text-align: right; color: #dc3545; padding: 10px;">
-                                    -₹{{ number_format($invoice->discount_amount, 2) }}
+                                    -BDT{{ number_format($invoice->discount_amount, 2) }}
                                 </td>
                             </tr>
                         @endif
@@ -445,7 +445,7 @@
                         <tr>
                             <td style="text-align: right; font-weight: 600; padding: 10px;">Taxable Amount:</td>
                             <td style="text-align: right; padding: 10px;">
-                                ₹{{ number_format($invoice->taxable_amount ?? $invoice->subtotal - ($invoice->discount_amount ?? 0), 2) }}
+                                BDT{{ number_format($invoice->taxable_amount ?? $invoice->subtotal - ($invoice->discount_amount ?? 0), 2) }}
                             </td>
                         </tr>
 
@@ -454,7 +454,7 @@
                                 <td style="text-align: right; font-weight: 600; padding: 10px;">GST
                                     ({{ $invoice->tax_rate ?? 18 }}%):</td>
                                 <td style="text-align: right; padding: 10px;">
-                                    ₹{{ number_format($invoice->tax_amount, 2) }}
+                                    BDT{{ number_format($invoice->tax_amount, 2) }}
                                 </td>
                             </tr>
                         @endif
@@ -463,7 +463,7 @@
                             <tr>
                                 <td style="text-align: right; font-weight: 600; padding: 10px;">Shipping Charges:</td>
                                 <td style="text-align: right; padding: 10px;">
-                                    ₹{{ number_format($invoice->shipping_charges, 2) }}
+                                    BDT{{ number_format($invoice->shipping_charges, 2) }}
                                 </td>
                             </tr>
                         @endif
@@ -473,7 +473,7 @@
                                 <td style="text-align: right; font-weight: 600; padding: 10px;">Adjustment:</td>
                                 <td
                                     style="text-align: right; padding: 10px; color: {{ $invoice->adjustment_amount > 0 ? '#28a745' : '#dc3545' }};">
-                                    {{ $invoice->adjustment_amount > 0 ? '+' : '' }}₹{{ number_format($invoice->adjustment_amount, 2) }}
+                                    {{ $invoice->adjustment_amount > 0 ? '+' : '' }}BDT{{ number_format($invoice->adjustment_amount, 2) }}
                                 </td>
                             </tr>
                         @endif
@@ -482,7 +482,7 @@
                             <td style="text-align: right; font-weight: 700; padding: 12px; font-size: 16px;">Total
                                 Amount:</td>
                             <td style="text-align: right; padding: 12px; font-size: 16px; font-weight: 700;">
-                                ₹{{ number_format($invoice->total_amount, 2) }}
+                                BDT{{ number_format($invoice->total_amount, 2) }}
                             </td>
                         </tr>
 
@@ -490,14 +490,14 @@
                             <tr>
                                 <td style="text-align: right; font-weight: 600; padding: 10px;">Amount Paid:</td>
                                 <td style="text-align: right; color: #28a745; padding: 10px;">
-                                    ₹{{ number_format($invoice->amount_paid, 2) }}
+                                    BDT{{ number_format($invoice->amount_paid, 2) }}
                                 </td>
                             </tr>
 
                             <tr style="background: #fff3cd;">
                                 <td style="text-align: right; font-weight: 700; padding: 12px;">Balance Due:</td>
                                 <td style="text-align: right; padding: 12px; font-weight: 700;">
-                                    ₹{{ number_format($invoice->balance_due, 2) }}
+                                    BDT{{ number_format($invoice->balance_due, 2) }}
                                 </td>
                             </tr>
                         @endif

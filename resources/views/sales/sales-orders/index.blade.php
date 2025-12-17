@@ -86,7 +86,7 @@
                                     </td>
                                     <td>{{ $order->order_date->format('d M, Y') }}</td>
                                     <td>{{ $order->delivery_date->format('d M, Y') }}</td>
-                                    <td>₹{{ number_format($order->total_amount, 2) }}</td>
+                                    <td>BDT{{ number_format($order->total_amount, 2) }}</td>
                                     <td>
                                         @if ($order->status == 'draft')
                                             <span class="badge bg-secondary">Draft</span>

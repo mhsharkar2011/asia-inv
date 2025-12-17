@@ -47,7 +47,7 @@
                                         @foreach ($customers as $customer)
                                             <option value="{{ $customer->id }}"
                                                 {{ $selected_customer_id == $customer->id ? 'selected' : '' }}>
-                                                {{ $customer->name }} ({{ $customer->email }})
+                                                {{ $customer->customer_code }} ({{ $customer->email }})
                                             </option>
                                         @endforeach
                                     </select>
@@ -183,17 +183,17 @@
 
                             <div class="mb-2 d-flex justify-content-between">
                                 <span class="text-muted">Subtotal:</span>
-                                <span id="summarySubtotal">₹0.00</span>
+                                <span id="summarySubtotal">BDT0.00</span>
                             </div>
 
                             <div class="mb-2 d-flex justify-content-between">
                                 <span class="text-muted">Tax (18%):</span>
-                                <span id="summaryTax">₹0.00</span>
+                                <span id="summaryTax">BDT0.00</span>
                             </div>
 
                             <div class="mb-3 d-flex justify-content-between fw-bold">
                                 <span>Total Amount:</span>
-                                <span id="summaryTotal">₹0.00</span>
+                                <span id="summaryTotal">BDT0.00</span>
                             </div>
 
                             <hr>
@@ -297,9 +297,9 @@
                 document.getElementById('totalAmount').value = totalAmount.toFixed(2);
 
                 // Update summary
-                document.getElementById('summarySubtotal').textContent = '₹' + subtotal.toFixed(2);
-                document.getElementById('summaryTax').textContent = '₹' + taxAmount.toFixed(2);
-                document.getElementById('summaryTotal').textContent = '₹' + totalAmount.toFixed(2);
+                document.getElementById('summarySubtotal').textContent = 'BDT' + subtotal.toFixed(2);
+                document.getElementById('summaryTax').textContent = 'BDT' + taxAmount.toFixed(2);
+                document.getElementById('summaryTotal').textContent = 'BDT' + totalAmount.toFixed(2);
             }
 
             // Renumber rows

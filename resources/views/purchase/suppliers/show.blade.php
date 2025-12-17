@@ -78,7 +78,7 @@
                                     <th>Credit Limit:</th>
                                     <td>
                                         @if ($supplier->credit_limit)
-                                            ₹{{ number_format($supplier->credit_limit, 2) }}
+                                            BDT{{ number_format($supplier->credit_limit, 2) }}
                                         @else
                                             <span class="text-muted">No Limit</span>
                                         @endif
@@ -89,9 +89,9 @@
                                     <td>
                                         @if ($supplier->outstanding_balance > 0)
                                             <span
-                                                class="badge bg-warning">₹{{ number_format($supplier->outstanding_balance, 2) }}</span>
+                                                class="badge bg-warning">BDT{{ number_format($supplier->outstanding_balance, 2) }}</span>
                                         @else
-                                            ₹0.00
+                                            BDT0.00
                                         @endif
                                     </td>
                                 </tr>
@@ -142,9 +142,9 @@
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between">
-                                <small>Credit Used: ₹{{ number_format($supplier->outstanding_balance, 2) }}</small>
-                                <small>Available: ₹{{ number_format($supplier->credit_available, 2) }}</small>
-                                <small>Limit: ₹{{ number_format($supplier->credit_limit, 2) }}</small>
+                                <small>Credit Used: BDT{{ number_format($supplier->outstanding_balance, 2) }}</small>
+                                <small>Available: BDT{{ number_format($supplier->credit_available, 2) }}</small>
+                                <small>Limit: BDT{{ number_format($supplier->credit_limit, 2) }}</small>
                             </div>
                         </div>
                     @endif
@@ -177,7 +177,7 @@
                                         <tr>
                                             <td>{{ $order->po_number }}</td>
                                             <td>{{ $order->order_date->format('d/m/Y') }}</td>
-                                            <td>₹{{ number_format($order->final_amount, 2) }}</td>
+                                            <td>BDT{{ number_format($order->final_amount, 2) }}</td>
                                             <td>
                                                 @php
                                                     $statusColors = [
@@ -242,7 +242,7 @@
                         <div class="list-group-item d-flex justify-content-between align-items-center">
                             Total Purchases
                             <span
-                                class="badge bg-info rounded-pill">₹{{ number_format($supplier->total_purchases ?? 0, 2) }}</span>
+                                class="badge bg-info rounded-pill">BDT{{ number_format($supplier->total_purchases ?? 0, 2) }}</span>
                         </div>
                     </div>
                 </div>

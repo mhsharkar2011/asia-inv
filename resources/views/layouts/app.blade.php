@@ -160,6 +160,11 @@
                                         <i class="bi bi-receipt me-2"></i>Sales Orders
                                     </a>
                                 </li>
+                                 <li class="nav-item">
+                                    <a class="nav-link ms-4" href="{{ route('sales.invoices.index') }}">
+                                        <i class="bi bi-receipt me-2"></i>Sales Invoices
+                                    </a>
+                                </li>
                             </ul>
                         </li>
 

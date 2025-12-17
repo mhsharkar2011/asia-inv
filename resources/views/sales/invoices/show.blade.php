@@ -79,7 +79,7 @@
                                 <p class="text-muted mb-0">{{ $invoice->invoice_number }}</p>
                             </div>
                             <div class="col-md-6 text-end">
-                                <h5 class="mb-0">₹{{ number_format($invoice->total_amount, 2) }}</h5>
+                                <h5 class="mb-0">BDT{{ number_format($invoice->total_amount, 2) }}</h5>
                                 <p class="text-muted mb-0">Total Amount</p>
                             </div>
                         </div>
@@ -137,33 +137,33 @@
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $item->description }}</td>
                                             <td class="text-end">{{ $item->quantity }}</td>
-                                            <td class="text-end">₹{{ number_format($item->unit_price, 2) }}</td>
-                                            <td class="text-end">₹{{ number_format($item->total, 2) }}</td>
+                                            <td class="text-end">BDT{{ number_format($item->unit_price, 2) }}</td>
+                                            <td class="text-end">BDT{{ number_format($item->total, 2) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                                 <tfoot class="table-light">
                                     <tr>
                                         <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
-                                        <td class="text-end">₹{{ number_format($invoice->subtotal, 2) }}</td>
+                                        <td class="text-end">BDT{{ number_format($invoice->subtotal, 2) }}</td>
                                     </tr>
                                     <tr>
                                         <td colspan="4" class="text-end"><strong>Tax (18%):</strong></td>
-                                        <td class="text-end">₹{{ number_format($invoice->tax_amount, 2) }}</td>
+                                        <td class="text-end">BDT{{ number_format($invoice->tax_amount, 2) }}</td>
                                     </tr>
                                     <tr class="table-active">
                                         <td colspan="4" class="text-end"><strong>Total Amount:</strong></td>
                                         <td class="text-end">
-                                            <strong>₹{{ number_format($invoice->total_amount, 2) }}</strong></td>
+                                            <strong>BDT{{ number_format($invoice->total_amount, 2) }}</strong></td>
                                     </tr>
                                     <tr>
                                         <td colspan="4" class="text-end"><strong>Amount Paid:</strong></td>
-                                        <td class="text-end">₹{{ number_format($invoice->amount_paid, 2) }}</td>
+                                        <td class="text-end">BDT{{ number_format($invoice->amount_paid, 2) }}</td>
                                     </tr>
                                     <tr class="table-warning">
                                         <td colspan="4" class="text-end"><strong>Balance Due:</strong></td>
                                         <td class="text-end">
-                                            <strong>₹{{ number_format($invoice->balance_due, 2) }}</strong></td>
+                                            <strong>BDT{{ number_format($invoice->balance_due, 2) }}</strong></td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -236,7 +236,7 @@
                                         max="{{ $invoice->balance_due }}" min="0.01" step="0.01"
                                         value="{{ $invoice->balance_due }}" required>
                                     <small class="text-muted">Balance Due:
-                                        ₹{{ number_format($invoice->balance_due, 2) }}</small>
+                                        BDT{{ number_format($invoice->balance_due, 2) }}</small>
                                 </div>
 
                                 <div class="mb-3">
@@ -360,28 +360,28 @@
 
                         <div class="mb-2 d-flex justify-content-between">
                             <span class="text-muted">Subtotal:</span>
-                            <span>₹{{ number_format($invoice->subtotal, 2) }}</span>
+                            <span>BDT{{ number_format($invoice->subtotal, 2) }}</span>
                         </div>
 
                         <div class="mb-2 d-flex justify-content-between">
                             <span class="text-muted">Tax Amount:</span>
-                            <span>₹{{ number_format($invoice->tax_amount, 2) }}</span>
+                            <span>BDT{{ number_format($invoice->tax_amount, 2) }}</span>
                         </div>
 
                         <div class="mb-2 d-flex justify-content-between fw-bold">
                             <span>Total Amount:</span>
-                            <span>₹{{ number_format($invoice->total_amount, 2) }}</span>
+                            <span>BDT{{ number_format($invoice->total_amount, 2) }}</span>
                         </div>
 
                         <div class="mb-2 d-flex justify-content-between">
                             <span class="text-muted">Amount Paid:</span>
-                            <span>₹{{ number_format($invoice->amount_paid, 2) }}</span>
+                            <span>BDT{{ number_format($invoice->amount_paid, 2) }}</span>
                         </div>
 
                         <div class="mb-0 d-flex justify-content-between fw-bold">
                             <span>Balance Due:</span>
                             <span class="{{ $invoice->balance_due > 0 ? 'text-danger' : 'text-success' }}">
-                                ₹{{ number_format($invoice->balance_due, 2) }}
+                                BDT{{ number_format($invoice->balance_due, 2) }}
                             </span>
                         </div>
                     </div>

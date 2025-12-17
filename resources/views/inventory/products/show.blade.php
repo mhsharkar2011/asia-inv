@@ -166,15 +166,15 @@
                         <div class="list-group list-group-flush">
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Purchase Price:</span>
-                                <span class="fw-bold">₹{{ number_format($product->purchase_price, 2) }}</span>
+                                <span class="fw-bold">BDT{{ number_format($product->purchase_price, 2) }}</span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Selling Price:</span>
-                                <span class="fw-bold text-primary">₹{{ number_format($product->selling_price, 2) }}</span>
+                                <span class="fw-bold text-primary">BDT{{ number_format($product->selling_price, 2) }}</span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>MRP:</span>
-                                <span class="fw-bold">₹{{ number_format($product->mrp, 2) }}</span>
+                                <span class="fw-bold">BDT{{ number_format($product->mrp, 2) }}</span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center bg-light">
                                 <span>Profit Margin:</span>
@@ -189,7 +189,7 @@
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Stock Value (at cost):</span>
                                 <span class="fw-bold text-info">
-                                    ₹{{ number_format($product->stock_quantity * $product->purchase_price, 2) }}
+                                    BDT{{ number_format($product->stock_quantity * $product->purchase_price, 2) }}
                                 </span>
                             </div>
                         </div>

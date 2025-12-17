@@ -87,7 +87,7 @@
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                     In Stock Value</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    ₹{{ number_format(
+                                    BDT{{ number_format(
                                         $products->sum(function ($product) {
                                             return $product->stock_quantity * $product->cost_price;
                                         }),
@@ -96,7 +96,7 @@
                                 </div>
                             </div>
                             <div class="col-auto">
-                                <i class="bi bi-currency-rupee fa-2x text-gray-300"></i>
+                               <i class="bi bi-currency-taka fa-2x text-gray-300"></i>
                             </div>
                         </div>
                     </div>
@@ -134,7 +134,7 @@
                                         <td>{{ $index + 1 }}</td>
                                         <td><strong>{{ $product->product_code }}</strong></td>
                                         <td>{{ $product->product_name }}</td>
-                                        <td>{{ $product->category ?? 'N/A' }}</td>
+                                        <td>{{ $product->category->category_name ?? 'N/A' }}</td>
                                         <td class="text-center">
                                             <span
                                                 class="badge bg-{{ $product->stock_quantity <= 0 ? 'danger' : ($product->stock_quantity <= $product->reorder_level ? 'warning' : 'success') }}">
@@ -142,13 +142,13 @@
                                             </span>
                                         </td>
                                         <td class="text-center">{{ $product->reorder_level }}</td>
-                                        <td class="text-end">₹{{ number_format($product->cost_price, 2) }}</td>
-                                        <td class="text-end">₹{{ number_format($product->selling_price, 2) }}</td>
+                                        <td class="text-end">BDT{{ number_format($product->cost_price, 2) }}</td>
+                                        <td class="text-end">BDT{{ number_format($product->selling_price, 2) }}</td>
                                         <td class="text-end">
-                                            ₹{{ number_format($product->stock_quantity * $product->cost_price, 2) }}
+                                            BDT{{ number_format($product->stock_quantity * $product->cost_price, 2) }}
                                         </td>
                                         <td>
-                                            @if ($product->status == 'active')
+                                            @if ($product->is_active == '1')
                                                 <span class="badge bg-success">Active</span>
                                             @else
                                                 <span class="badge bg-secondary">Inactive</span>
@@ -162,7 +162,7 @@
                                     <td colspan="8" class="text-end"><strong>Total Stock Value:</strong></td>
                                     <td class="text-end">
                                         <strong>
-                                            ₹{{ number_format(
+                                            BDT{{ number_format(
                                                 $products->sum(function ($product) {
                                                     return $product->stock_quantity * $product->cost_price;
                                                 }),
@@ -311,7 +311,7 @@
                                             <small class="text-muted">{{ $product->product_name }}</small>
                                         </div>
                                         <span class="fw-bold">
-                                            ₹{{ number_format($product->stock_quantity * $product->cost_price, 2) }}
+                                            BDT{{ number_format($product->stock_quantity * $product->cost_price, 2) }}
                                         </span>
                                     </div>
                                 @endforeach

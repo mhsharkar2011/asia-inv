@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('company_id')->constrained()->onDelete('cascade');
             $table->string('invoice_number')->unique();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->date('invoice_date');
@@ -29,9 +30,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('invoice_id')->constrained()->onDelete('cascade');
             $table->string('description');
-            $table->integer('quantity')->default(1);
-            $table->decimal('unit_price', 10, 2);
-            $table->decimal('total', 10, 2);
+            $table->decimal('quantity', 10, 2);
+            $table->decimal('unit_price', 12, 2);
+            $table->decimal('total', 12, 2);
             $table->timestamps();
         });
     }

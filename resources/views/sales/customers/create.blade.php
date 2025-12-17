@@ -148,7 +148,7 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <label for="credit_limit" class="form-label">Credit Limit (₹)</label>
+                                        <label for="credit_limit" class="form-label">Credit Limit (BDT)</label>
                                         <input type="number" step="0.01"
                                             class="form-control @error('credit_limit') is-invalid @enderror"
                                             id="credit_limit" name="credit_limit" value="{{ old('credit_limit') }}">
@@ -189,7 +189,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="opening_balance" class="form-label">Opening Balance (₹)</label>
+                                    <label for="opening_balance" class="form-label">Opening Balance (BDT)</label>
                                     <input type="number" step="0.01"
                                         class="form-control @error('opening_balance') is-invalid @enderror"
                                         id="opening_balance" name="opening_balance"

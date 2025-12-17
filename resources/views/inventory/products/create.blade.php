@@ -148,7 +148,7 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-4">
-                                        <label for="purchase_price" class="form-label">Purchase Price (₹)</label>
+                                        <label for="purchase_price" class="form-label">Purchase Price (BDT)</label>
                                         <input type="number" step="0.01"
                                             class="form-control @error('purchase_price') is-invalid @enderror"
                                             id="purchase_price" name="purchase_price"
@@ -158,7 +158,7 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="selling_price" class="form-label">Selling Price (₹)</label>
+                                        <label for="selling_price" class="form-label">Selling Price (BDT)</label>
                                         <input type="number" step="0.01"
                                             class="form-control @error('selling_price') is-invalid @enderror"
                                             id="selling_price" name="selling_price" value="{{ old('selling_price') }}">
@@ -167,7 +167,7 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="mrp" class="form-label">MRP (₹)</label>
+                                        <label for="mrp" class="form-label">MRP (BDT)</label>
                                         <input type="number" step="0.01"
                                             class="form-control @error('mrp') is-invalid @enderror" id="mrp"
                                             name="mrp" value="{{ old('mrp') }}">

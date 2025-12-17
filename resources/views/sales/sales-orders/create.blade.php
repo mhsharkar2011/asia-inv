@@ -54,10 +54,10 @@
                                     <select name="customer_id" id="customerSelect" class="form-select" required>
                                         <option value="">Select Customer</option>
                                         @foreach ($customers as $customer)
-                                            <option value="{{ $customer->id }}" data-gstin="{{ $customer->gstin ?? '' }}"
-                                                data-address="{{ $customer->address_line1 ?? '' }} {{ $customer->city ?? '' }}"
+                                            <option value="{{ $customer->id }}" data-tin="{{ $customer->tin ?? '' }}"
+                                                data-address="{{ $customer->address ?? '' }}"
                                                 data-phone="{{ $customer->phone ?? '' }}">
-                                                {{ $customer->name }} - {{ $customer->email }}
+                                                {{ $customer->customer_code }} - {{ $customer->email }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -285,34 +285,34 @@
                         <div class="card-body">
                             <div class="mb-2 d-flex justify-content-between">
                                 <span class="text-muted">Subtotal:</span>
-                                <span id="summarySubtotal">₹0.00</span>
+                                <span id="summarySubtotal">BDT0.00</span>
                             </div>
 
                             <div class="mb-2 d-flex justify-content-between">
                                 <span class="text-muted">Discount:</span>
-                                <span id="summaryDiscount" class="text-danger">-₹0.00</span>
+                                <span id="summaryDiscount" class="text-danger">-BDT0.00</span>
                             </div>
 
                             <div class="mb-2 d-flex justify-content-between">
                                 <span class="text-muted">Taxable Amount:</span>
-                                <span id="summaryTaxable">₹0.00</span>
+                                <span id="summaryTaxable">BDT0.00</span>
                             </div>
 
                             <div class="mb-2 d-flex justify-content-between">
                                 <span class="text-muted">GST (<span id="summaryGstRate">18</span>%):</span>
-                                <span id="summaryGst">₹0.00</span>
+                                <span id="summaryGst">BDT0.00</span>
                             </div>
 
                             <div class="mb-2 d-flex justify-content-between">
                                 <span class="text-muted">Shipping Charges:</span>
-                                <span id="summaryShipping">₹0.00</span>
+                                <span id="summaryShipping">BDT0.00</span>
                             </div>
 
                             <hr>
 
                             <div class="mb-3 d-flex justify-content-between fw-bold">
                                 <span>Total Amount:</span>
-                                <span id="summaryTotal">₹0.00</span>
+                                <span id="summaryTotal">BDT0.00</span>
                             </div>
 
                             <hr>
@@ -422,12 +422,12 @@
             customerSelect.addEventListener('change', function() {
                 const selectedOption = this.options[this.selectedIndex];
                 if (selectedOption.value) {
-                    const gstin = selectedOption.getAttribute('data-gstin');
+                    const tin = selectedOption.getAttribute('data-tin');
                     const address = selectedOption.getAttribute('data-address');
                     const phone = selectedOption.getAttribute('data-phone');
 
                     let detailsHtml = `
-                <p><strong>GSTIN:</strong> ${gstin || 'Not Available'}</p>
+                <p><strong>TIN:</strong> ${tin || 'Not Available'}</p>
                 <p><strong>Address:</strong> ${address || 'Not Available'}</p>
                 <p><strong>Phone:</strong> ${phone || 'Not Available'}</p>
             `;
@@ -517,7 +517,7 @@
             // Shipping charges change
             shippingChargesInput.addEventListener('input', function() {
                 shippingCharges = parseFloat(this.value) || 0;
-                document.getElementById('summaryShipping').textContent = '₹' + shippingCharges.toFixed(2);
+                document.getElementById('summaryShipping').textContent = 'BDT' + shippingCharges.toFixed(2);
                 calculateTotals();
             });
 
@@ -552,11 +552,11 @@
                 document.getElementById('totalAmount').value = totalAmount.toFixed(2);
 
                 // Update summary
-                document.getElementById('summarySubtotal').textContent = '₹' + subtotal.toFixed(2);
-                document.getElementById('summaryDiscount').textContent = '-₹' + totalDiscount.toFixed(2);
-                document.getElementById('summaryTaxable').textContent = '₹' + taxableAmount.toFixed(2);
-                document.getElementById('summaryGst').textContent = '₹' + gstAmount.toFixed(2);
-                document.getElementById('summaryTotal').textContent = '₹' + totalAmount.toFixed(2);
+                document.getElementById('summarySubtotal').textContent = 'BDT' + subtotal.toFixed(2);
+                document.getElementById('summaryDiscount').textContent = '-BDT' + totalDiscount.toFixed(2);
+                document.getElementById('summaryTaxable').textContent = 'BDT' + taxableAmount.toFixed(2);
+                document.getElementById('summaryGst').textContent = 'BDT' + gstAmount.toFixed(2);
+                document.getElementById('summaryTotal').textContent = 'BDT' + totalAmount.toFixed(2);
             }
 
             // Renumber rows

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Sales;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Invoice;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class InvoiceItem extends Model
 {
@@ -12,32 +12,40 @@ class InvoiceItem extends Model
 
     protected $fillable = [
         'invoice_id',
+        'product_id',
         'description',
         'quantity',
         'unit_price',
         'total',
+        // Add other fields as needed
     ];
 
     protected $casts = [
-        'quantity' => 'integer',
+        'quantity' => 'decimal:2',
         'unit_price' => 'decimal:2',
         'total' => 'decimal:2',
     ];
 
-    /**
-     * Get the invoice that owns the item.
-     */
-    public function invoice(): BelongsTo
+    // Relationships
+    public function invoice()
     {
         return $this->belongsTo(Invoice::class);
     }
 
-    /**
-     * Calculate total for the item.
-     */
-    public function calculateTotal()
+    public function product()
     {
-        $this->total = $this->quantity * $this->unit_price;
-        return $this;
+        return $this->belongsTo(\App\Models\Inventory\Product::class);
+    }
+
+    // Calculate total before saving
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($item) {
+            if ($item->quantity && $item->unit_price) {
+                $item->total = $item->quantity * $item->unit_price;
+            }
+        });
     }
 }

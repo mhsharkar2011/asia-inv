@@ -113,7 +113,7 @@
                                     </td>
                                     <td>
                                         @if ($customer->credit_limit)
-                                            ₹{{ number_format($customer->credit_limit, 2) }}
+                                            BDT{{ number_format($customer->credit_limit, 2) }}
                                         @else
                                             <span class="text-muted">No Limit</span>
                                         @endif
@@ -121,9 +121,9 @@
                                     <td>
                                         @if ($customer->outstanding_balance > 0)
                                             <span
-                                                class="badge bg-warning">₹{{ number_format($customer->outstanding_balance, 2) }}</span>
+                                                class="badge bg-warning">BDT{{ number_format($customer->outstanding_balance, 2) }}</span>
                                         @else
-                                            <span class="text-muted">₹0.00</span>
+                                            <span class="text-muted">BDT0.00</span>
                                         @endif
                                     </td>
                                     <td>

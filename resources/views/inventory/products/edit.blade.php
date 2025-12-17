@@ -197,7 +197,7 @@
 
                                     <div class="row mb-3">
                                         <div class="col-md-6">
-                                            <label for="purchase_price" class="form-label">Purchase Price (₹)</label>
+                                            <label for="purchase_price" class="form-label">Purchase Price (BDT)</label>
                                             <input type="number" step="0.01"
                                                 class="form-control @error('purchase_price') is-invalid @enderror"
                                                 id="purchase_price" name="purchase_price"
@@ -208,7 +208,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="selling_price" class="form-label">Selling Price (₹)</label>
+                                            <label for="selling_price" class="form-label">Selling Price (BDT)</label>
                                             <input type="number" step="0.01"
                                                 class="form-control @error('selling_price') is-invalid @enderror"
                                                 id="selling_price" name="selling_price"
@@ -222,7 +222,7 @@
 
                                     <div class="row mb-3">
                                         <div class="col-md-6">
-                                            <label for="mrp" class="form-label">MRP (₹)</label>
+                                            <label for="mrp" class="form-label">MRP (BDT)</label>
                                             <input type="number" step="0.01"
                                                 class="form-control @error('mrp') is-invalid @enderror" id="mrp"
                                                 name="mrp" value="{{ old('mrp', $product->mrp) }}" min="0">
@@ -247,7 +247,7 @@
                                             </div>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="is_active"
-                                                    name="is_active" value="1" checked>
+                                                    name="is_active">
                                                 <label class="form-check-label" for="is_active">
                                                     Active Product
                                                 </label>
@@ -274,7 +274,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Current Stock Information -->
                             <div class="row mt-4">
                                 <div class="col-12">
@@ -364,11 +363,11 @@
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Cost Price:</span>
-                                <span>₹{{ number_format($product->purchase_price ?? 0, 2) }}</span>
+                                <span>BDT{{ number_format($product->purchase_price ?? 0, 2) }}</span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Selling Price:</span>
-                                <span>₹{{ number_format($product->selling_price ?? 0, 2) }}</span>
+                                <span>BDT{{ number_format($product->selling_price ?? 0, 2) }}</span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center bg-light">
                                 <span class="fw-bold">Stock Value (at cost):</span>
