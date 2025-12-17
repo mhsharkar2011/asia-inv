@@ -433,11 +433,11 @@
                             </td>
                         </tr>
 
-                        @if ($invoice->discount_amount > 0)
+                        @if ($invoice->discount > 0)
                             <tr>
                                 <td style="text-align: right; font-weight: 600; padding: 10px;">Discount:</td>
                                 <td style="text-align: right; color: #dc3545; padding: 10px;">
-                                    -BDT{{ number_format($invoice->discount_amount, 2) }}
+                                    -BDT{{ number_format($invoice->discount, 2) }}
                                 </td>
                             </tr>
                         @endif
@@ -445,7 +445,7 @@
                         <tr>
                             <td style="text-align: right; font-weight: 600; padding: 10px;">Taxable Amount:</td>
                             <td style="text-align: right; padding: 10px;">
-                                BDT{{ number_format($invoice->taxable_amount ?? $invoice->subtotal - ($invoice->discount_amount ?? 0), 2) }}
+                                BDT{{ number_format($invoice->taxable_amount ?? $invoice->subtotal - ($invoice->discount ?? 0), 2) }}
                             </td>
                         </tr>
 

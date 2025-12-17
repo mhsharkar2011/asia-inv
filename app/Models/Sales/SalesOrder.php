@@ -11,36 +11,45 @@ class SalesOrder extends Model
 {
     use HasFactory;
 
-    // protected $fillable = [
-    //     'order_number',
-    //     'customer_id',
-    //     'order_date',
-    //     'delivery_date',
-    //     'sales_person',
-    //     'reference_number',
-    //     'shipping_address',
-    //     'billing_address',
-    //     'subtotal',
-    //     'discount_amount',
-    //     'taxable_amount',
-    //     'tax_amount',
-    //     'shipping_charges',
-    //     'total_amount',
-    //     'shipping_method',
-    //     'payment_terms',
-    //     'status',
-    //     'notes',
-    //     'terms_conditions',
-    // ];
+    // In SalesOrder model
+    protected $fillable = [
+        'order_number',
+        'customer_id',
+        'order_date',
+        'delivery_date',
+        'sales_person',
+        'reference_number',
+        'shipping_address',
+        'billing_address',
+        'shipping_method',
+        'payment_terms',
+        'payment_status',
+        'due_date',
+        'status',
+        'tax_rate',
+        'shipping_charges',
+        'adjustment',
+        'notes',
+        'terms_conditions',
+        'currency',
+        'created_by',
+        'subtotal',
+        'discount',
+        'total_amount',
+        'taxable_amount',
+        'tax_amount',
+        'total_amount',
+        'description',
+    ];
 
 
-   protected $guarded = [];
-   
+    protected $guarded = [];
+
     protected $casts = [
         'order_date' => 'date',
         'delivery_date' => 'date',
         'subtotal' => 'decimal:2',
-        'discount_amount' => 'decimal:2',
+        'discount' => 'decimal:2',
         'taxable_amount' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'shipping_charges' => 'decimal:2',
@@ -112,7 +121,7 @@ class SalesOrder extends Model
 
         foreach ($this->items as $item) {
             $subtotal += $item->quantity * $item->unit_price;
-            $totalDiscount += $item->discount_amount;
+            $totalDiscount += $item->discount;
         }
 
         $taxableAmount = $subtotal - $totalDiscount;
@@ -121,7 +130,7 @@ class SalesOrder extends Model
 
         $this->update([
             'subtotal' => $subtotal,
-            'discount_amount' => $totalDiscount,
+            'discount' => $totalDiscount,
             'taxable_amount' => $taxableAmount,
             'tax_amount' => $taxAmount,
             'total_amount' => $totalAmount,

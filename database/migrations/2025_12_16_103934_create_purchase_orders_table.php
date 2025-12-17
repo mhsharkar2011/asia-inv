@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('status', ['draft', 'pending', 'partial', 'completed', 'cancelled'])->default('draft');
             $table->decimal('total_amount', 15, 2)->default(0);
             $table->decimal('tax_amount', 15, 2)->default(0);
-            $table->decimal('discount_amount', 15, 2)->default(0);
+            $table->decimal('discount', 15, 2)->default(0);
             $table->decimal('final_amount', 15, 2)->default(0);
             $table->text('notes')->nullable();
             $table->timestamps();

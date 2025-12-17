@@ -84,10 +84,10 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="hsn_sac_code" class="form-label">HSN/SAC Code</label>
-                                    <input type="text" class="form-control @error('hsn_sac_code') is-invalid @enderror"
-                                        id="hsn_sac_code" name="hsn_sac_code" value="{{ old('hsn_sac_code') }}">
-                                    @error('hsn_sac_code')
+                                    <label for="hs_code" class="form-label">HS Code</label>
+                                    <input type="text" class="form-control @error('hs_code') is-invalid @enderror"
+                                        id="hs_code" name="hs_code" value="{{ old('hs_code') }}">
+                                    @error('hs_code')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
