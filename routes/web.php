@@ -78,6 +78,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('suppliers.ajax');
 
         // Purchase Orders (placeholder)
+        Route::resource('purchase-orders', PurchaseOrderController::class);
         Route::get('purchase-orders', function () {
             return view('purchase.purchase-orders.index');
         })->name('purchase-orders.index');
