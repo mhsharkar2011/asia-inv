@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Inventory\CategoryController;
 use App\Http\Controllers\Inventory\ProductController;
 use App\Http\Controllers\InvoiceCOntroller;
+use App\Http\Controllers\Purchase\PurchaseOrderController;
 use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Sales\CustomerController;
 use App\Http\Controllers\Sales\SalesOrderController;
@@ -79,13 +80,6 @@ Route::middleware(['auth'])->group(function () {
 
         // Purchase Orders (placeholder)
         Route::resource('purchase-orders', PurchaseOrderController::class);
-        Route::get('purchase-orders', function () {
-            return view('purchase.purchase-orders.index');
-        })->name('purchase-orders.index');
-
-        Route::get('purchase-orders/create', function () {
-            return view('purchase.purchase-orders.create');
-        })->name('purchase-orders.create');
     });
 
     // Sales Management

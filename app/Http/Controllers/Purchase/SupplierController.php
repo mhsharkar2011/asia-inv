@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Purchase;
 
 use App\Http\Controllers\Controller;
-use App\Models\Supplier;
+use App\Models\Purchase\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 

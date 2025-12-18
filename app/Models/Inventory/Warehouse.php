@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Inventory;
 
+use App\Models\Branch;
+use App\Models\Inventory;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

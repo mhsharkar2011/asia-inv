@@ -89,22 +89,23 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <label for="gstin" class="form-label">GSTIN</label>
-                                        <input type="text" class="form-control @error('gstin') is-invalid @enderror"
-                                            id="gstin" name="gstin" value="{{ old('gstin') }}"
-                                            pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}"
-                                            title="Enter valid 15-digit GSTIN">
-                                        <div class="form-text">15-digit GSTIN</div>
-                                        @error('gstin')
+                                        <label for="tin" class="form-label">TIN (Tax Identification Number)</label>
+                                        <input type="text" class="form-control @error('tin') is-invalid @enderror"
+                                            id="tin" name="tin" value="{{ old('tin') }}"
+                                            title="Enter valid TIN (9 or 12 digits)">
+                                        <div class="form-text">9 or 12 digit TIN (e.g., 123456789)</div>
+                                        @error('tin')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="pan_number" class="form-label">PAN Number</label>
-                                        <input type="text" class="form-control @error('pan_number') is-invalid @enderror"
-                                            id="pan_number" name="pan_number" value="{{ old('pan_number') }}"
-                                            pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" title="Enter valid PAN (e.g., ABCDE1234F)">
-                                        @error('pan_number')
+                                        <label for="bin" class="form-label">BIN (Business Identification
+                                            Number)</label>
+                                        <input type="text" class="form-control @error('bin') is-invalid @enderror"
+                                            id="bin" name="bin" value="{{ old('bin') }}"
+                                            title="Enter valid BIN (13 or 15 digits)">
+                                        <div class="form-text">13 or 15 digit BIN</div>
+                                        @error('bin')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -129,6 +130,44 @@
                                             id="outstanding_balance" name="outstanding_balance"
                                             value="{{ old('outstanding_balance', 0) }}">
                                         @error('outstanding_balance')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="trade_license" class="form-label">Trade License Number</label>
+                                        <input type="text"
+                                            class="form-control @error('trade_license') is-invalid @enderror"
+                                            id="trade_license" name="trade_license" value="{{ old('trade_license') }}">
+                                        @error('trade_license')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="business_type" class="form-label">Business Type</label>
+                                        <select class="form-select @error('business_type') is-invalid @enderror"
+                                            id="business_type" name="business_type">
+                                            <option value="">-- Select Business Type --</option>
+                                            <option value="Sole Proprietorship"
+                                                {{ old('business_type') == 'Sole Proprietorship' ? 'selected' : '' }}>Sole
+                                                Proprietorship</option>
+                                            <option value="Partnership"
+                                                {{ old('business_type') == 'Partnership' ? 'selected' : '' }}>Partnership
+                                            </option>
+                                            <option value="Private Limited"
+                                                {{ old('business_type') == 'Private Limited' ? 'selected' : '' }}>Private
+                                                Limited</option>
+                                            <option value="Public Limited"
+                                                {{ old('business_type') == 'Public Limited' ? 'selected' : '' }}>Public
+                                                Limited</option>
+                                            <option value="LLC" {{ old('business_type') == 'LLC' ? 'selected' : '' }}>
+                                                LLC</option>
+                                            <option value="Other"
+                                                {{ old('business_type') == 'Other' ? 'selected' : '' }}>Other</option>
+                                        </select>
+                                        @error('business_type')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -176,7 +215,7 @@
 
                                 <div class="mb-3 form-check">
                                     <input type="checkbox" class="form-check-input" id="is_active" name="is_active"
-                                        value="1" checked>
+                                        value="1" {{ old('is_active', 1) ? 'checked' : '' }}>
                                     <label class="form-check-label" for="is_active">Active Supplier</label>
                                 </div>
                             </div>
@@ -223,20 +262,6 @@
 
                 codeInput.value = code;
             }
-        });
-
-        // Format GSTIN input
-        document.getElementById('gstin').addEventListener('input', function(e) {
-            let value = e.target.value.toUpperCase();
-            value = value.replace(/[^A-Z0-9]/g, '');
-            e.target.value = value;
-        });
-
-        // Format PAN input
-        document.getElementById('pan_number').addEventListener('input', function(e) {
-            let value = e.target.value.toUpperCase();
-            value = value.replace(/[^A-Z0-9]/g, '');
-            e.target.value = value;
         });
     </script>
 @endpush

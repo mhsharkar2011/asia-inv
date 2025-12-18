@@ -2,27 +2,56 @@
 
 namespace App\Models\Purchase;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PurchaseOrder extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['supplier_id', 'order_date', 'total_amount', 'status'];
+    protected $fillable = [
+        'company_id',
+        'po_number',
+        'supplier_id',
+        'warehouse_id',
+        'order_date',
+        'expected_delivery_date',
+        'status',
+        'total_amount',
+        'tax_amount',
+        'discount',
+        'final_amount',
+        'notes'
+    ];
 
-    // Relationships
-    public function supplier()
+    protected $casts = [
+        'order_date' => 'date',
+        'expected_delivery_date' => 'date',
+        'total_amount' => 'decimal:2',
+        'tax_amount' => 'decimal:2',
+        'discount' => 'decimal:2',
+        'final_amount' => 'decimal:2',
+    ];
+
+    public function company(): BelongsTo
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(\App\Models\Inventory\Company::class);
     }
 
-    // Assumes an intermediary table for many-to-many relationship with Products
-    public function items()
+    public function supplier(): BelongsTo
     {
-        return $this->belongsToMany(
-            \App\Models\Inventory\Product::class,
-            'purchase_order_items'
-        )->withPivot('quantity', 'unit_price');
+        return $this->belongsTo(\App\Models\Purchase\Supplier::class);
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Inventory\Warehouse::class);
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderItem::class);
     }
 }
