@@ -44,7 +44,7 @@ class Customer extends Model
      */
     public function invoices(): HasMany
     {
-        return $this->hasMany(\App\Models\Invoice::class, 'customer_id');
+        return $this->hasMany(Invoice::class, 'customer_id');
     }
 
     /**

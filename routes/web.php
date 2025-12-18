@@ -10,7 +10,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Inventory\CategoryController;
 use App\Http\Controllers\Inventory\ProductController;
 use App\Http\Controllers\InvoiceCOntroller;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Sales\CustomerController;
 use App\Http\Controllers\Sales\SalesOrderController;
 
@@ -105,12 +105,10 @@ Route::middleware(['auth'])->group(function () {
         // Sales Orders (placeholder)
         Route::resource('sales-orders', SalesOrderController::class);
         // Additional sales order routes
-        Route::post('sales-orders/{salesOrder}/change-status', [SalesOrderController::class, 'changeStatus'])
-            ->name('sales-orders.change-status');
-        Route::get('sales-orders/{salesOrder}/convert-to-invoice', [SalesOrderController::class, 'convertToInvoice'])
-            ->name('sales-orders.convert-to-invoice');
-        Route::get('sales-orders/{salesOrder}/print', [SalesOrderController::class, 'print'])
-            ->name('sales-orders.print');
+        Route::post('sales-orders/{salesOrder}/change-status', [SalesOrderController::class, 'changeStatus'])->name('sales-orders.change-status');
+        Route::get('sales-orders/{salesOrder}/convert-to-invoice', [SalesOrderController::class, 'convertToInvoice'])->name('sales-orders.convert-to-invoice');
+        Route::get('sales-orders/{salesOrder}/print', [SalesOrderController::class, 'print'])->name('sales-orders.print');
+        Route::post('sales-orders/{sales_order}/confirm', [SalesOrderController::class, 'confirm'])->name('sales-orders.confirm');
 
         // Invoice Routes
         Route::resource('invoices', InvoiceCOntroller::class);
@@ -119,6 +117,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('invoices/{invoice}/send', [InvoiceController::class, 'send'])->name('invoices.send');
         Route::post('invoices/{invoice}/payment', [InvoiceController::class, 'recordPayment'])->name('invoices.payment');
         Route::get('invoices/{invoice}/print', [InvoiceController::class, 'print'])->name('invoices.print');
+        Route::get('sales-orders/export', [SalesOrderController::class, 'export'])->name('sales-orders.export');
+
     });
 
     // Reports Routes
@@ -133,12 +133,15 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/reports', function () {
             return redirect()->route('dashboard.index')->with('info', 'Reports module is under development');
-        })->name('reports.index');
+        })->name('dashboard.index');
 
-        Route::get('/reports', function () {
+        Route::get('/placeholder', function () {
             return view('reports.placeholder');
-        })->name('reports.index');
+        })->name('placeholder');
     });
+
+
+
 
     // Admin Routes
     Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {

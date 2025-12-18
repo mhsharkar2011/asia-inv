@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Invoice;
+use App\Models\Inventory\Company;
+use App\Models\Sales\Invoice;
 use App\Models\Sales\Customer;
-use App\Models\InvoiceItem;
+use App\Models\sales\InvoiceItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
 {
@@ -20,12 +22,12 @@ class InvoiceController extends Controller
         // Search functionality
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function($q2) use ($search) {
-                      $q2->where('name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('customer', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -105,7 +107,6 @@ class InvoiceController extends Controller
 
             return redirect()->route('sales.invoices.show', $invoice->id)
                 ->with('success', 'Invoice created successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
@@ -214,7 +215,6 @@ class InvoiceController extends Controller
 
             return redirect()->route('sales.invoices.show', $invoice->id)
                 ->with('success', 'Invoice updated successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
@@ -292,21 +292,37 @@ class InvoiceController extends Controller
     //     $invoice->load(['customer', 'items']);
     //     return view('sales.invoices.print', compact('invoice'));
     // }
+    public function print($id)
+    {
+        try {
+            $invoice = Invoice::with([
+                'customer',
+                'items.product',
+                'createdBy'
+            ])->findOrFail($id);
 
-    public function print(Invoice $invoice)
-{
-    $invoice->load(['customer', 'items']);
+            // Get company information - make sure it's a single object
+            $company = Company::first(); // Or however you get company info
 
-    // You can pass company details if you have them
-    $company = [
-        'name' => config('app.name', 'Your Company'),
-        'address' => '123 Business Street, City, State 12345',
-        'phone' => '(123) 456-7890',
-        'email' => 'billing@company.com',
-        'gstin' => '22AAAAA0000A1Z5',
-        'logo' => null // Add if you have logo
-    ];
+            if (!$company) {
+                // Create a default company object
+                $company = (object)[
+                    'name' => config('app.name', 'Your Company'),
+                    'logo' => null,
+                    'address' => '',
+                    'phone' => '',
+                    'email' => '',
+                    'website' => '',
+                    'tax_id' => '',
+                    'registration_no' => '',
+                ];
+            }
 
-    return view('sales.invoices.print', compact('invoice', 'company'));
-}
+            return view('sales.invoices.print', compact('invoice', 'company'));
+        } catch (\Exception $e) {
+            Log::error('Error loading invoice for print: ' . $e->getMessage());
+            return redirect()->route('sales.invoices.index')
+                ->with('error', 'Invoice not found or error loading for print');
+        }
+    }
 }

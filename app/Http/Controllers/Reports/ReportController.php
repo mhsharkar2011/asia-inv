@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Reports;
 
-use App\Models\Invoice;
+use App\Http\Controllers\Controller;
+use App\Models\Sales\Invoice;
 use App\Models\Sales\Customer;
 use App\Models\Inventory\Product;
 use App\Models\Sales\SalesOrder;
