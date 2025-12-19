@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Inventory;
 
-use App\Models\Company;
+use App\Http\Controllers\Controller;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
 
-class CompanyController extends Controller
+class InventoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +35,7 @@ class CompanyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Company $company)
+    public function show(Inventory $inventory)
     {
         //
     }
@@ -42,7 +43,7 @@ class CompanyController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Company $company)
+    public function edit(Inventory $inventory)
     {
         //
     }
@@ -50,7 +51,7 @@ class CompanyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Company $company)
+    public function update(Request $request, Inventory $inventory)
     {
         //
     }
@@ -58,7 +59,7 @@ class CompanyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Company $company)
+    public function destroy(Inventory $inventory)
     {
         //
     }

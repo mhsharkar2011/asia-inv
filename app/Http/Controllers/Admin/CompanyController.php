@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Models\Warehouse;
+use App\Http\Controllers\Controller;
+use App\Models\Company;
 use Illuminate\Http\Request;
 
-class WarehouseController extends Controller
+class CompanyController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +35,7 @@ class WarehouseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Warehouse $warehouse)
+    public function show(Company $company)
     {
         //
     }
@@ -42,7 +43,7 @@ class WarehouseController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Warehouse $warehouse)
+    public function edit(Company $company)
     {
         //
     }
@@ -50,7 +51,7 @@ class WarehouseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Warehouse $warehouse)
+    public function update(Request $request, Company $company)
     {
         //
     }
@@ -58,7 +59,7 @@ class WarehouseController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Warehouse $warehouse)
+    public function destroy(Company $company)
     {
         //
     }

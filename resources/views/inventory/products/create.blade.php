@@ -210,45 +210,153 @@
                                     </div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="track_batch"
-                                            name="track_batch" {{ old('track_batch') ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="track_batch">
-                                            Track Batch Numbers
-                                        </label>
-                                    </div>
+                                <div class="row mb-4">
+                                    <div class="col-md-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="mb-3">
+                                                            <h6 class="mb-3">Tracking Options</h6>
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    id="track_batch" name="track_batch"
+                                                                    {{ old('track_batch') ? 'checked' : '' }}>
+                                                                <label class="form-check-label d-flex align-items-center"
+                                                                    for="track_batch">
+                                                                    <span class="badge bg-info me-2">B</span>
+                                                                    Track Batch Numbers
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    id="track_expiry" name="track_expiry"
+                                                                    {{ old('track_expiry') ? 'checked' : '' }}>
+                                                                <label class="form-check-label d-flex align-items-center"
+                                                                    for="track_expiry">
+                                                                    <span class="badge bg-warning me-2">E</span>
+                                                                    Track Expiry Dates
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    id="track_serial" name="track_serial"
+                                                                    {{ old('track_serial') ? 'checked' : '' }}>
+                                                                <label class="form-check-label d-flex align-items-center"
+                                                                    for="track_serial">
+                                                                    <span class="badge bg-secondary me-2">S</span>
+                                                                    Track Serial Numbers
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="track_expiry"
-                                            name="track_expiry" {{ old('track_expiry') ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="track_expiry">
-                                            Track Expiry Dates
-                                        </label>
-                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="mb-3">
+                                                            <h6 class="mb-3">Stock Management</h6>
+                                                            <div class="form-check form-switch mb-2">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    role="switch" id="manage_stock" name="manage_stock"
+                                                                    value="1"
+                                                                    {{ old('manage_stock', true) ? 'checked' : '' }}>
+                                                                <label class="form-check-label" for="manage_stock">
+                                                                    Manage Stock Levels
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-switch mb-2">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    role="switch" id="allow_backorder"
+                                                                    name="allow_backorder" value="1"
+                                                                    {{ old('allow_backorder') ? 'checked' : '' }}>
+                                                                <label class="form-check-label" for="allow_backorder">
+                                                                    Allow Backorders
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check form-switch mb-2">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    role="switch" id="allow_negative"
+                                                                    name="allow_negative" value="1"
+                                                                    {{ old('allow_negative') ? 'checked' : '' }}>
+                                                                <label class="form-check-label" for="allow_negative">
+                                                                    Allow Negative Stock
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
-                                            value="1" checked>
-                                        <label class="form-check-label" for="is_active">
-                                            Active Product
-                                        </label>
+                                                    <!-- Checkboxes Section -->
+                                                    <div class="card mb-4">
+                                                        <div class="card-body">
+                                                            <h6 class="mb-3">Tracking Options</h6>
+
+                                                            <div class="row">
+                                                                <div class="col-md-4">
+                                                                    <div class="form-check form-switch mb-3">
+                                                                        <input class="form-check-input" type="checkbox"
+                                                                            role="switch" id="track_batch"
+                                                                            name="track_batch" value="1"
+                                                                            {{ old('track_batch') ? 'checked' : '' }}>
+                                                                        <label class="form-check-label" for="track_batch">
+                                                                            Track Batch Numbers
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-md-4">
+                                                                    <div class="form-check form-switch mb-3">
+                                                                        <input class="form-check-input" type="checkbox"
+                                                                            role="switch" id="track_expiry"
+                                                                            name="track_expiry" value="1"
+                                                                            {{ old('track_expiry') ? 'checked' : '' }}>
+                                                                        <label class="form-check-label"
+                                                                            for="track_expiry">
+                                                                            Track Expiry Dates
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-md-4">
+                                                                    <div class="form-check form-switch mb-3">
+                                                                        <input class="form-check-input" type="checkbox"
+                                                                            role="switch" id="is_active"
+                                                                            name="is_active" value="1"
+                                                                            {{ old('is_active', true) ? 'checked' : '' }}>
+                                                                        <label class="form-check-label" for="is_active">
+                                                                            Active Product
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            @error('track_batch')
+                                                                <div class="text-danger small">{{ $message }}</div>
+                                                            @enderror
+                                                            @error('track_expiry')
+                                                                <div class="text-danger small">{{ $message }}</div>
+                                                            @enderror
+                                                            @error('is_active')
+                                                                <div class="text-danger small">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="d-flex justify-content-end mt-4">
-                            <a href="{{ route('inventory.products.index') }}" class="btn btn-secondary me-2">
-                                Cancel
-                            </a>
-                            <button type="submit" name="save" class="btn btn-primary me-2">
-                                <i class="bi bi-check-circle me-1"></i> Save Product
-                            </button>
-                            <button type="submit" name="save_and_new" value="1" class="btn btn-success">
-                                <i class="bi bi-plus-circle me-1"></i> Save & New
-                            </button>
-                        </div>
+                            <div class="d-flex justify-content-end mt-4">
+                                <a href="{{ route('inventory.products.index') }}" class="btn btn-secondary me-2">
+                                    Cancel
+                                </a>
+                                <button type="submit" name="save" class="btn btn-primary me-2">
+                                    <i class="bi bi-check-circle me-1"></i> Save Product
+                                </button>
+                                <button type="submit" name="save_and_new" value="1" class="btn btn-success">
+                                    <i class="bi bi-plus-circle me-1"></i> Save & New
+                                </button>
+                            </div>
                     </form>
                 </div>
             </div>

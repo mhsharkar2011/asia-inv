@@ -112,14 +112,15 @@ class ProductController extends Controller
             'purchase_price' => 'nullable|numeric|min:0',
             'selling_price' => 'nullable|numeric|min:0',
             'mrp' => 'nullable|numeric|min:0',
-            'track_batch' => 'boolean',
-            'track_expiry' => 'boolean',
+            'track_batch' => 'nullable|in:0,1,true,false',
+            'track_expiry' => 'nullable|in:0,1,true,false',
+            'is_active' => 'nullable|in:0,1,true,false',
         ]);
 
         $validated['company_id'] = $companyId;
-        $validated['is_active'] = $request->has('is_active');
         $validated['track_batch'] = $request->has('track_batch');
         $validated['track_expiry'] = $request->has('track_expiry');
+        $validated['is_active'] = $request->has('is_active');
 
         Log::info('Final data to create:', $validated);
 

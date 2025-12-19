@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('role')->default('user');
             $table->boolean('is_active')->default(true);
             $table->string('language_preference')->default('en');
+            $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

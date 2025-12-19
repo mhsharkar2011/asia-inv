@@ -221,7 +221,7 @@
                                                 {{ max(0, $product->reorder_level - $product->stock_quantity) }}
                                             </span>
                                         </td>
-                                        <td>{{ $product->category ?? 'N/A' }}</td>
+                                        <td>{{ $product->category->category_name ?? 'N/A' }}</td>
                                         <td>
                                             @if ($product->status == 'active')
                                                 <span class="badge bg-success">Active</span>

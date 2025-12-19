@@ -66,36 +66,6 @@ class ReportController extends Controller
         return view('reports.customers', compact('customers'));
     }
 
-
-    /**
-     * Show the form for creating a customer report.
-     */
-    // public function customerReport(Request $request)
-    // {
-    //     $customers = Customer::withCount([
-    //         'invoices as invoices_count' => function ($query) {
-    //             $query->select(DB::raw('COUNT(*)'));
-    //         },
-    //         'salesOrders as sales_orders_count' => function ($query) {
-    //             $query->select(DB::raw('COUNT(*)'));
-    //         }
-    //     ])
-    //         ->withSum([
-    //             'invoices as total_invoice_amount' => function ($query) {
-    //                 $query->select(DB::raw('COALESCE(SUM(total_amount), 0)'));
-    //             }
-    //         ])
-    //         ->withSum([
-    //             'salesOrders as total_order_amount' => function ($query) {
-    //                 $query->select(DB::raw('COALESCE(SUM(total_amount), 0)'));
-    //             }
-    //         ])
-    //         ->orderBy('total_invoice_amount', 'desc')
-    //         ->get();
-
-    //     return view('reports.customers', compact('customers'));
-    // }
-
     /**
      * Show the form for creating a product report.
      */

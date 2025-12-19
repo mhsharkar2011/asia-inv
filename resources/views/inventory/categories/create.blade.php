@@ -48,8 +48,7 @@
 
                             <div class="mb-3">
                                 <label for="parent_category_id" class="form-label">Parent Category</label>
-                                <select class="form-select @error('parent_category_id') is-invalid @enderror"
-                                        id="parent_category_id" name="parent_category_id">
+                                <select class="form-select @error('parent_category_id') is-invalid @enderror" id="parent_category_id" name="parent_category_id">
                                     <option value="">-- Select Parent Category --</option>
                                     @foreach($parentCategories as $parent)
                                         <option value="{{ $parent->id }}"
