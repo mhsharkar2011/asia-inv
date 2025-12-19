@@ -15,9 +15,9 @@ return new class extends Migration
             $table->string('tax_id')->nullable();
             $table->text('address');
             $table->string('country');
-            $table->string('currency_base', 3)->default('INR');
+            $table->string('currency_base', 3)->default('BDT');
             $table->date('fiscal_year_start');
-            $table->boolean('gst_registered')->default(false);
+            $table->boolean('tin_registered')->default(false);
             $table->timestamps();
         });
     }

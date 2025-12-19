@@ -19,6 +19,8 @@ use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Sales\CustomerController;
 use App\Http\Controllers\Sales\SalesOrderController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\BranchController;
+use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Purchase\SupplierController;
 
 /*
@@ -47,6 +49,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
 
         Route::resource('companies', CompanyController::class);
+        Route::resource('branches', BranchController::class);
+        Route::resource('departments', DepartmentController::class);
     });
 
     // Dashboard

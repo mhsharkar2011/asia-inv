@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Branch;
-use App\Models\User;
+use App\Models\Admin\Branch;
+use App\Models\Admin\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -200,7 +200,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         // Prevent deleting own account
-        if ($user->id === auth()->id()) {
+        if ($user->id === Auth::id()) {
             return redirect()->route('users.index')
                 ->with('error', 'You cannot delete your own account.');
         }
@@ -214,7 +214,7 @@ class UserController extends Controller
     public function toggleStatus(User $user)
     {
         // Prevent deactivating own account
-        if ($user->id === auth()->id() && $user->is_active) {
+        if ($user->id === Auth::id() && $user->is_active) {
             return response()->json([
                 'success' => false,
                 'message' => 'You cannot deactivate your own account.'

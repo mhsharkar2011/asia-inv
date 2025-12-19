@@ -10,21 +10,26 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('company_id')->nullable()->constrained('companies')->onDelete('set null');
+            $table->foreignId('branch_id')->nullable()->constrained('branches')->onDelete('set null');
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->unsignedBigInteger('company_id')->nullable();
-            $table->unsignedBigInteger('branch_id')->nullable();
-            $table->string('full_name')->nullable();
-            $table->string('username')->unique();
-            $table->string('phone')->nullable();
             $table->string('role')->default('user');
-            $table->boolean('is_active')->default(true);
+            $table->string('phone')->nullable();
+            $table->text('address')->nullable();
+            $table->string('avatar')->nullable();
             $table->string('language_preference')->default('en');
+            $table->boolean('is_active')->default(true);
             $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
+
+            // Indexes
+            $table->index(['company_id', 'branch_id']);
+            $table->index(['role', 'is_active']);
         });
     }
 

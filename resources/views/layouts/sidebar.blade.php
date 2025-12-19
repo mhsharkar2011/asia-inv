@@ -91,6 +91,16 @@
                                  <i class="bi bi-building me-2"></i>Companies
                              </a>
                          </li>
+                         <li class="nav-item">
+                             <a class="nav-link ms-4" href="{{ route('admin.branches.index') }}">
+                                 <i class="bi bi-building me-2"></i>Branches
+                             </a>
+                         </li>
+                         <li class="nav-item">
+                             <a class="nav-link ms-4" href="{{ route('admin.departments.index') }}">
+                                 <i class="bi bi-building me-2"></i>Departments
+                             </a>
+                         </li>
                      </ul>
                  </li>
              @endif
