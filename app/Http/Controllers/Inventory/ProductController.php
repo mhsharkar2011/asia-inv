@@ -65,7 +65,7 @@ class ProductController extends Controller
         }
 
         // Order and paginate
-        $products = $query->orderBy('product_name')->paginate(20);
+        $products = $query->orderBy('product_name')->paginate(10);
 
         $categories = Category::where('company_id', $companyId)
             ->orderBy('category_name')
@@ -85,7 +85,9 @@ class ProductController extends Controller
             ->orderBy('category_name')
             ->get();
 
-        return view('inventory.products.create', compact('categories'));
+        $productCode = Product::generateProductCode();
+        
+        return view('inventory.products.create', compact('categories', 'productCode'));
     }
 
     /**
@@ -252,6 +254,23 @@ class ProductController extends Controller
             ->with('success', "Product {$status} successfully!");
     }
 
+    public function generateProductCodeAjax()
+    {
+        try {
+            $productCode = Product::generateProductCode();
+
+            return response()->json([
+                'success' => true,
+                'product_code' => $productCode,
+                'message' => 'Product code generated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate product code'
+            ], 500);
+        }
+    }
     /**
      * Get products for dropdown (AJAX).
      */

@@ -2,183 +2,338 @@
 
 @section('title', $product->product_name . ' - Product Details - Asia Enterprise')
 
+@section('breadcrumb', 'Product Details')
+
 @section('content')
-    <div class="container-fluid py-4">
-        <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="space-y-6">
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
-                <h1 class="h3 mb-0">{{ $product->product_name }}</h1>
-                <p class="text-muted mb-0">Product Code: {{ $product->product_code }}</p>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ $product->product_name }}</h1>
+                <div class="flex items-center mt-2 space-x-4">
+                    <span class="text-gray-600">Code: {{ $product->product_code }}</span>
+                    @if ($product->is_active)
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Active
+                        </span>
+                    @else
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            Inactive
+                        </span>
+                    @endif
+                </div>
             </div>
-            <div class="btn-toolbar mb-2 mb-md-0">
-                <a href="{{ route('inventory.products.index') }}" class="btn btn-sm btn-outline-secondary me-2">
-                    <i class="bi bi-arrow-left"></i> Back to Products
+            <div class="flex items-center space-x-2">
+                <a href="{{ route('inventory.products.index') }}"
+                    class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Products
                 </a>
-                <a href="{{ route('inventory.products.edit', $product->id) }}" class="btn btn-sm btn-outline-primary me-2">
-                    <i class="bi bi-pencil"></i> Edit
+                <a href="{{ route('inventory.products.edit', $product->id) }}"
+                    class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit
                 </a>
-                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
-                    data-bs-target="#deleteModal">
-                    <i class="bi bi-trash"></i> Delete
+                <button type="button" onclick="openDeleteModal()"
+                    class="inline-flex items-center px-3 py-2 border border-red-300 text-sm font-medium rounded-lg text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete
                 </button>
             </div>
         </div>
 
-        <!-- Product Details -->
-        <div class="row">
-            <!-- Left Column - Basic Info -->
-            <div class="col-md-8">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Product Information</h5>
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Product Information -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Product Information Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900">Product Information</h2>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <dl class="row">
-                                    <dt class="col-sm-4">Product Code:</dt>
-                                    <dd class="col-sm-8">{{ $product->product_code }}</dd>
-
-                                    <dt class="col-sm-4">Product Name:</dt>
-                                    <dd class="col-sm-8">{{ $product->product_name }}</dd>
-
-                                    <dt class="col-sm-4">Category:</dt>
-                                    <dd class="col-sm-8">{{ $product->category->category_name ?? 'N/A' }}</dd>
-
-                                    <dt class="col-sm-4">Description:</dt>
-                                    <dd class="col-sm-8">{{ $product->description ?? 'N/A' }}</dd>
-
-                                    <dt class="col-sm-4">Unit of Measure:</dt>
-                                    <dd class="col-sm-8">{{ $product->unit_of_measure }}</dd>
-                                </dl>
-                            </div>
-                            <div class="col-md-6">
-                                <dl class="row">
-                                    <dt class="col-sm-4">HSN/SAC Code:</dt>
-                                    <dd class="col-sm-8">{{ $product->hsn_sac_code ?? 'N/A' }}</dd>
-
-                                    <dt class="col-sm-4">Tax Rate:</dt>
-                                    <dd class="col-sm-8">{{ $product->tax_rate }}%</dd>
-
-                                    <dt class="col-sm-4">Status:</dt>
-                                    <dd class="col-sm-8">
-                                        @if ($product->is_active)
-                                            <span class="badge bg-success">Active</span>
-                                        @else
-                                            <span class="badge bg-secondary">Inactive</span>
-                                        @endif
-                                    </dd>
-
-                                    <dt class="col-sm-4">Created:</dt>
-                                    <dd class="col-sm-8">{{ $product->created_at->format('d M, Y') }}</dd>
-
-                                    <dt class="col-sm-4">Last Updated:</dt>
-                                    <dd class="col-sm-8">{{ $product->updated_at->format('d M, Y h:i A') }}</dd>
-                                </dl>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Stock Information -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Stock Information</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-md-3">
-                                <div class="p-3 border rounded">
-                                    <div
-                                        class="h2 mb-1 {{ $product->stock_quantity <= 0 ? 'text-danger' : ($product->stock_quantity <= $product->reorder_level ? 'text-warning' : 'text-success') }}">
-                                        {{ $product->stock_quantity }}
-                                    </div>
-                                    <small class="text-muted">Current Stock</small>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Left Column -->
+                            <div class="space-y-4">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Product Code</h3>
+                                    <p class="mt-1 text-gray-900">{{ $product->product_code }}</p>
                                 </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="p-3 border rounded">
-                                    <div class="h2 mb-1">{{ $product->reorder_level }}</div>
-                                    <small class="text-muted">Reorder Level</small>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Product Name</h3>
+                                    <p class="mt-1 text-gray-900">{{ $product->product_name }}</p>
                                 </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="p-3 border rounded">
-                                    <div class="h2 mb-1">{{ $product->min_stock }}</div>
-                                    <small class="text-muted">Minimum Stock</small>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="p-3 border rounded">
-                                    <div class="h2 mb-1">{{ $product->max_stock ?? 'N/A' }}</div>
-                                    <small class="text-muted">Maximum Stock</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-3">
-                            <div class="progress" style="height: 20px;">
-                                @php
-                                    $maxStock = $product->max_stock ?? $product->reorder_level * 3;
-                                    $stockPercent =
-                                        $maxStock > 0 ? min(100, ($product->stock_quantity / $maxStock) * 100) : 0;
-
-                                    if ($product->stock_quantity <= 0) {
-                                        $progressClass = 'bg-danger';
-                                    } elseif ($product->stock_quantity <= $product->reorder_level) {
-                                        $progressClass = 'bg-warning';
-                                    } else {
-                                        $progressClass = 'bg-success';
-                                    }
-                                @endphp
-                                <div class="progress-bar {{ $progressClass }}" role="progressbar"
-                                    style="width: {{ $stockPercent }}%" aria-valuenow="{{ $product->stock_quantity }}"
-                                    aria-valuemin="0" aria-valuemax="{{ $maxStock }}">
-                                    {{ $product->stock_quantity }} / {{ $maxStock }}
-                                </div>
-                            </div>
-                            <div class="text-center mt-2">
-                                <small class="text-muted">
-                                    @if ($product->stock_quantity <= 0)
-                                        <span class="text-danger"><i class="bi bi-exclamation-triangle"></i> Out of
-                                            Stock</span>
-                                    @elseif($product->stock_quantity <= $product->reorder_level)
-                                        <span class="text-warning"><i class="bi bi-exclamation-triangle"></i> Low Stock -
-                                            Reorder Now</span>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Category</h3>
+                                    @if ($product->category)
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800 mt-1">
+                                            {{ $product->category->category_name }}
+                                        </span>
                                     @else
-                                        <span class="text-success"><i class="bi bi-check-circle"></i> Stock Level OK</span>
+                                        <p class="mt-1 text-gray-900">N/A</p>
                                     @endif
-                                </small>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Description</h3>
+                                    <p class="mt-1 text-gray-900">{{ $product->description ?? 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Unit of Measure</h3>
+                                    <p class="mt-1 text-gray-900">{{ $product->unit_of_measure }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="space-y-4">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">HSN/SAC Code</h3>
+                                    <p class="mt-1 text-gray-900">{{ $product->hsn_sac_code ?? 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Tax Rate</h3>
+                                    <div class="flex items-center mt-1">
+                                        <span class="text-gray-900">{{ $product->tax_rate }}%</span>
+                                        <span
+                                            class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            GST
+                                        </span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Status</h3>
+                                    <div class="mt-1">
+                                        @if ($product->is_active)
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                Active
+                                            </span>
+                                        @else
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                                Inactive
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Created</h3>
+                                    <p class="mt-1 text-gray-900">{{ $product->created_at->format('d M, Y') }}</p>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Last Updated</h3>
+                                    <p class="mt-1 text-gray-900">{{ $product->updated_at->format('d M, Y h:i A') }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Stock Information Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900">Stock Information</h2>
+                    </div>
+                    <div class="p-6">
+                        <!-- Stock Stats Grid -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <!-- Current Stock -->
+                            <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 text-center">
+                                <div
+                                    class="text-2xl md:text-3xl font-bold mb-2
+                                {{ $product->stock_quantity <= 0 ? 'text-red-600' : ($product->stock_quantity <= $product->reorder_level ? 'text-amber-600' : 'text-green-600') }}">
+                                    {{ $product->stock_quantity }}
+                                </div>
+                                <div class="text-sm text-gray-500">Current Stock</div>
+                            </div>
+
+                            <!-- Reorder Level -->
+                            <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 text-center">
+                                <div class="text-2xl md:text-3xl font-bold text-amber-600 mb-2">
+                                    {{ $product->reorder_level }}</div>
+                                <div class="text-sm text-gray-500">Reorder Level</div>
+                            </div>
+
+                            <!-- Minimum Stock -->
+                            <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 text-center">
+                                <div class="text-2xl md:text-3xl font-bold text-orange-600 mb-2">{{ $product->min_stock }}
+                                </div>
+                                <div class="text-sm text-gray-500">Minimum Stock</div>
+                            </div>
+
+                            <!-- Maximum Stock -->
+                            <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 text-center">
+                                <div class="text-2xl md:text-3xl font-bold text-blue-600 mb-2">
+                                    {{ $product->max_stock ?? 'N/A' }}</div>
+                                <div class="text-sm text-gray-500">Maximum Stock</div>
+                            </div>
+                        </div>
+
+                        <!-- Stock Progress Bar -->
+                        <div>
+                            @php
+                                $maxStock = $product->max_stock ?? $product->reorder_level * 3;
+                                $stockPercent =
+                                    $maxStock > 0 ? min(100, ($product->stock_quantity / $maxStock) * 100) : 0;
+
+                                if ($product->stock_quantity <= 0) {
+                                    $progressClass = 'bg-red-600';
+                                    $statusText = 'Out of Stock';
+                                    $statusColor = 'text-red-600';
+                                } elseif ($product->stock_quantity <= $product->reorder_level) {
+                                    $progressClass = 'bg-amber-500';
+                                    $statusText = 'Low Stock - Reorder Now';
+                                    $statusColor = 'text-amber-600';
+                                } else {
+                                    $progressClass = 'bg-green-600';
+                                    $statusText = 'Stock Level OK';
+                                    $statusColor = 'text-green-600';
+                                }
+                            @endphp
+
+                            <div class="mb-2 flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-700">Stock Level</span>
+                                <span class="text-sm font-medium text-gray-900">{{ $product->stock_quantity }} /
+                                    {{ $maxStock }}</span>
+                            </div>
+
+                            <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                                <div class="{{ $progressClass }} h-full rounded-full transition-all duration-500 ease-out"
+                                    style="width: {{ $stockPercent }}%"></div>
+                            </div>
+
+                            <div class="mt-3 flex items-center justify-center">
+                                @if ($product->stock_quantity <= 0)
+                                    <svg class="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.714-.833-2.484 0L4.346 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                @elseif($product->stock_quantity <= $product->reorder_level)
+                                    <svg class="w-5 h-5 text-amber-600 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.714-.833-2.484 0L4.346 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                @else
+                                    <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                @endif
+                                <span class="text-sm font-medium {{ $statusColor }}">{{ $statusText }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tracking Information -->
+                @if ($product->track_batch || $product->track_expiry)
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-900">Tracking Information</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                @if ($product->track_batch)
+                                    <div class="flex items-start space-x-3">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-semibold text-gray-900">Batch Tracking</h3>
+                                            <p class="mt-1 text-sm text-gray-500">This product tracks batch numbers for
+                                                better inventory management.</p>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                @if ($product->track_expiry)
+                                    <div class="flex items-start space-x-3">
+                                        <div class="flex-shrink-0">
+                                            <div
+                                                class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-semibold text-gray-900">Expiry Tracking</h3>
+                                            <p class="mt-1 text-sm text-gray-500">This product tracks expiry dates to
+                                                prevent selling expired items.</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <!-- Right Column - Pricing & Actions -->
-            <div class="col-md-4">
-                <!-- Pricing Card -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Pricing Information</h5>
+            <div class="space-y-6">
+                <!-- Pricing Information Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900">Pricing Information</h2>
                     </div>
-                    <div class="card-body">
-                        <div class="list-group list-group-flush">
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Purchase Price:</span>
-                                <span class="fw-bold">BDT{{ number_format($product->purchase_price, 2) }}</span>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <!-- Purchase Price -->
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Purchase Price</span>
+                                <span
+                                    class="font-medium text-gray-900">৳{{ number_format($product->purchase_price, 2) }}</span>
                             </div>
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Selling Price:</span>
-                                <span class="fw-bold text-primary">BDT{{ number_format($product->selling_price, 2) }}</span>
+
+                            <!-- Selling Price -->
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Selling Price</span>
+                                <span
+                                    class="font-medium text-blue-600">৳{{ number_format($product->selling_price, 2) }}</span>
                             </div>
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>MRP:</span>
-                                <span class="fw-bold">BDT{{ number_format($product->mrp, 2) }}</span>
+
+                            <!-- MRP -->
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">MRP</span>
+                                <span class="font-medium text-gray-900">৳{{ number_format($product->mrp, 2) }}</span>
                             </div>
-                            <div class="list-group-item d-flex justify-content-between align-items-center bg-light">
-                                <span>Profit Margin:</span>
-                                <span class="fw-bold text-success">
+
+                            <!-- Profit Margin -->
+                            <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                                <span class="text-sm font-medium text-gray-700">Profit Margin</span>
+                                <span class="font-medium text-green-600">
                                     @if ($product->purchase_price > 0)
                                         {{ number_format((($product->selling_price - $product->purchase_price) / $product->purchase_price) * 100, 2) }}%
                                     @else
@@ -186,10 +341,12 @@
                                     @endif
                                 </span>
                             </div>
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Stock Value (at cost):</span>
-                                <span class="fw-bold text-info">
-                                    BDT{{ number_format($product->stock_quantity * $product->purchase_price, 2) }}
+
+                            <!-- Stock Value -->
+                            <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                                <span class="text-sm font-medium text-gray-700">Stock Value (at cost)</span>
+                                <span class="font-bold text-cyan-600">
+                                    ৳{{ number_format($product->stock_quantity * $product->purchase_price, 2) }}
                                 </span>
                             </div>
                         </div>
@@ -197,95 +354,103 @@
                 </div>
 
                 <!-- Quick Actions Card -->
-                <div class="card shadow-sm">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Quick Actions</h5>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900">Quick Actions</h2>
                     </div>
-                    <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <a href="{{ route('inventory.products.edit', $product->id) }}" class="btn btn-primary">
-                                <i class="bi bi-pencil me-2"></i>Edit Product
+                    <div class="p-6">
+                        <div class="space-y-3">
+                            <!-- Edit Product -->
+                            <a href="{{ route('inventory.products.edit', $product->id) }}"
+                                class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Edit Product
                             </a>
-                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
-                                data-bs-target="#updateStockModal">
-                                <i class="bi bi-plus-slash-minus me-2"></i>Update Stock
+
+                            <!-- Update Stock -->
+                            <button type="button" onclick="openUpdateStockModal()"
+                                class="w-full inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Update Stock
                             </button>
-                            <a href="#" class="btn btn-outline-success">
-                                <i class="bi bi-cart-plus me-2"></i>Create Purchase Order
+
+                            <!-- Create Purchase Order -->
+                            <a href="#"
+                                class="w-full inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Create Purchase Order
                             </a>
-                            @if ($product->is_active)
-                                <form action="{{ route('inventory.products.toggle-status', $product->id) }}"
-                                    method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-outline-warning w-100">
-                                        <i class="bi bi-toggle-off me-2"></i>Deactivate Product
-                                    </button>
-                                </form>
-                            @else
-                                <form action="{{ route('inventory.products.toggle-status', $product->id) }}"
-                                    method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-outline-success w-100">
-                                        <i class="bi bi-toggle-on me-2"></i>Activate Product
-                                    </button>
-                                </form>
-                            @endif
+
+                            <!-- Toggle Status -->
+                            <form action="{{ route('inventory.products.toggle-status', $product->id) }}" method="POST"
+                                class="w-full">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full inline-flex items-center justify-center px-4 py-2.5 border
+                                           {{ $product->is_active ? 'border-amber-300 text-amber-700 hover:bg-amber-50 focus:ring-amber-500' : 'border-green-300 text-green-700 hover:bg-green-50 focus:ring-green-500' }}
+                                           text-sm font-medium rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+                                    @if ($product->is_active)
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                        </svg>
+                                        Deactivate Product
+                                    @else
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Activate Product
+                                    @endif
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Tracking Information -->
-        @if ($product->track_batch || $product->track_expiry)
-            <div class="card shadow-sm mt-4">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Tracking Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        @if ($product->track_batch)
-                            <div class="col-md-6">
-                                <h6><i class="bi bi-upc-scan me-2"></i>Batch Tracking</h6>
-                                <p class="text-muted">This product tracks batch numbers for better inventory management.
-                                </p>
-                            </div>
-                        @endif
-                        @if ($product->track_expiry)
-                            <div class="col-md-6">
-                                <h6><i class="bi bi-calendar-date me-2"></i>Expiry Tracking</h6>
-                                <p class="text-muted">This product tracks expiry dates to prevent selling expired items.
-                                </p>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        @endif
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete product <strong>{{ $product->product_name }}</strong>?</p>
-                    <p class="text-danger">
-                        <i class="bi bi-exclamation-triangle"></i> This action cannot be undone.
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    <div id="deleteModal"
+        class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Confirm Delete</h3>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-700 mb-4">Are you sure you want to delete product
+                    <strong>{{ $product->product_name }}</strong>?</p>
+                <p class="text-sm text-red-600 mb-6">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.714-.833-2.484 0L4.346 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    This action cannot be undone.
+                </p>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeDeleteModal()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                        Cancel
+                    </button>
                     <form action="{{ route('inventory.products.destroy', $product->id) }}" method="POST"
-                        class="d-inline">
+                        class="inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash"></i> Delete Product
+                        <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                            Delete Product
                         </button>
                     </form>
                 </div>
@@ -294,74 +459,131 @@
     </div>
 
     <!-- Update Stock Modal -->
-    <div class="modal fade" id="updateStockModal" tabindex="-1" aria-labelledby="updateStockModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateStockModalLabel">Update Stock Quantity</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="{{ route('inventory.products.update-stock', $product->id) }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Current Stock</label>
-                            <input type="text" class="form-control" value="{{ $product->stock_quantity }}" readonly>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="adjustment_type" class="form-label">Adjustment Type *</label>
-                            <select class="form-select" id="adjustment_type" name="adjustment_type" required>
-                                <option value="add">Add Stock</option>
-                                <option value="subtract">Subtract Stock</option>
-                                <option value="set">Set Stock to Specific Value</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="quantity" class="form-label">Quantity *</label>
-                            <input type="number" class="form-control" id="quantity" name="quantity" min="1"
-                                required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">Notes (Optional)</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
-                        </div>
+    <div id="updateStockModal"
+        class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Update Stock Quantity</h3>
+            </div>
+            <form action="{{ route('inventory.products.update-stock', $product->id) }}" method="POST">
+                @csrf
+                <div class="p-6 space-y-4">
+                    <!-- Current Stock -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Current Stock</label>
+                        <input type="text" value="{{ $product->stock_quantity }}" readonly
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700">
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-circle me-1"></i> Update Stock
+
+                    <!-- Adjustment Type -->
+                    <div>
+                        <label for="adjustment_type" class="block text-sm font-medium text-gray-700 mb-1">
+                            Adjustment Type <span class="text-red-500">*</span>
+                        </label>
+                        <select id="adjustment_type" name="adjustment_type" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="add">Add Stock</option>
+                            <option value="subtract">Subtract Stock</option>
+                            <option value="set">Set Stock to Specific Value</option>
+                        </select>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div>
+                        <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">
+                            Quantity <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="quantity" name="quantity" min="1" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
+                            Notes (Optional)
+                        </label>
+                        <textarea id="notes" name="notes" rows="2"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                </div>
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeUpdateStockModal()"
+                            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                            Update Stock
                         </button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
-
-    <style>
-        .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid rgba(0, 0, 0, .125);
-        }
-
-        dt {
-            font-weight: 500;
-            color: #6c757d;
-        }
-
-        dd {
-            color: #212529;
-        }
-
-        .progress {
-            background-color: #e9ecef;
-        }
-
-        .progress-bar {
-            transition: width 0.6s ease;
-        }
-    </style>
 @endsection
+
+@push('scripts')
+    <script>
+        // Modal Functions
+        function openDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function openUpdateStockModal() {
+            document.getElementById('updateStockModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            initializeStockModal();
+        }
+
+        function closeUpdateStockModal() {
+            document.getElementById('updateStockModal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        // Close modals on background click
+        document.getElementById('deleteModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeDeleteModal();
+        });
+
+        document.getElementById('updateStockModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeUpdateStockModal();
+        });
+
+        // Initialize stock modal
+        function initializeStockModal() {
+            const currentStock = {{ $product->stock_quantity ?? 0 }};
+            const adjustmentType = document.getElementById('adjustment_type');
+            const quantityInput = document.getElementById('quantity');
+
+            if (adjustmentType && quantityInput) {
+                adjustmentType.addEventListener('change', function() {
+                    if (this.value === 'set') {
+                        quantityInput.min = 0;
+                        quantityInput.value = currentStock;
+                    } else {
+                        quantityInput.min = 1;
+                        quantityInput.value = 1;
+                    }
+                });
+
+                // Initialize with default values
+                adjustmentType.dispatchEvent(new Event('change'));
+            }
+        }
+
+        // Calculate profit margin
+        document.addEventListener('DOMContentLoaded', function() {
+            const profitMargin = document.querySelector('[class*="text-green-600"]:last-child');
+            if (profitMargin) {
+                console.log('Profit margin calculated:', profitMargin.textContent);
+            }
+        });
+    </script>
+@endpush

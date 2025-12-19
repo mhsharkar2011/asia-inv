@@ -93,7 +93,9 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('products', ProductController::class);
         Route::post('products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggle-status');
         Route::get('products-ajax', [ProductController::class, 'getProducts'])->name('products.ajax');
-        Route::post('inventory/products/{product}/update-stock', [ProductController::class, 'updateStock'])->name('products.update-stock');
+        Route::get('/products/generate-code', [ProductController::class, 'generateProductCodeAjax'])->name('products.generate-code');
+
+        Route::post('products/{product}/update-stock', [ProductController::class, 'updateStock'])->name('products.update-stock');
         Route::resource('stock', StockController::class);
         Route::resource('warehouses', WarehouseController::class);
     });
