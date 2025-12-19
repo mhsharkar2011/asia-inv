@@ -50,6 +50,12 @@ Route::middleware(['auth'])->group(function () {
 
         Route::resource('companies', CompanyController::class);
         Route::resource('branches', BranchController::class);
+        Route::prefix('branches')->name('branches.')->group(function () {
+            Route::post('/{branch}/toggle-status', [BranchController::class, 'toggleStatus'])->name('toggle-status');
+            Route::post('/{branch}/set-head-office', [BranchController::class, 'setHeadOffice'])->name('set-head-office');
+            Route::get('/company/{companyId}', [BranchController::class, 'getByCompany'])->name('by-company');
+            Route::get('/export', [BranchController::class, 'export'])->name('export');
+        });
         Route::resource('departments', DepartmentController::class);
     });
 
