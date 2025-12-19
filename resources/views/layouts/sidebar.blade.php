@@ -38,7 +38,7 @@
                  </a>
                  <ul class="nav flex-column collapse" id="purchaseSubmenu">
                      <li class="nav-item">
-                         <a class="nav-link ms-4" href="{{ route('purchase.suppliers.index') }}">
+                         <a class="nav-link ms-4" href="{{ route('purchase.organizations.index') }}">
                              <i class="bi bi-people me-2"></i>Suppliers
                          </a>
                      </li>
@@ -57,7 +57,7 @@
                  </a>
                  <ul class="nav flex-column collapse" id="salesSubmenu">
                      <li class="nav-item">
-                         <a class="nav-link ms-4" href="{{ route('sales.customers.index') }}">
+                         <a class="nav-link ms-4" href="{{ route('sales.organizations.index') }}">
                              <i class="bi bi-people me-2"></i>Customers
                          </a>
                      </li>
@@ -87,7 +87,7 @@
                              </a>
                          </li>
                          <li class="nav-item">
-                             <a class="nav-link ms-4" href="{{ route('admin.companies.index') }}">
+                             <a class="nav-link ms-4" href="{{ route('admin.organizations.index') }}">
                                  <i class="bi bi-building me-2"></i>Companies
                              </a>
                          </li>

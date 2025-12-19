@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -45,6 +46,7 @@ class Organization extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'sub_type' => 'string',
         'credit_limit' => 'decimal:2',
         'outstanding_balance' => 'decimal:2',
         'advance_payment_percentage' => 'decimal:2',
@@ -52,23 +54,23 @@ class Organization extends Model
         'longitude' => 'decimal:11,8',
     ];
 
-    // Scopes
-    public function scopeCompanies($query)
+    // Add local scopes
+    public function scopeCompanies(Builder $query): Builder
     {
         return $query->where('type', 'company');
     }
 
-    public function scopeCustomers($query)
+    public function scopeCustomers(Builder $query): Builder
     {
-        return $query->where('type', 'customer');
+        return $query->where('type', 'customer'); // or appropriate condition
     }
 
-    public function scopeSuppliers($query)
+    public function scopeSuppliers(Builder $query): Builder
     {
-        return $query->where('type', 'supplier');
+        return $query->where('type', 'supplier'); // or appropriate condition
     }
 
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
@@ -76,10 +78,10 @@ class Organization extends Model
     public function scopeSearch($query, $search)
     {
         return $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%")
-                    ->orWhere('contact_person', 'like', "%{$search}%");
+            ->orWhere('code', 'like', "%{$search}%")
+            ->orWhere('email', 'like', "%{$search}%")
+            ->orWhere('phone', 'like', "%{$search}%")
+            ->orWhere('contact_person', 'like', "%{$search}%");
     }
 
     // Relationships
@@ -91,15 +93,15 @@ class Organization extends Model
     public function customers(): HasMany
     {
         return $this->hasMany(OrganizationRelationship::class, 'company_id')
-                    ->where('relationship_type', 'customer_of')
-                    ->with('relatedOrganization');
+            ->where('relationship_type', 'customer_of')
+            ->with('relatedOrganization');
     }
 
     public function suppliers(): HasMany
     {
         return $this->hasMany(OrganizationRelationship::class, 'company_id')
-                    ->where('relationship_type', 'supplier_of')
-                    ->with('relatedOrganization');
+            ->where('relationship_type', 'supplier_of')
+            ->with('relatedOrganization');
     }
 
     // Helper Methods
@@ -125,7 +127,7 @@ class Organization extends Model
 
         static::creating(function ($organization) {
             if (empty($organization->code)) {
-                $prefix = match($organization->type) {
+                $prefix = match ($organization->type) {
                     'company' => 'COMP',
                     'customer' => 'CUST',
                     'supplier' => 'SUPP',

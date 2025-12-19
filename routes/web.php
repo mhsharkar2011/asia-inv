@@ -49,9 +49,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
         Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
 
-        Route::resource('organizations', OrganizationController::class);
+        // Route::resource('organizations', OrganizationController::class)->except(['index', 'create']);
         Route::get('organizations/{type?}', [OrganizationController::class, 'index'])->name('organizations.index');
-        Route::get('organizations/{type}/create', [OrganizationController::class, 'create'])->name('organizations.create');
+        Route::get('organizations/{type?}/create', [OrganizationController::class, 'create'])->name('organizations.create');
+        Route::post('organizations', [OrganizationController::class, 'store'])->name('organizations.store');
+        Route::get('organizations/{organization}', [OrganizationController::class, 'show'])->name('organizations.show');
+        Route::get('organizations/{organization}/edit', [OrganizationController::class, 'edit'])->name('organizations.edit');
+        Route::put('organizations/{organization}', [OrganizationController::class, 'update'])->name('organizations.update');
+        Route::delete('organizations/{organization}', [OrganizationController::class, 'destroy'])->name('organizations.destroy');
+        Route::get('organizations/export', [OrganizationController::class, 'export'])->name('organizations.export');
+        Route::get('organizations/{type?}/import', [OrganizationController::class, 'import'])->name('organizations.import');
+        Route::post('organizations/{organization}/toggle-status', [OrganizationController::class, 'toggleStatus'])->name('organizations.toggle-status');
 
         Route::resource('branches', BranchController::class);
         Route::prefix('branches')->name('branches.')->group(function () {
@@ -86,6 +94,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
         Route::get('suppliers-ajax', [SupplierController::class, 'getSuppliers'])->name('suppliers.ajax');
         Route::resource('purchase-orders', PurchaseOrderController::class);
+        Route::resource('organizations', OrganizationController::class);
     });
 
     // Sales Management
