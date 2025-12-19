@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Sales;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
 use App\Models\Sales\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use phpDocumentor\Reflection\Types\Nullable;
 
 class CustomerController extends Controller
 {
@@ -25,11 +25,11 @@ class CustomerController extends Controller
         $type = $request->get('type', 'all');
         $status = $request->get('status', 'all');
 
-        $customers = Customer::where('company_id', $companyId)
+        $customers = Organization::where('type', 'customer')
             ->when($search, function ($query) use ($search) {
                 return $query->where(function ($q) use ($search) {
-                    $q->where('customer_code', 'like', "%{$search}%")
-                        ->orWhere('customer_name', 'like', "%{$search}%")
+                    $q->where('code', 'like', "%{$search}%")
+                        ->orWhere('name', 'like', "%{$search}%")
                         ->orWhere('contact_person', 'like', "%{$search}%")
                         ->orWhere('phone', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")

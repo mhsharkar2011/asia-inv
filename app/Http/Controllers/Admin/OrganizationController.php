@@ -1,8 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Models\Organization;
+use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
+use App\Models\Sales\Invoice;
+use App\Models\Sales\SalesOrder;
 use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
@@ -87,7 +90,10 @@ class OrganizationController extends Controller
 
     public function show(Organization $organization)
     {
-        return view('admin.organizations.show', compact('organization'));
+        $totalInvoice = Invoice::where('customer_id', $organization->id)->count();
+        $totalValue = SalesOrder::where('customer_id', $organization->id)->sum('total_amount');
+        $order = SalesOrder::count();
+        return view('admin.organizations.show', compact('organization', 'totalInvoice', 'totalValue', 'order'));
     }
 
     public function edit(Organization $organization)

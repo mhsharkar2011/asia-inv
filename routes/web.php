@@ -1,19 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Inventory\CategoryController;
 use App\Http\Controllers\Inventory\ProductController;
 use App\Http\Controllers\Inventory\StockController;
 use App\Http\Controllers\Inventory\WarehouseController;
-use App\Http\Controllers\Inventory\InventoryController;
-use App\Http\Controllers\InvoiceCOntroller;
+use App\Http\Controllers\Sales\InvoiceController;
 use App\Http\Controllers\Purchase\PurchaseOrderController;
 use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Sales\CustomerController;
@@ -21,7 +18,7 @@ use App\Http\Controllers\Sales\SalesOrderController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\DepartmentController;
-use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Purchase\SupplierController;
 
 /*
@@ -110,6 +107,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Sales Management
     Route::prefix('sales')->name('sales.')->group(function () {
+        Route::resource('customers', CustomerController::class);
         Route::post('customers/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customers.toggle-status');
         Route::get('customers-ajax', [CustomerController::class, 'getCustomers'])->name('customers.ajax');
             Route::resource('organizations', OrganizationController::class);

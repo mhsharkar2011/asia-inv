@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Sales;
 
-use App\Models\Inventory\Company;
-use App\Models\Organization;
+use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\Customer;
-use App\Models\sales\InvoiceItem;
+use App\Models\Sales\InvoiceItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -61,55 +62,81 @@ class InvoiceController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'invoice_date' => 'required|date',
-            'due_date' => 'required|date|after_or_equal:invoice_date',
-            'notes' => 'nullable|string',
-            'terms' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.unit_price' => 'required|numeric|min:0',
-        ]);
-
-        DB::beginTransaction();
-
         try {
-            // Create invoice
-            $invoice = Invoice::create([
-                'invoice_number' => Invoice::generateInvoiceNumber(),
-                'customer_id' => $validated['customer_id'],
-                'invoice_date' => $validated['invoice_date'],
-                'due_date' => $validated['due_date'],
-                'notes' => $validated['notes'] ?? null,
-                'terms' => $validated['terms'] ?? null,
-                'status' => 'draft',
+            // Validate basic invoice data
+            $validated = $request->validate([
+                'customer_id' => 'required|exists:organizations,id',
+                'invoice_date' => 'required|date',
+                'due_date' => 'required|date|after_or_equal:invoice_date',
+                'notes' => 'nullable|string',
+                'terms' => 'nullable|string',
+                'subtotal' => 'required|numeric|min:0',
+                'tax_amount' => 'required|numeric|min:0',
+                'total_amount' => 'required|numeric|min:0',
+                'items' => 'required|array|min:1',
+                'items.*.description' => 'required|string',
+                'items.*.quantity' => 'required|numeric|min:0.01',
+                'items.*.unit_price' => 'required|numeric|min:0',
             ]);
 
+            Log::info('Validated data:', $validated);
+
+            DB::beginTransaction();
+
+            // Get the invoice number from the form
+            $invoiceNumber = $request->input('invoice_number', Invoice::generateInvoiceNumber());
+
+            // Create invoice
+            $invoice = Invoice::create([
+                'company_id' => Auth::user()->company_id ?? 1, // Adjust based on your auth system
+                'customer_id' => $validated['customer_id'],
+                'invoice_number' => $invoiceNumber,
+                'invoice_date' => $validated['invoice_date'],
+                'due_date' => $validated['due_date'],
+                'subtotal' => $validated['subtotal'],
+                'tax_amount' => $validated['tax_amount'],
+                'total_amount' => $validated['total_amount'],
+                'amount_paid' => 0,
+                'balance_due' => $validated['total_amount'],
+                'notes' => $validated['notes'] ?? null,
+                'terms' => $validated['terms'] ?? null,
+                'status' => $request->input('action') === 'save_send' ? 'sent' : 'draft',
+            ]);
+
+            Log::info('Invoice created:', $invoice->toArray());
+
             // Create invoice items
-            $subtotal = 0;
-            foreach ($validated['items'] as $itemData) {
+            foreach ($validated['items'] as $index => $itemData) {
                 $item = new InvoiceItem([
+                    'invoice_id' => $invoice->id,
                     'description' => $itemData['description'],
                     'quantity' => $itemData['quantity'],
                     'unit_price' => $itemData['unit_price'],
                     'total' => $itemData['quantity'] * $itemData['unit_price'],
+                    'tax_rate' => 18, // Default 18% GST
+                    'tax_amount' => ($itemData['quantity'] * $itemData['unit_price']) * 0.18,
                 ]);
 
-                $invoice->items()->save($item);
-                $subtotal += $item->total;
+                $item->save();
+                Log::info("Item {$index} created:", $item->toArray());
             }
-
-            // Calculate totals
-            $invoice->calculateTotals();
 
             DB::commit();
 
+            // Check action type for redirect
+            if ($request->input('action') === 'save_print') {
+                return redirect()->route('sales.invoices.print', $invoice->id)
+                    ->with('success', 'Invoice created successfully. Ready to print.');
+            }
+
             return redirect()->route('sales.invoices.show', $invoice->id)
                 ->with('success', 'Invoice created successfully.');
+
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Error creating invoice: ' . $e->getMessage());
+            Log::error('Exception trace: ' . $e->getTraceAsString());
+
             return redirect()->back()
                 ->with('error', 'Error creating invoice: ' . $e->getMessage())
                 ->withInput();
@@ -136,7 +163,7 @@ class InvoiceController extends Controller
         }
 
         $invoice->load('items');
-        $customers = Customer::where('status', 'active')->orderBy('name')->get();
+        $customers = Organization::where('type', 'customer')->orderBy('name')->get();
 
         return view('sales.invoices.edit', compact('invoice', 'customers'));
     }
@@ -151,29 +178,37 @@ class InvoiceController extends Controller
                 ->with('error', 'Only draft invoices can be edited.');
         }
 
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'invoice_date' => 'required|date',
-            'due_date' => 'required|date|after_or_equal:invoice_date',
-            'notes' => 'nullable|string',
-            'terms' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.id' => 'nullable|exists:invoice_items,id',
-            'items.*.description' => 'required|string',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.unit_price' => 'required|numeric|min:0',
-        ]);
-
-        DB::beginTransaction();
-
         try {
+            $validated = $request->validate([
+                'customer_id' => 'required|exists:organizations,id',
+                'invoice_date' => 'required|date',
+                'due_date' => 'required|date|after_or_equal:invoice_date',
+                'notes' => 'nullable|string',
+                'terms' => 'nullable|string',
+                'subtotal' => 'required|numeric|min:0',
+                'tax_amount' => 'required|numeric|min:0',
+                'total_amount' => 'required|numeric|min:0',
+                'items' => 'required|array|min:1',
+                'items.*.id' => 'nullable|exists:invoice_items,id',
+                'items.*.description' => 'required|string',
+                'items.*.quantity' => 'required|numeric|min:0.01',
+                'items.*.unit_price' => 'required|numeric|min:0',
+            ]);
+
+            DB::beginTransaction();
+
             // Update invoice details
             $invoice->update([
                 'customer_id' => $validated['customer_id'],
                 'invoice_date' => $validated['invoice_date'],
                 'due_date' => $validated['due_date'],
+                'subtotal' => $validated['subtotal'],
+                'tax_amount' => $validated['tax_amount'],
+                'total_amount' => $validated['total_amount'],
+                'balance_due' => $validated['total_amount'] - $invoice->amount_paid,
                 'notes' => $validated['notes'] ?? null,
                 'terms' => $validated['terms'] ?? null,
+                'status' => $request->input('action') === 'save_send' ? 'sent' : 'draft',
             ]);
 
             // Update or create items
@@ -181,7 +216,7 @@ class InvoiceController extends Controller
             $updatedItemIds = [];
 
             foreach ($validated['items'] as $itemData) {
-                if (isset($itemData['id'])) {
+                if (isset($itemData['id']) && in_array($itemData['id'], $existingItemIds)) {
                     // Update existing item
                     $item = InvoiceItem::find($itemData['id']);
                     $item->update([
@@ -189,17 +224,21 @@ class InvoiceController extends Controller
                         'quantity' => $itemData['quantity'],
                         'unit_price' => $itemData['unit_price'],
                         'total' => $itemData['quantity'] * $itemData['unit_price'],
+                        'tax_amount' => ($itemData['quantity'] * $itemData['unit_price']) * 0.18,
                     ]);
                     $updatedItemIds[] = $itemData['id'];
                 } else {
                     // Create new item
                     $item = new InvoiceItem([
+                        'invoice_id' => $invoice->id,
                         'description' => $itemData['description'],
                         'quantity' => $itemData['quantity'],
                         'unit_price' => $itemData['unit_price'],
                         'total' => $itemData['quantity'] * $itemData['unit_price'],
+                        'tax_rate' => 18,
+                        'tax_amount' => ($itemData['quantity'] * $itemData['unit_price']) * 0.18,
                     ]);
-                    $invoice->items()->save($item);
+                    $item->save();
                 }
             }
 
@@ -209,15 +248,21 @@ class InvoiceController extends Controller
                 InvoiceItem::whereIn('id', $itemsToDelete)->delete();
             }
 
-            // Recalculate totals
-            $invoice->calculateTotals();
-
             DB::commit();
+
+            // Check action type for redirect
+            if ($request->input('action') === 'save_print') {
+                return redirect()->route('sales.invoices.print', $invoice->id)
+                    ->with('success', 'Invoice updated successfully. Ready to print.');
+            }
 
             return redirect()->route('sales.invoices.show', $invoice->id)
                 ->with('success', 'Invoice updated successfully.');
+
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Error updating invoice: ' . $e->getMessage());
+
             return redirect()->back()
                 ->with('error', 'Error updating invoice: ' . $e->getMessage())
                 ->withInput();
@@ -255,7 +300,6 @@ class InvoiceController extends Controller
      */
     public function send(Invoice $invoice)
     {
-        // Logic to send invoice via email
         $invoice->update(['status' => 'sent']);
 
         return redirect()->back()
@@ -281,6 +325,9 @@ class InvoiceController extends Controller
             $invoice->update(['status' => 'paid']);
         }
 
+        // Create payment record if you have a payments table
+        // Payment::create([...]);
+
         return redirect()->back()
             ->with('success', 'Payment recorded successfully.');
     }
@@ -288,34 +335,27 @@ class InvoiceController extends Controller
     /**
      * Print invoice view.
      */
-    // public function print(Invoice $invoice)
-    // {
-    //     $invoice->load(['customer', 'items']);
-    //     return view('sales.invoices.print', compact('invoice'));
-    // }
     public function print($id)
     {
         try {
-            $invoice = Invoice::with([
-                'customer',
-                'items.product',
-                'createdBy'
-            ])->findOrFail($id);
+            $invoice = Invoice::with(['customer', 'items'])->findOrFail($id);
 
-            // Get company information - make sure it's a single object
-            $company = Organization::where('type', 'company')->first(); // Or however you get company info
+            // Get company information
+            $company = Organization::where('type', 'company')->first();
 
             if (!$company) {
                 // Create a default company object
                 $company = (object)[
                     'name' => config('app.name', 'Your Company'),
                     'logo' => null,
-                    'address' => '',
-                    'phone' => '',
-                    'email' => '',
-                    'website' => '',
-                    'tax_id' => '',
-                    'registration_no' => '',
+                    'address_line1' => '123 Business Street',
+                    'address_line2' => '',
+                    'city' => 'City',
+                    'state' => 'State',
+                    'pincode' => '12345',
+                    'phone' => '(123) 456-7890',
+                    'email' => 'billing@company.com',
+                    'gstin' => '22AAAAA0000A1Z5',
                 ];
             }
 

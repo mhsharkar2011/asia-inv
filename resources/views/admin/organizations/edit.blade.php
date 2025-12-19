@@ -19,9 +19,6 @@
                             </a>
                             <h1 class="text-2xl font-bold text-gray-900">Edit Organization</h1>
                         </div>
-                        <div class="text-sm text-gray-500">
-                            ID: {{ $organization->id }}
-                        </div>
                     </div>
                     <p class="text-gray-600">Update the details for {{ $organization->name }}</p>
                 </div>
@@ -40,7 +37,7 @@
                                 <h2 class="text-xl font-semibold text-white">{{ $organization->name }}</h2>
                             </div>
                             <span class="px-3 py-1 text-xs font-medium bg-blue-500 text-white rounded-full">
-                                {{ ucfirst($organization->status) }}
+                                {{ ucfirst($organization->code) }}
                             </span>
                         </div>
                     </div>

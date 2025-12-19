@@ -2,21 +2,18 @@
 
 namespace App\Models\Sales;
 
-use App\Models\Organization;
-use App\Models\Sales\Customer;
-use App\Models\Sales\InvoiceItem;
+use App\Models\Admin\Organization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Invoice extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'invoice_number',
+        'company_id',
         'customer_id',
+        'invoice_number',
         'invoice_date',
         'due_date',
         'subtotal',
@@ -42,50 +39,17 @@ class Invoice extends Model
     /**
      * Get the customer that owns the invoice.
      */
-    public function customer(): BelongsTo
+    public function customer()
     {
-        return $this->belongsTo(Organization::class,'customer_id');
+        return $this->belongsTo(Organization::class, 'customer_id');
     }
 
     /**
      * Get the items for the invoice.
      */
-    public function items(): HasMany
+    public function items()
     {
         return $this->hasMany(InvoiceItem::class);
-    }
-
-    /**
-     * Scope a query to only include paid invoices.
-     */
-    public function scopePaid($query)
-    {
-        return $query->where('status', 'paid');
-    }
-
-    /**
-     * Scope a query to only include overdue invoices.
-     */
-    public function scopeOverdue($query)
-    {
-        return $query->where('status', 'overdue');
-    }
-
-    /**
-     * Calculate invoice totals.
-     */
-    public function calculateTotals()
-    {
-        $subtotal = $this->items->sum('total');
-        $taxAmount = $subtotal * 0.18; // 18% GST
-        $totalAmount = $subtotal + $taxAmount;
-
-        $this->update([
-            'subtotal' => $subtotal,
-            'tax_amount' => $taxAmount,
-            'total_amount' => $totalAmount,
-            'balance_due' => $totalAmount - $this->amount_paid,
-        ]);
     }
 
     /**
@@ -102,12 +66,65 @@ class Invoice extends Model
             ->first();
 
         if ($lastInvoice) {
-            $lastNumber = intval(substr($lastInvoice->invoice_number, -4));
+            $lastNumber = (int) substr($lastInvoice->invoice_number, -4);
             $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
         } else {
             $nextNumber = '0001';
         }
 
         return $prefix . $year . $month . $nextNumber;
+    }
+
+    /**
+     * Calculate totals for the invoice.
+     */
+    public function calculateTotals()
+    {
+        $subtotal = $this->items()->sum('total');
+        $taxAmount = $subtotal * 0.18; // 18% GST
+        $totalAmount = $subtotal + $taxAmount;
+
+        $this->update([
+            'subtotal' => $subtotal,
+            'tax_amount' => $taxAmount,
+            'total_amount' => $totalAmount,
+            'balance_due' => $totalAmount - $this->amount_paid,
+        ]);
+    }
+
+    /**
+     * Scope a query to only include draft invoices.
+     */
+    public function scopeDraft($query)
+    {
+        return $query->where('status', 'draft');
+    }
+
+    /**
+     * Scope a query to only include sent invoices.
+     */
+    public function scopeSent($query)
+    {
+        return $query->where('status', 'sent');
+    }
+
+    /**
+     * Scope a query to only include paid invoices.
+     */
+    public function scopePaid($query)
+    {
+        return $query->where('status', 'paid');
+    }
+
+    /**
+     * Scope a query to only include overdue invoices.
+     */
+    public function scopeOverdue($query)
+    {
+        return $query->where('status', 'overdue')
+            ->orWhere(function ($q) {
+                $q->where('status', 'sent')
+                    ->where('due_date', '<', now());
+            });
     }
 }

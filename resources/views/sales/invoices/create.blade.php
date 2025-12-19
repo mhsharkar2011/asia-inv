@@ -3,208 +3,404 @@
 @section('title', 'Create Invoice')
 
 @section('content')
-    <div class="container-fluid py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('sales.invoices.index') }}">Invoices</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Create Invoice</li>
+    <div class="min-h-screen bg-gray-50 py-6">
+        <!-- Header -->
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <nav class="flex mb-4" aria-label="Breadcrumb">
+                    <ol class="flex items-center space-x-2 text-sm">
+                        <li>
+                            <a href="{{ route('dashboard') }}" class="text-gray-500 hover:text-gray-700">
+                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path
+                                        d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                                </svg>
+                            </a>
+                        </li>
+                        <li>
+                            <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </li>
+                        <li>
+                            <a href="{{ route('sales.invoices.index') }}"
+                                class="text-gray-500 hover:text-gray-700">Invoices</a>
+                        </li>
+                        <li>
+                            <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </li>
+                        <li class="text-gray-900 font-medium">Create</li>
                     </ol>
                 </nav>
-                <h1 class="h3 mb-0">Create New Invoice</h1>
-            </div>
-            <div>
-                <a href="{{ route('sales.invoices.index') }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Cancel
-                </a>
+
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Create New Invoice</h1>
+                        <p class="mt-1 text-sm text-gray-500">Create and manage customer invoices</p>
+                    </div>
+                    <div>
+                        <a href="{{ route('sales.invoices.index') }}"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Cancel
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <!-- Form Container -->
         <form action="{{ route('sales.invoices.store') }}" method="POST" id="invoiceForm">
             @csrf
 
-            <div class="row">
-                <div class="col-lg-8">
-                    <!-- Invoice Details Card -->
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="fas fa-file-invoice me-2"></i>Invoice Details</h5>
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+                    <!-- Left Column - Invoice Details -->
+                    <div class="lg:col-span-8 space-y-6">
+                        <!-- Customer & Basic Info Card -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
+                                <div class="flex items-center">
+                                    <svg class="h-6 w-6 text-white mr-3" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    <h2 class="text-lg font-semibold text-white">Customer Information</h2>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <!-- Customer Selection -->
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Customer *</label>
+                                        <select name="customer_id" id="customer_id"
+                                            class="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                            required onchange="loadCustomerDetails(this.value)">
+                                            <option value="">Select a Customer</option>
+                                            @foreach ($customers as $customer)
+                                                <option value="{{ $customer->id }}" data-email="{{ $customer->email }}"
+                                                    data-phone="{{ $customer->phone }}"
+                                                    data-address="{{ $customer->address_line1 }}"
+                                                    data-city="{{ $customer->city }}" data-state="{{ $customer->state }}"
+                                                    data-pincode="{{ $customer->pincode }}"
+                                                    data-gstin="{{ $customer->gstin ?? '' }}">
+                                                    {{ $customer->name }} -
+                                                    {{ $customer->customer_code ?? $customer->id }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Customer Details Display -->
+                                    <div class="md:col-span-2">
+                                        <div id="customerDetails"
+                                            class="hidden bg-blue-50 rounded-lg p-4 border border-blue-100">
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <h4 class="font-medium text-gray-900 mb-2">Contact Information</h4>
+                                                    <div class="space-y-1">
+                                                        <p id="customerEmail" class="text-sm text-gray-600"></p>
+                                                        <p id="customerPhone" class="text-sm text-gray-600"></p>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h4 class="font-medium text-gray-900 mb-2">Address & GST</h4>
+                                                    <div class="space-y-1">
+                                                        <p id="customerAddress" class="text-sm text-gray-600"></p>
+                                                        <p id="customerGSTIN" class="text-sm font-medium text-gray-700"></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Invoice Dates -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Invoice Date *</label>
+                                        <input type="date" name="invoice_date"
+                                            class="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                            value="{{ old('invoice_date', date('Y-m-d')) }}" required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Due Date *</label>
+                                        <input type="date" name="due_date"
+                                            class="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                            value="{{ old('due_date', date('Y-m-d', strtotime('+30 days'))) }}" required>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Invoice Number *</label>
-                                    <input type="text" class="form-control" value="{{ $invoice_number }}" readonly>
-                                    <small class="text-muted">Auto-generated</small>
-                                </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label">Customer *</label>
-                                    <select name="customer_id" class="form-select" required>
-                                        <option value="">Select Customer</option>
-                                        @foreach ($customers as $customer)
-                                            <option value="{{ $customer->id }}"
-                                                {{ $selected_customer_id == $customer->id ? 'selected' : '' }}>
-                                                {{ $customer->customer_code }} ({{ $customer->email }})
-                                            </option>
-                                        @endforeach
-                                    </select>
+                        <!-- Invoice Items Card -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-600 to-green-700">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-6 w-6 text-white mr-3" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                        <h2 class="text-lg font-semibold text-white">Invoice Items</h2>
+                                    </div>
+                                    <button type="button" id="addItemBtn"
+                                        class="inline-flex items-center px-4 py-2 bg-white text-green-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
+                                        <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        Add Item
+                                    </button>
                                 </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label">Invoice Date *</label>
-                                    <input type="date" name="invoice_date" class="form-control"
-                                        value="{{ date('Y-m-d') }}" required>
+                            </div>
+                            <div class="p-6">
+                                <div class="overflow-x-auto rounded-lg border border-gray-200">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                                                    #</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Description *</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
+                                                    Quantity *</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-36">
+                                                    Unit Price *</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-36">
+                                                    Total</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="itemsBody" class="bg-white divide-y divide-gray-200">
+                                            <!-- Initial row will be added by JavaScript -->
+                                        </tbody>
+                                        <tfoot class="bg-gray-50 border-t border-gray-200">
+                                            <tr>
+                                                <td colspan="3"
+                                                    class="px-6 py-3 text-right text-sm font-medium text-gray-900">
+                                                    Subtotal:</td>
+                                                <td colspan="2" class="px-6 py-3">
+                                                    <div class="flex items-center">
+                                                        <span class="text-gray-500 mr-2">BDT</span>
+                                                        <input type="text" id="subtotal"
+                                                            class="w-full bg-gray-50 border border-gray-300 rounded-md py-2 px-3 text-gray-700 text-sm font-medium"
+                                                            value="0.00" readonly>
+                                                    </div>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3"
+                                                    class="px-6 py-3 text-right text-sm font-medium text-gray-900">Tax
+                                                    (18%):</td>
+                                                <td colspan="2" class="px-6 py-3">
+                                                    <div class="flex items-center">
+                                                        <span class="text-gray-500 mr-2">BDT</span>
+                                                        <input type="text" id="taxAmount"
+                                                            class="w-full bg-gray-50 border border-gray-300 rounded-md py-2 px-3 text-gray-700 text-sm font-medium"
+                                                            value="0.00" readonly>
+                                                    </div>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                            <tr class="bg-gray-100">
+                                                <td colspan="3"
+                                                    class="px-6 py-3 text-right text-sm font-bold text-gray-900">Total
+                                                    Amount:</td>
+                                                <td colspan="2" class="px-6 py-3">
+                                                    <div class="flex items-center">
+                                                        <span class="text-gray-500 mr-2 font-bold">BDT</span>
+                                                        <input type="text" id="totalAmount"
+                                                            class="w-full bg-gray-100 border border-gray-300 rounded-md py-2 px-3 text-gray-900 font-bold text-sm"
+                                                            value="0.00" readonly>
+                                                    </div>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
                                 </div>
+                            </div>
+                        </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label">Due Date *</label>
-                                    <input type="date" name="due_date" class="form-control"
-                                        value="{{ date('Y-m-d', strtotime('+30 days')) }}" required>
+                        <!-- Additional Information -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-purple-700">
+                                <div class="flex items-center">
+                                    <svg class="h-6 w-6 text-white mr-3" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <h2 class="text-lg font-semibold text-white">Additional Information</h2>
                                 </div>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Notes
+                                            (Optional)</label>
+                                        <textarea name="notes" rows="3"
+                                            class="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                                            placeholder="Add any notes or special instructions...">{{ old('notes') }}</textarea>
+                                    </div>
 
-                                <div class="col-12">
-                                    <label class="form-label">Notes</label>
-                                    <textarea name="notes" class="form-control" rows="2"></textarea>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label">Terms & Conditions</label>
-                                    <textarea name="terms" class="form-control" rows="2"></textarea>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Terms & Conditions
+                                            (Optional)</label>
+                                        <textarea name="terms" rows="3"
+                                            class="w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                                            placeholder="Add payment terms and conditions...">{{ old('terms') }}</textarea>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Invoice Items Card -->
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Invoice Items</h5>
-                            <button type="button" class="btn btn-light btn-sm" id="addItemBtn">
-                                <i class="fas fa-plus me-1"></i>Add Item
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table" id="itemsTable">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th width="5%">#</th>
-                                            <th width="45%">Description *</th>
-                                            <th width="15%">Quantity *</th>
-                                            <th width="20%">Unit Price *</th>
-                                            <th width="15%">Total</th>
-                                            <th width="5%"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="itemsBody">
-                                        <!-- Items will be added here dynamically -->
-                                        <tr class="item-row">
-                                            <td>1</td>
-                                            <td>
-                                                <input type="text" name="items[0][description]"
-                                                    class="form-control item-description" required>
-                                            </td>
-                                            <td>
-                                                <input type="number" name="items[0][quantity]"
-                                                    class="form-control item-quantity" value="1" min="1"
-                                                    required>
-                                            </td>
-                                            <td>
-                                                <input type="number" name="items[0][unit_price]"
-                                                    class="form-control item-price" value="0" min="0"
-                                                    step="0.01" required>
-                                            </td>
-                                            <td>
-                                                <input type="text" class="form-control item-total" value="0.00"
-                                                    readonly>
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-danger remove-item" disabled>
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
-                                            <td>
-                                                <input type="text" class="form-control" id="subtotal" value="0.00"
-                                                    readonly>
-                                            </td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="4" class="text-end"><strong>Tax (18%):</strong></td>
-                                            <td>
-                                                <input type="text" class="form-control" id="taxAmount" value="0.00"
-                                                    readonly>
-                                            </td>
-                                            <td></td>
-                                        </tr>
-                                        <tr class="table-active">
-                                            <td colspan="4" class="text-end"><strong>Total Amount:</strong></td>
-                                            <td>
-                                                <input type="text" class="form-control" id="totalAmount"
-                                                    value="0.00" readonly>
-                                            </td>
-                                            <td></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
+                    <!-- Right Column - Summary & Actions -->
+                    <div class="lg:col-span-4 mt-6 lg:mt-0">
+                        <!-- Summary Card -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-600 to-amber-700">
+                                <div class="flex items-center">
+                                    <svg class="h-6 w-6 text-white mr-3" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                    <h2 class="text-lg font-semibold text-white">Invoice Summary</h2>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    <!-- Invoice Number -->
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Invoice Number:</span>
+                                        <span class="text-sm font-medium text-gray-900"
+                                            id="invoiceNumberDisplay">{{ $invoice_number }}</span>
+                                    </div>
+
+                                    <!-- Status -->
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Status:</span>
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            Draft
+                                        </span>
+                                    </div>
+
+                                    <hr class="my-4">
+
+                                    <!-- Amounts -->
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Subtotal:</span>
+                                            <span class="text-sm font-medium text-gray-900" id="summarySubtotal">BDT
+                                                0.00</span>
+                                        </div>
+
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Tax (18%):</span>
+                                            <span class="text-sm font-medium text-gray-900" id="summaryTax">BDT
+                                                0.00</span>
+                                        </div>
+
+                                        <hr class="my-3">
+
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-base font-semibold text-gray-900">Total Amount:</span>
+                                            <span class="text-xl font-bold text-gray-900" id="summaryTotal">BDT
+                                                0.00</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Hidden Fields for Calculations -->
+                                    <!-- Add these inside your form -->
+                                    <input type="hidden" name="invoice_number" value="{{ $invoice_number }}">
+                                    <input type="hidden" name="subtotal" id="hiddenSubtotal" value="0">
+                                    <input type="hidden" name="tax_amount" id="hiddenTaxAmount" value="0">
+                                    <input type="hidden" name="total_amount" id="hiddenTotalAmount" value="0">
+
+                                    <!-- Make sure the action buttons have correct names -->
+                                    <button type="submit" name="action" value="save_draft">Save as Draft</button>
+                                    <button type="submit" name="action" value="save_send">Save & Send</button>
+                                    <button type="submit" name="action" value="save_print">Save & Print</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Summary Sidebar -->
-                <div class="col-lg-4">
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="mb-0"><i class="fas fa-calculator me-2"></i>Invoice Summary</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="form-label text-muted small mb-1">Invoice Number</label>
-                                <p class="mb-0">{{ $invoice_number }}</p>
+                        <!-- Actions Card -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-indigo-700">
+                                <div class="flex items-center">
+                                    <svg class="h-6 w-6 text-white mr-3" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <h2 class="text-lg font-semibold text-white">Actions</h2>
+                                </div>
                             </div>
+                            <div class="p-6">
+                                <div class="space-y-3">
+                                    <button type="submit" name="action" value="save_draft"
+                                        class="w-full inline-flex items-center justify-center px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition">
+                                        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                                        </svg>
+                                        Save as Draft
+                                    </button>
 
-                            <div class="mb-3">
-                                <label class="form-label text-muted small mb-1">Status</label>
-                                <p class="mb-0">
-                                    <span class="badge bg-secondary">Draft</span>
-                                </p>
-                            </div>
+                                    <button type="submit" name="action" value="save_send"
+                                        class="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+                                        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                        </svg>
+                                        Save & Send Invoice
+                                    </button>
 
-                            <hr>
+                                    <button type="submit" name="action" value="save_print"
+                                        class="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
+                                        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                        </svg>
+                                        Save & Print
+                                    </button>
+                                </div>
 
-                            <div class="mb-2 d-flex justify-content-between">
-                                <span class="text-muted">Subtotal:</span>
-                                <span id="summarySubtotal">BDT0.00</span>
-                            </div>
-
-                            <div class="mb-2 d-flex justify-content-between">
-                                <span class="text-muted">Tax (18%):</span>
-                                <span id="summaryTax">BDT0.00</span>
-                            </div>
-
-                            <div class="mb-3 d-flex justify-content-between fw-bold">
-                                <span>Total Amount:</span>
-                                <span id="summaryTotal">BDT0.00</span>
-                            </div>
-
-                            <hr>
-
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>Save Invoice
-                                </button>
-                                <button type="submit" name="action" value="save_and_send" class="btn btn-success">
-                                    <i class="fas fa-paper-plane me-2"></i>Save & Send
-                                </button>
+                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                    <p class="text-xs text-gray-500 text-center">
+                                        All fields marked with * are required.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -214,59 +410,89 @@
     </div>
 @endsection
 
+@push('styles')
+    <style>
+        .item-row {
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        .item-row:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Custom scrollbar */
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        /* Smooth transitions */
+        .transition {
+            transition: all 0.15s ease-in-out;
+        }
+
+        /* Focus styles */
+        input:focus,
+        select:focus,
+        textarea:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+@endpush
+
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let itemCount = 1;
+            console.log('Invoice Form - Initializing...');
 
-            // Add new item row
-            document.getElementById('addItemBtn').addEventListener('click', function() {
-                const tbody = document.getElementById('itemsBody');
-                const newRow = document.createElement('tr');
-                newRow.className = 'item-row';
-                newRow.innerHTML = `
-            <td>${itemCount + 1}</td>
-            <td>
-                <input type="text" name="items[${itemCount}][description]"
-                       class="form-control item-description" required>
-            </td>
-            <td>
-                <input type="number" name="items[${itemCount}][quantity]"
-                       class="form-control item-quantity" value="1" min="1" required>
-            </td>
-            <td>
-                <input type="number" name="items[${itemCount}][unit_price]"
-                       class="form-control item-price" value="0" min="0" step="0.01" required>
-            </td>
-            <td>
-                <input type="text" class="form-control item-total" value="0.00" readonly>
-            </td>
-            <td>
-                <button type="button" class="btn btn-sm btn-danger remove-item">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
-                tbody.appendChild(newRow);
-                itemCount++;
+            // Constants
+            const TAX_RATE = 0.18; // 18% GST
+            let itemCount = 0;
 
-                // Enable remove button for first row if we have more than one row
-                if (document.querySelectorAll('.item-row').length > 1) {
-                    document.querySelector('.item-row .remove-item').disabled = false;
+            // DOM Elements
+            const itemsBody = document.getElementById('itemsBody');
+            const addItemBtn = document.getElementById('addItemBtn');
+            const invoiceForm = document.getElementById('invoiceForm');
+
+            // Initialize first item row
+            addNewItemRow();
+
+            // Event Listeners
+            if (addItemBtn) {
+                addItemBtn.addEventListener('click', addNewItemRow);
+            }
+
+            if (invoiceForm) {
+                invoiceForm.addEventListener('submit', validateForm);
+            }
+
+            // Add item row event delegation
+            itemsBody.addEventListener('input', function(e) {
+                if (e.target.classList.contains('item-quantity') ||
+                    e.target.classList.contains('item-price')) {
+                    calculateItemTotal(e.target.closest('.item-row'));
+                    calculateTotals();
                 }
-
-                // Add event listeners to new inputs
-                const inputs = newRow.querySelectorAll('.item-quantity, .item-price');
-                inputs.forEach(input => {
-                    input.addEventListener('input', calculateTotals);
-                });
             });
 
-            // Remove item row
-            document.addEventListener('click', function(e) {
+            // Remove item event delegation
+            itemsBody.addEventListener('click', function(e) {
                 if (e.target.closest('.remove-item')) {
                     const row = e.target.closest('.item-row');
-                    if (document.querySelectorAll('.item-row').length > 1) {
+                    if (row && document.querySelectorAll('.item-row').length > 1) {
                         row.remove();
                         renumberRows();
                         calculateTotals();
@@ -274,58 +500,243 @@
                 }
             });
 
-            // Calculate totals
+            // Functions
+            function addNewItemRow() {
+                const row = document.createElement('tr');
+                row.className = 'item-row hover:bg-gray-50 transition';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">${itemCount + 1}</td>
+                    <td class="px-6 py-4">
+                        <input type="text"
+                               name="items[${itemCount}][description]"
+                               class="item-description w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                               placeholder="Item description"
+                               required>
+                    </td>
+                    <td class="px-6 py-4">
+                        <input type="number"
+                               name="items[${itemCount}][quantity]"
+                               class="item-quantity w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                               value="1"
+                               min="1"
+                               step="0.01"
+                               required>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 text-sm">BDT</span>
+                            </div>
+                            <input type="number"
+                                   name="items[${itemCount}][unit_price]"
+                                   class="item-price w-full border border-gray-300 rounded-md py-2 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                   value="0"
+                                   min="0"
+                                   step="0.01"
+                                   required>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 text-sm">BDT</span>
+                            </div>
+                            <input type="text"
+                                   class="item-total w-full bg-gray-50 border border-gray-300 rounded-md py-2 pl-10 pr-3 text-gray-700 text-sm"
+                                   value="0.00"
+                                   readonly>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <button type="button"
+                                class="remove-item text-red-400 hover:text-red-600 transition ${itemCount === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                                ${itemCount === 0 ? 'disabled' : ''}>
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </td>
+                `;
+
+                itemsBody.appendChild(row);
+                itemCount++;
+
+                // Enable remove button for first row if multiple rows exist
+                if (itemCount > 1) {
+                    const firstRemoveBtn = itemsBody.querySelector('.item-row:first-child .remove-item');
+                    if (firstRemoveBtn) {
+                        firstRemoveBtn.disabled = false;
+                        firstRemoveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+
+                // Focus on new item description
+                row.querySelector('.item-description')?.focus();
+            }
+
+            function calculateItemTotal(row) {
+                const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                const total = quantity * price;
+
+                row.querySelector('.item-total').value = total.toFixed(2);
+                return total;
+            }
+
             function calculateTotals() {
                 let subtotal = 0;
 
-                document.querySelectorAll('.item-row').forEach((row, index) => {
-                    const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
-                    const price = parseFloat(row.querySelector('.item-price').value) || 0;
-                    const total = quantity * price;
-
-                    row.querySelector('.item-total').value = total.toFixed(2);
-                    subtotal += total;
+                document.querySelectorAll('.item-row').forEach(row => {
+                    subtotal += calculateItemTotal(row);
                 });
 
-                const taxRate = 0.18; // 18% GST
-                const taxAmount = subtotal * taxRate;
+                const taxAmount = subtotal * TAX_RATE;
                 const totalAmount = subtotal + taxAmount;
 
-                // Update table footer
-                document.getElementById('subtotal').value = subtotal.toFixed(2);
-                document.getElementById('taxAmount').value = taxAmount.toFixed(2);
-                document.getElementById('totalAmount').value = totalAmount.toFixed(2);
+                // Update display
+                updateElementValue('subtotal', subtotal.toFixed(2));
+                updateElementValue('taxAmount', taxAmount.toFixed(2));
+                updateElementValue('totalAmount', totalAmount.toFixed(2));
 
-                // Update summary
-                document.getElementById('summarySubtotal').textContent = 'BDT' + subtotal.toFixed(2);
-                document.getElementById('summaryTax').textContent = 'BDT' + taxAmount.toFixed(2);
-                document.getElementById('summaryTotal').textContent = 'BDT' + totalAmount.toFixed(2);
+                document.getElementById('summarySubtotal').textContent = 'BDT ' + subtotal.toFixed(2);
+                document.getElementById('summaryTax').textContent = 'BDT ' + taxAmount.toFixed(2);
+                document.getElementById('summaryTotal').textContent = 'BDT ' + totalAmount.toFixed(2);
+
+                // Update hidden fields for form submission
+                document.getElementById('hiddenSubtotal').value = subtotal.toFixed(2);
+                document.getElementById('hiddenTaxAmount').value = taxAmount.toFixed(2);
+                document.getElementById('hiddenTotalAmount').value = totalAmount.toFixed(2);
             }
 
-            // Renumber rows
             function renumberRows() {
                 document.querySelectorAll('.item-row').forEach((row, index) => {
-                    row.querySelector('td:first-child').textContent = index + 1;
+                    // Update row number
+                    const rowNumberCell = row.querySelector('td:first-child');
+                    if (rowNumberCell) {
+                        rowNumberCell.textContent = index + 1;
+                    }
 
                     // Update input names
                     const inputs = row.querySelectorAll('input');
                     inputs.forEach(input => {
                         const name = input.name;
-                        if (name.includes('items[')) {
+                        if (name && name.includes('items[')) {
                             input.name = name.replace(/items\[\d+\]/, `items[${index}]`);
                         }
                     });
                 });
+
                 itemCount = document.querySelectorAll('.item-row').length;
             }
 
-            // Initialize event listeners
-            document.querySelectorAll('.item-quantity, .item-price').forEach(input => {
-                input.addEventListener('input', calculateTotals);
-            });
+            function updateElementValue(id, value) {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.value = value;
+                }
+            }
 
-            // Initial calculation
+            function loadCustomerDetails(customerId) {
+                const customerDetails = document.getElementById('customerDetails');
+                const customerSelect = document.querySelector(`option[value="${customerId}"]`);
+
+                if (!customerSelect || customerId === '') {
+                    customerDetails.classList.add('hidden');
+                    return;
+                }
+
+                // Extract customer data from data attributes
+                const email = customerSelect.dataset.email || '';
+                const phone = customerSelect.dataset.phone || '';
+                const address = customerSelect.dataset.address || '';
+                const city = customerSelect.dataset.city || '';
+                const state = customerSelect.dataset.state || '';
+                const pincode = customerSelect.dataset.pincode || '';
+                const gstin = customerSelect.dataset.gstin || '';
+
+                // Update display
+                document.getElementById('customerEmail').textContent = email;
+                document.getElementById('customerPhone').textContent = phone;
+
+                const fullAddress = address + (city ? ', ' + city : '') + (state ? ', ' + state : '') + (pincode ?
+                    ' - ' + pincode : '');
+                document.getElementById('customerAddress').textContent = fullAddress || 'Address not available';
+
+                document.getElementById('customerGSTIN').textContent = gstin ? `GSTIN: ${gstin}` :
+                    'GSTIN not provided';
+
+                // Show details
+                customerDetails.classList.remove('hidden');
+            }
+
+            function validateForm(e) {
+                // Validate customer selection
+                const customerSelect = document.getElementById('customer_id');
+                if (!customerSelect || !customerSelect.value) {
+                    e.preventDefault();
+                    showAlert('Please select a customer.', 'error');
+                    customerSelect.focus();
+                    return false;
+                }
+
+                // Validate at least one valid item
+                const validItems = Array.from(document.querySelectorAll('.item-row')).filter(row => {
+                    const description = row.querySelector('.item-description')?.value.trim();
+                    const quantity = parseFloat(row.querySelector('.item-quantity')?.value) || 0;
+                    const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
+
+                    return description && quantity > 0 && price > 0;
+                });
+
+                if (validItems.length === 0) {
+                    e.preventDefault();
+                    showAlert('Please add at least one valid item with description, quantity, and price.', 'error');
+                    return false;
+                }
+
+                // Validate dates
+                const invoiceDate = document.querySelector('input[name="invoice_date"]');
+                const dueDate = document.querySelector('input[name="due_date"]');
+
+                if (new Date(dueDate.value) < new Date(invoiceDate.value)) {
+                    e.preventDefault();
+                    showAlert('Due date must be after invoice date.', 'error');
+                    dueDate.focus();
+                    return false;
+                }
+
+                return true;
+            }
+
+            function showAlert(message, type = 'info') {
+                // Create alert element
+                const alert = document.createElement('div');
+                alert.className =
+                    `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg ${type === 'error' ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-blue-50 border border-blue-200 text-blue-700'}`;
+                alert.innerHTML = `
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${type === 'error' ?
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />' :
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                        </svg>
+                        <span>${message}</span>
+                    </div>
+                `;
+
+                document.body.appendChild(alert);
+
+                // Remove alert after 5 seconds
+                setTimeout(() => {
+                    alert.remove();
+                }, 5000);
+            }
+
+            // Initialize calculations
             calculateTotals();
+
+            console.log('Invoice Form - Initialization complete');
         });
     </script>
 @endpush

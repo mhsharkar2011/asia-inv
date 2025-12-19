@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Sales;
 
 use App\Http\Controllers\Controller;
-use App\Models\Inventory\Company;
 use App\Models\Inventory\Product;
-use App\Models\Organization;
+use App\Models\Admin\Organization;
 use App\Models\Sales\SalesOrder;
 use App\Models\Sales\SalesOrderItem;
 use Illuminate\Http\Request;

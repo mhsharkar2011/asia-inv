@@ -2,9 +2,8 @@
 
 namespace App\Models\Sales;
 
-use App\Models\Sales\Invoice;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class InvoiceItem extends Model
 {
@@ -12,40 +11,40 @@ class InvoiceItem extends Model
 
     protected $fillable = [
         'invoice_id',
-        'product_id',
         'description',
         'quantity',
         'unit_price',
         'total',
-        // Add other fields as needed
+        'tax_rate',
+        'tax_amount',
     ];
 
     protected $casts = [
         'quantity' => 'decimal:2',
         'unit_price' => 'decimal:2',
         'total' => 'decimal:2',
+        'tax_rate' => 'decimal:2',
+        'tax_amount' => 'decimal:2',
     ];
 
-    // Relationships
+    /**
+     * Get the invoice that owns the item.
+     */
     public function invoice()
     {
         return $this->belongsTo(Invoice::class);
     }
 
-    public function product()
-    {
-        return $this->belongsTo(\App\Models\Inventory\Product::class);
-    }
-
-    // Calculate total before saving
-    public static function boot()
+    /**
+     * Calculate total before saving.
+     */
+    protected static function boot()
     {
         parent::boot();
 
         static::saving(function ($item) {
-            if ($item->quantity && $item->unit_price) {
-                $item->total = $item->quantity * $item->unit_price;
-            }
+            $item->total = $item->quantity * $item->unit_price;
+            $item->tax_amount = $item->total * ($item->tax_rate / 100);
         });
     }
 }
