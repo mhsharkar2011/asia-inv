@@ -21,22 +21,22 @@
                                     class="list-group-item list-group-item-action {{ !$type ? 'active' : '' }}">
                                     <i class="bi bi-grid me-2"></i>All Organizations
                                     <span
-                                        class="badge bg-secondary float-end">{{ $stats['companies'] + $stats['customers'] + $stats['suppliers'] }}</span>
+                                        class="badge bg-primary float-end">{{ $stats['companies'] + $stats['customers'] + $stats['suppliers'] }}</span>
                                 </a>
                                 <a href="{{ route('admin.organizations.index', ['type' => 'company']) }}"
                                     class="list-group-item list-group-item-action {{ $type == 'company' ? 'active' : '' }}">
                                     <i class="bi bi-building me-2 text-company"></i>Companies
-                                    <span class="badge bg-company float-end">{{ $stats['companies'] }}</span>
+                                    <span class="badge bg-primary float-end">{{ $stats['companies'] }}</span>
                                 </a>
                                 <a href="{{ route('admin.organizations.index', ['type' => 'customer']) }}"
                                     class="list-group-item list-group-item-action {{ $type == 'customer' ? 'active' : '' }}">
                                     <i class="bi bi-people me-2 text-customer"></i>Customers
-                                    <span class="badge bg-customer float-end">{{ $stats['customers'] }}</span>
+                                    <span class="badge bg-primary float-end">{{ $stats['customers'] }}</span>
                                 </a>
                                 <a href="{{ route('admin.organizations.index', ['type' => 'supplier']) }}"
                                     class="list-group-item list-group-item-action {{ $type == 'supplier' ? 'active' : '' }}">
                                     <i class="bi bi-truck me-2 text-supplier"></i>Suppliers
-                                    <span class="badge bg-supplier float-end">{{ $stats['suppliers'] }}</span>
+                                    <span class="badge bg-primary float-end">{{ $stats['suppliers'] }}</span>
                                 </a>
                             </div>
                         </div>
@@ -228,7 +228,7 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <span class="badge badge-{{ $org->type }}">
+                                                <span class="badge bg-secondary badge-{{ $org->type }}">
                                                     <i
                                                         class="bi
                                                 @if ($org->type == 'company') bi-building

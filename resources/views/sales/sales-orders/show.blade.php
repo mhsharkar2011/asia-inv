@@ -488,7 +488,7 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <a href="{{ route('sales.customers.show', $salesOrder->customer) }}"
+                            <a href="{{ route('sales.organizations.show', $salesOrder->customer) }}"
                                 class="btn btn-outline-success btn-sm">
                                 <i class="fas fa-external-link-alt me-1"></i>View Customer Profile
                             </a>

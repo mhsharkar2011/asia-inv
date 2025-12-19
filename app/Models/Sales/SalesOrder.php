@@ -2,7 +2,8 @@
 
 namespace App\Models\Sales;
 
-use App\Models\User;
+use App\Models\Organization;
+use App\Models\Admin\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -62,7 +63,7 @@ class SalesOrder extends Model
      */
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Organization::class,'customer_id')->where('type', 'customer');
     }
 
     /**
@@ -170,7 +171,7 @@ class SalesOrder extends Model
 
         return $colors[$this->payment_status] ?? 'secondary';
     }
-    
+
     /**
      * Get the user who created the sales order
      */

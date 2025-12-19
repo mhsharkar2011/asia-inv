@@ -29,6 +29,10 @@ use App\Http\Controllers\Purchase\SupplierController;
 | Web Routes
 |--------------------------------------------------------------------------
 */
+//public Routes
+Route::get('/', function () {
+    return view('home');
+});
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -46,14 +50,19 @@ Route::middleware(['auth'])->group(function () {
     // Admin User Management
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class);
+        Route::get('users-ajax', [UserController::class, 'getUsers'])->name('users.ajax');
         Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
         Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+        // User profile edit
+        Route::get('profile', [UserController::class, 'editProfile'])->name('users.profile.edit');
+        Route::put('profile', [UserController::class, 'updateProfile'])->name('users.profile.update');
+
 
         // Route::resource('organizations', OrganizationController::class)->except(['index', 'create']);
         Route::get('organizations/{type?}', [OrganizationController::class, 'index'])->name('organizations.index');
         Route::get('organizations/{type?}/create', [OrganizationController::class, 'create'])->name('organizations.create');
         Route::post('organizations', [OrganizationController::class, 'store'])->name('organizations.store');
-        Route::get('organizations/{organization}', [OrganizationController::class, 'show'])->name('organizations.show');
+        Route::get('organizations/{organization}/show', [OrganizationController::class, 'show'])->name('organizations.show');
         Route::get('organizations/{organization}/edit', [OrganizationController::class, 'edit'])->name('organizations.edit');
         Route::put('organizations/{organization}', [OrganizationController::class, 'update'])->name('organizations.update');
         Route::delete('organizations/{organization}', [OrganizationController::class, 'destroy'])->name('organizations.destroy');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inventory\Company;
+use App\Models\Organization;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\Customer;
 use App\Models\sales\InvoiceItem;
@@ -46,7 +47,7 @@ class InvoiceController extends Controller
      */
     public function create(Request $request)
     {
-        $customers = Customer::where('is_active', '1')->orderBy('customer_name')->get();
+        $customers = Organization::where('type', 'customer')->orderBy('name')->get();
         $invoice_number = Invoice::generateInvoiceNumber();
 
         // Pre-select customer if coming from customer page
@@ -302,7 +303,7 @@ class InvoiceController extends Controller
             ])->findOrFail($id);
 
             // Get company information - make sure it's a single object
-            $company = Company::first(); // Or however you get company info
+            $company = Organization::where('type', 'company')->first(); // Or however you get company info
 
             if (!$company) {
                 // Create a default company object

@@ -6,112 +6,31 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Asia Enterprise - Tally Pro')</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+     <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 
     <!-- Custom CSS -->
-    <style>
-        body {
-            font-size: .875rem;
-        }
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            padding: 48px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-        }
-        @media (max-width: 767.98px) {
-            .sidebar {
-                top: 5rem;
-            }
-        }
-        .navbar-brand {
-            padding-top: .75rem;
-            padding-bottom: .75rem;
-            background-color: rgba(0, 0, 0, .25);
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
-        }
-        .navbar .navbar-toggler {
-            top: .25rem;
-            right: 1rem;
-        }
-        .sidebar .nav-link {
-            font-weight: 500;
-            color: #333;
-        }
-        .sidebar .nav-link.active {
-            color: #007bff;
-        }
-        .stats-card {
-            transition: transform 0.2s;
-        }
-        .stats-card:hover {
-            transform: translateY(-5px);
-        }
-    </style>
     @stack('styles')
 </head>
-<body>
+<body class="font-sans antialiased bg-gray-50">
     <!-- Header -->
-    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="{{ route('dashboard') }}">
-            <i class="bi bi-box-seam me-2"></i>Asia Enterprise
-        </a>
-        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button"
-                data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    @include('layouts.navigation')
 
-        <ul class="navbar-nav px-3">
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                   data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle me-1"></i>{{ Auth::user()->name }}
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item">
-                                <i class="bi bi-box-arrow-right me-2"></i>Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-    </nav>
-
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-           @include('layouts.sidebar')
-
-
-            <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                @yield('content')
-            </main>
+        <!-- Main Layout -->
+    <div class="flex">
+        <!-- Sidebar -->
+        @include('layouts.sidebar')
+        <!-- Main Content -->
+        <div class="flex-grow p-6">
+            @yield('content')
         </div>
     </div>
 

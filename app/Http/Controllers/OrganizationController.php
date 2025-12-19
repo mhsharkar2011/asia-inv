@@ -92,8 +92,9 @@ class OrganizationController extends Controller
 
     public function edit(Organization $organization)
     {
-        $subTypes = $this->getSubTypes($organization->type);
-        return view('admin.organizations.edit', compact('organization', 'subTypes'));
+        $types = Organization::select('type')->distinct()->pluck('type')->toArray();
+
+        return view('admin.organizations.edit', compact('types', 'organization'));
     }
 
     public function update(Request $request, Organization $organization)

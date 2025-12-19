@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('quantity', 10, 2);
             $table->decimal('unit_price', 12, 2);
             $table->decimal('discount_percentage', 5, 2)->default(0);
+            $table->decimal('discount', 5, 2)->default(0);
             $table->decimal('amount', 12, 2);
             $table->timestamps();
 
