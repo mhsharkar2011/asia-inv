@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->nullable()->constrained('companies')->onDelete('set null');
-            $table->foreignId('branch_id')->nullable()->constrained('branches')->onDelete('set null');
+            $table->foreignId('company_id')->nullable()->constrained('organizations')->onDelete('set null');
+            // $table->foreignId('branch_id')->nullable()->constrained('branches')->onDelete('set null');
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->softDeletes();
 
             // Indexes
-            $table->index(['company_id', 'branch_id']);
+            $table->index(['company_id', 'email']);
             $table->index(['role', 'is_active']);
         });
     }

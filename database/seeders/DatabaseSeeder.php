@@ -16,39 +16,39 @@ class DatabaseSeeder extends Seeder
         // Clear tables
         DB::table('categories')->truncate();
         DB::table('users')->truncate();
-        DB::table('branches')->truncate();
-        DB::table('companies')->truncate();
+        // DB::table('branches')->truncate();
+        DB::table('organizations')->truncate();
 
         // Enable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // Insert company
-        $companyId = DB::table('companies')->insertGetId([
-            'company_name' => 'Asia Enterprises Ltd.',
-            'registration_no' => 'ABC123456',
-            'tax_id' => 'GSTIN123456789',
+        $companyId = DB::table('organizations')->insertGetId([
+            'code' => 'AEL.',
+            'name' => 'Asia Enterprises Ltd.',
+            'tin' => '123456789321',
+            'bin' => '212233444444',
             'address' => '123 Main Street, Mumbai, Maharashtra',
             'country' => 'India',
-            'currency_base' => 'INR',
+            'currency' => 'INR',
             'fiscal_year_start' => '2024-04-01',
-            'gst_registered' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         // Insert branch
-        $branchId = DB::table('branches')->insertGetId([
-            'company_id' => $companyId,
-            'branch_code' => 'BR001',
-            'branch_name' => 'Main Branch',
-            'address' => '123 Main Street, Mumbai, Maharashtra',
-            'contact_person' => 'John Doe',
-            'phone' => '+91-9876543210',
-            'email' => 'main@asiaenterprise.com',
-            'is_main_branch' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // $branchId = DB::table('branches')->insertGetId([
+        //     'company_id' => $companyId,
+        //     'branch_code' => 'BR001',
+        //     'branch_name' => 'Main Branch',
+        //     'address' => '123 Main Street, Mumbai, Maharashtra',
+        //     'contact_person' => 'John Doe',
+        //     'phone' => '+91-9876543210',
+        //     'email' => 'main@asiaenterprise.com',
+        //     'is_main_branch' => true,
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
 
         // Insert users
         DB::table('users')->insert([
@@ -56,34 +56,18 @@ class DatabaseSeeder extends Seeder
                 'name' => 'System Administrator',
                 'email' => 'admin@asiaenterprise.com',
                 'password' => Hash::make('admin@123'),
+                'avatar' => 'default_avatar.png',
                 'company_id' => $companyId,
-                'branch_id' => $branchId,
-                'username' => 'admin',
-                'full_name' => 'System Administrator',
+                // 'branch_id' => $branchId,
                 'role' => 'admin',
-                'phone' => '+91-9876543210',
+                'phone' => '+8801733172007',
                 'language_preference' => 'en',
                 'is_active' => true,
                 'email_verified_at' => now(),
+                'last_login_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
-            [
-                'name' => 'John Staff',
-                'email' => 'staff@asiaenterprise.com',
-                'password' => Hash::make('staff@123'),
-                'company_id' => $companyId,
-                'branch_id' => $branchId,
-                'username' => 'staff',
-                'full_name' => 'John Staff',
-                'role' => 'staff',
-                'phone' => '+91-9876543211',
-                'language_preference' => 'en',
-                'is_active' => true,
-                'email_verified_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+            ]
         ]);
 
         // Insert categories

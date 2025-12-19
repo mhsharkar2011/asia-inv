@@ -41,7 +41,7 @@
                         </div>
                     </div>
                     <div class="card-footer bg-transparent border-top-0 py-2">
-                        <a href="{{ route('sales.customers.index') }}" class="text-decoration-none small">
+                        <a href="{{ route('sales.organizations.index') }}" class="text-decoration-none small">
                             View all customers <i class="bi bi-arrow-right ms-1"></i>
                         </a>
                     </div>
@@ -192,7 +192,7 @@
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="{{ route('sales.customers.create') }}"
+                                <a href="{{ route('sales.organizations.create') }}"
                                     class="btn btn-outline-info w-100 d-flex flex-column align-items-center p-3">
                                     <i class="bi bi-person-plus fs-4 mb-2"></i>
                                     <span class="small">Add Customer</span>

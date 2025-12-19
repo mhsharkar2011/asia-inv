@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inventory\Product;
+use App\Models\Organization;
 use App\Models\Sales\Invoice;
-use App\Models\Sales\Customer;
 use App\Models\Sales\SalesOrder;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -32,12 +32,12 @@ class DashboardController extends Controller
             ->get();
 
         // Get recent customers
-        $recentCustomers = Customer::latest()
+        $recentCustomers = Organization::latest()
             ->limit(10)
             ->get();
 
         // Calculate dashboard statistics
-        $totalCustomers = Customer::count();
+        $totalCustomers = Organization::count();
         $totalProducts = Product::count();
 
         $totalInvoices = Invoice::count();

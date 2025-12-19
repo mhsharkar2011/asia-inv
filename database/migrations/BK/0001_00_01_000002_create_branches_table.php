@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('branches', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            $table->foreignId('company_id')->constrained('organizations')->onDelete('cascade');
             $table->string('branch_code')->unique()->comment('Branch identifier e.g., BRN001');
             $table->string('branch_name');
             $table->string('branch_type')->default('retail')->comment('retail, warehouse, office, factory, etc.');
@@ -41,7 +41,7 @@ return new class extends Migration
             $table->softDeletes();
 
             // Indexes for performance
-            $table->index(['company_id', 'is_active']);
+            // $table->index(['company_id', 'is_active']);
             $table->index('branch_code');
             $table->index('city');
             $table->index('branch_type');

@@ -21,6 +21,7 @@ use App\Http\Controllers\Sales\SalesOrderController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\Purchase\SupplierController;
 
 /*
@@ -48,7 +49,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
         Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
 
-        Route::resource('companies', CompanyController::class);
+        Route::resource('organizations', OrganizationController::class);
+        Route::get('organizations/{type?}', [OrganizationController::class, 'index'])->name('organizations.index');
+        Route::get('organizations/{type}/create', [OrganizationController::class, 'create'])->name('organizations.create');
+
         Route::resource('branches', BranchController::class);
         Route::prefix('branches')->name('branches.')->group(function () {
             Route::post('/{branch}/toggle-status', [BranchController::class, 'toggleStatus'])->name('toggle-status');
@@ -79,7 +83,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Purchase Management
     Route::prefix('purchase')->name('purchase.')->group(function () {
-        Route::resource('suppliers', SupplierController::class);
         Route::post('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
         Route::get('suppliers-ajax', [SupplierController::class, 'getSuppliers'])->name('suppliers.ajax');
         Route::resource('purchase-orders', PurchaseOrderController::class);
@@ -87,9 +90,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Sales Management
     Route::prefix('sales')->name('sales.')->group(function () {
-        Route::resource('customers', CustomerController::class);
         Route::post('customers/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customers.toggle-status');
         Route::get('customers-ajax', [CustomerController::class, 'getCustomers'])->name('customers.ajax');
+            Route::resource('organizations', OrganizationController::class);
 
         Route::resource('sales-orders', SalesOrderController::class);
         Route::post('sales-orders/{salesOrder}/change-status', [SalesOrderController::class, 'changeStatus'])->name('sales-orders.change-status');
@@ -117,7 +120,3 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/placeholder', [ReportController::class, 'placeholder'])->name('placeholder');
     });
 });
-
-  // Route::get('/reports', function () {
-        //     return redirect()->route('dashboard.index')->with('info', 'Reports module is under development');
-        // })->name('dashboard.index');
