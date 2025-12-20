@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\OrganizationController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Purchase\SupplierController;
 
 /*
@@ -27,9 +28,7 @@ use App\Http\Controllers\Purchase\SupplierController;
 |--------------------------------------------------------------------------
 */
 //public Routes
-Route::get('/', function () {
-    return view('home');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
