@@ -505,6 +505,50 @@
                         <textarea id="notes" name="notes" rows="2"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                     </div>
+
+
+                    <!-- resources/views/products/show.blade.php -->
+<!-- Display images in product show page -->
+@if($product->images->count() > 0)
+    <div class="row">
+        <!-- Main Image (First image) -->
+        <div class="col-md-12 mb-4">
+            <div class="text-center">
+                <img src="{{ $product->getFirstMediaUrl('products') }}"
+                     alt="{{ $product->name }}"
+                     class="img-fluid rounded"
+                     style="max-height: 400px;">
+                <p class="text-muted mt-2">Featured Image</p>
+            </div>
+        </div>
+
+        <!-- Additional Images -->
+        @if($product->images->count() > 1)
+            <h5 class="mt-4 mb-3">Additional Images</h5>
+            <div class="row">
+                @foreach($product->images as $index => $image)
+                    @if($index > 0)
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="card">
+                                <img src="{{ $image->getUrl() }}"
+                                     alt="Product Image {{ $index + 1 }}"
+                                     class="card-img-top"
+                                     style="height: 150px; object-fit: cover;">
+                                <div class="card-body text-center p-2">
+                                    <small class="text-muted">Image {{ $index + 1 }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+        @endif
+    </div>
+@else
+    <div class="alert alert-info">
+        No images uploaded for this product.
+    </div>
+@endif
                 </div>
                 <div class="px-6 py-4 border-t border-gray-200">
                     <div class="flex justify-end space-x-3">
@@ -521,6 +565,48 @@
             </form>
         </div>
     </div>
+
+
+@if($mediaItems && $mediaItems->count() > 0)
+    <div class="row">
+        <!-- Main Image (First image) -->
+        <div class="col-md-12 mb-4">
+            <div class="text-center">
+                <img src="{{ $product->getFirstMediaUrl('products') }}"
+                     alt="{{ $product->name }}"
+                     class="img-fluid rounded"
+                     style="max-height: 400px;">
+                <p class="text-muted mt-2">Featured Image</p>
+            </div>
+        </div>
+
+        <!-- Additional Images -->
+        @if($mediaItems->count() > 1)
+            <h5 class="mt-4 mb-3">Additional Images</h5>
+            <div class="row">
+                @foreach($mediaItems as $index => $image)
+                    @if($index > 0)
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="card">
+                                <img src="{{ $image->getUrl() }}"
+                                     alt="Product Image {{ $index + 1 }}"
+                                     class="card-img-top"
+                                     style="height: 150px; object-fit: cover;">
+                                <div class="card-body text-center p-2">
+                                    <small class="text-muted">Image {{ $index + 1 }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+        @endif
+    </div>
+@else
+    <div class="alert alert-info">
+        No images uploaded for this product.
+    </div>
+@endif
 @endsection
 
 @push('scripts')
