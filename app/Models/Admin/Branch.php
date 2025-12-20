@@ -64,7 +64,7 @@ class Branch extends Model
     // Relationships
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(Organization::class,'company_id');
     }
 
     public function users(): HasMany

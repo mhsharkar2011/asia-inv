@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Inventory;
 
 use App\Http\Controllers\Controller;
 use App\Models\Inventory\Category;
+use App\Models\Inventory\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,7 +25,7 @@ class CategoryController extends Controller
 
         $categories = Category::with('parent', 'products')
             ->where('company_id', $companyId)
-            ->when($search, function($query) use ($search) {
+            ->when($search, function ($query) use ($search) {
                 return $query->where('category_code', 'like', "%{$search}%")
                     ->orWhere('category_name', 'like', "%{$search}%");
             })
@@ -81,11 +82,17 @@ class CategoryController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        $category = Category::with(['parent', 'children', 'products'])
+        $category = Category::with(['parent', 'children'])
             ->where('company_id', $companyId)
             ->findOrFail($id);
 
-        return view('inventory.categories.show', compact('category'));
+        // Get all category IDs (parent + children)
+        $categoryIds = $this->getAllCategoryIds($category);
+
+        // Fetch all products under these categories
+        $products = Product::whereIn('category_id', $categoryIds)->get();
+
+        return view('inventory.categories.show', compact('category', 'products'));
     }
 
     /**
@@ -193,6 +200,20 @@ class CategoryController extends Controller
         return false;
     }
 
+
+    /**
+     * Recursive function to get all child category IDs
+     */
+    private function getAllCategoryIds($category)
+    {
+        $ids = [$category->id];
+
+        foreach ($category->children as $child) {
+            $ids = array_merge($ids, $this->getAllCategoryIds($child));
+        }
+
+        return $ids;
+    }
     /**
      * Get categories for dropdown (AJAX).
      */
@@ -202,7 +223,7 @@ class CategoryController extends Controller
         $search = $request->get('search');
 
         $categories = Category::where('company_id', $companyId)
-            ->when($search, function($query) use ($search) {
+            ->when($search, function ($query) use ($search) {
                 return $query->where('category_name', 'like', "%{$search}%")
                     ->orWhere('category_code', 'like', "%{$search}%");
             })

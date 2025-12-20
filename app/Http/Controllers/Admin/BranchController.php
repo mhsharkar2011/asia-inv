@@ -19,7 +19,7 @@ class BranchController extends Controller
         $type = $request->input('type');
         $company = $request->input('company_id');
 
-        $branches = Branch::with(['company'])
+        $branches = Branch::with('company')
             ->withCount(['users', 'warehouses'])
             ->when($search, function ($query, $search) {
                 return $query->search($search);

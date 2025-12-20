@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Organization;
 use App\Models\Sales\Invoice;
-use App\Models\Sales\Customer;
 use App\Models\Inventory\Product;
 use App\Models\Sales\SalesOrder;
 use Illuminate\Http\Request;
@@ -57,7 +57,7 @@ class ReportController extends Controller
      */
     public function customerReport(Request $request)
     {
-        $customers = Customer::withCount(['invoices', 'salesOrders'])
+        $customers = Organization::where('type', 'customer')->withCount(['invoices', 'salesOrders'])
             ->withSum('invoices as total_invoice_amount', 'total_amount')
             ->withSum('salesOrders as total_order_amount', 'total_amount')
             ->orderBy('total_invoice_amount', 'desc')
@@ -72,12 +72,12 @@ class ReportController extends Controller
     public function productReport()
     {
         $products = Product::orderBy('stock_quantity')->get();
-
+        $customers = Organization::where('type', 'customer')->get();
         $lowStockProducts = Product::whereColumn('stock_quantity', '<=', 'reorder_level')
             ->where('is_active', '1')
             ->get();
 
-        return view('reports.products', compact('products', 'lowStockProducts'));
+        return view('reports.products', compact('products','customers', 'lowStockProducts'));
     }
 
     /**

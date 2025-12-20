@@ -2,6 +2,8 @@
 
 namespace App\Models\Admin;
 
+use App\Models\Sales\Invoice;
+use App\Models\Sales\SalesOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -53,6 +55,98 @@ class Organization extends Model
         'latitude' => 'decimal:10,8',
         'longitude' => 'decimal:11,8',
     ];
+
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class, 'customer_id');
+    }
+    public function salesOrders(): HasMany
+    {
+        return $this->hasMany(SalesOrder::class, 'customer_id');
+    }
+
+    /**
+     * Get the total invoice amount for the customer.
+     */
+    public function getTotalInvoiceAmountAttribute()
+    {
+        return $this->invoices()->sum('total_amount');
+    }
+
+    /**
+     * Get the total sales order amount for the customer.
+     */
+    public function getTotalOrderAmountAttribute()
+    {
+        return $this->salesOrders()->sum('total_amount');
+    }
+
+    /**
+     * Get the total outstanding amount for the customer.
+     */
+    public function getTotalOutstandingAttribute()
+    {
+        return $this->invoices()->where('status', '!=', 'paid')->sum('balance_due');
+    }
+
+    /**
+     * Check if customer has exceeded credit limit.
+     */
+    public function hasExceededCreditLimit(): bool
+    {
+        if (!$this->credit_limit) {
+            return false;
+        }
+
+        $totalOutstanding = $this->getTotalOutstandingAttribute();
+        return $totalOutstanding > $this->credit_limit;
+    }
+    /**
+     * Get customer's credit utilization percentage.
+     */
+    public function getCreditUtilizationAttribute()
+    {
+        if (!$this->credit_limit) {
+            return 0;
+        }
+
+        $totalOutstanding = $this->getTotalOutstandingAttribute();
+        return ($totalOutstanding / $this->credit_limit) * 100;
+    }
+    /**
+     * Scope a query to only include customers with outstanding balance.
+     */
+    public function scopeWithOutstanding($query)
+    {
+        return $query->whereHas('invoices', function ($q) {
+            $q->where('status', '!=', 'paid')
+                ->where('balance_due', '>', 0);
+        });
+    }
+
+    /**
+     * Generate customer code.
+     */
+    public static function generateCustomerCode()
+    {
+        $prefix = 'CUST-';
+        $year = date('Y');
+        $month = date('m');
+
+        $lastCustomer = self::where('customer_code', 'like', $prefix . $year . $month . '%')
+            ->orderBy('customer_code', 'desc')
+            ->first();
+
+        if ($lastCustomer) {
+            $lastNumber = intval(substr($lastCustomer->customer_code, -4));
+            $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $nextNumber = '0001';
+        }
+
+        return $prefix . $year . $month . $nextNumber;
+    }
 
     // Add local scopes
     public function scopeCompanies(Builder $query): Builder

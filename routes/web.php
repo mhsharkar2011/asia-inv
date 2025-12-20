@@ -95,6 +95,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('products/{product}/update-stock', [ProductController::class, 'updateStock'])->name('products.update-stock');
         Route::resource('stock', StockController::class);
         Route::resource('warehouses', WarehouseController::class);
+        Route::get('warehouses/products', [WarehouseController::class, 'getProducts'])->name('warehouses.products');
     });
 
     // Purchase Management

@@ -130,4 +130,17 @@ class WarehouseController extends Controller
             'is_active' => $warehouse->is_active
         ]);
     }
+
+    public function getProducts(Request $request)
+    {
+        $warehouseId = $request->input('warehouse_id');
+
+        $warehouse = Warehouse::with('products')->find($warehouseId);
+
+        if (!$warehouse) {
+            return response()->json(['error' => 'Warehouse not found'], 404);
+        }
+
+        return response()->json(['products' => $warehouse->products]);
+    }   
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models\Inventory;
 
+use App\Models\Admin\Organization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,7 +26,7 @@ class Category extends Model
     // Relationship with Company
     public function company()
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo(Organization::class, 'company_id');
     }
 
     // Self-referential relationship for parent category

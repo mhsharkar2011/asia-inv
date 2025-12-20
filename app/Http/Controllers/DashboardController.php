@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inventory\Product;
-use App\Models\Organization;
+use App\Models\Admin\Organization;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\SalesOrder;
 use Illuminate\Http\Request;
