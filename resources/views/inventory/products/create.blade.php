@@ -195,7 +195,7 @@
 
                                     <div>
                                         <label for="tax_rate" class="block text-sm font-medium text-gray-700 mb-1">
-                                            GST Rate (%) <span class="text-red-500">*</span>
+                                            AIT Rate (%) <span class="text-red-500">*</span>
                                         </label>
                                         <select id="tax_rate" name="tax_rate" required
                                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('tax_rate') border-red-500 @enderror">
@@ -653,7 +653,7 @@
 
     // DOMContentLoaded events
     document.addEventListener('DOMContentLoaded', function() {
-        
+
     });
     </script>
 @endpush

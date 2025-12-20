@@ -5,10 +5,11 @@ namespace App\Models\Inventory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $fillable = [
         'company_id',
@@ -191,5 +192,11 @@ class Product extends Model
         }
 
         return $prefix . $year . $month . $nextNumber;
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('products')
+            ->useDisk('public');
     }
 }

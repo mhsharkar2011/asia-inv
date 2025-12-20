@@ -2,6 +2,10 @@
 
 namespace App\Models\Purchase;
 
+use App\Models\Admin\Organization;
+use App\Models\Purchase\Supplier;
+use App\Models\Inventory\Warehouse;
+use App\Models\Purchase\PurchaseOrderItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -37,17 +41,17 @@ class PurchaseOrder extends Model
 
     public function company(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\Inventory\Company::class);
+        return $this->belongsTo(Organization::class);
     }
 
     public function supplier(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\Purchase\Supplier::class);
+        return $this->belongsTo(Supplier::class);
     }
 
     public function warehouse(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\Inventory\Warehouse::class);
+        return $this->belongsTo(Warehouse::class);
     }
 
     public function items(): HasMany

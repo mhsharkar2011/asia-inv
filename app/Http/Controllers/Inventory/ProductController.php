@@ -11,14 +11,6 @@ use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
-    /**
-     * Display a listing of products.
-     */
     public function index(Request $request)
     {
         $companyId = Auth::user()->company_id;
@@ -86,7 +78,7 @@ class ProductController extends Controller
             ->get();
 
         $productCode = Product::generateProductCode();
-        
+
         return view('inventory.products.create', compact('categories', 'productCode'));
     }
 
@@ -128,6 +120,12 @@ class ProductController extends Controller
 
         try {
             $product = Product::create($validated);
+
+            if ($request->hasFile('image')) {
+                $product->addMedia($request->file('image'))
+                    ->toMediaCollection('products');
+            }
+
             Log::info('Product created successfully:', $product->toArray());
 
             if ($request->has('save_and_new')) {
