@@ -7,6 +7,7 @@ use App\Models\Inventory\Category;
 use App\Models\Inventory\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
@@ -119,19 +120,25 @@ class ProductController extends Controller
         Log::info('Final data to create:', $validated);
 
         try {
-            $product = Product::create($validated);
 
-            if ($request->hasFile('image')) {
-                $product->addMedia($request->file('image'))
-                    ->toMediaCollection('products');
+            DB::beginTransaction();
+
+            // Handle avatar upload
+            if ($request->hasFile('avatar')) {
+                // $avatarName = 'User_'.time() . '_' . $request->file('avatar')->getClientOriginalName();
+                $avatarName = 'user_' . time() . '_' . uniqid() . '.' . $request->file('avatar')->getClientOriginalExtension();
+                $userAvatarPath = $request->file('avatar')->storeAs('avatars/users', $avatarName, 'public');
             }
+
+            $product = Product::create($validated);
 
             Log::info('Product created successfully:', $product->toArray());
 
-            if ($request->has('save_and_new')) {
-                return redirect()->route('inventory.products.create')
-                    ->with('success', 'Product created successfully!');
-            }
+            // if ($request->has('save_and_new')) {
+            //     return redirect()->route('inventory.products.create')
+            //         ->with('success', 'Product created successfully!');
+            // }
+            DB::commit();
 
             return redirect()->route('inventory.products.index')
                 ->with('success', 'Product created successfully!');
@@ -217,21 +224,23 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $companyId = Auth::user()->company_id;
+        $product = Product::findOrFail($id);
 
-        $product = Product::where('company_id', $companyId)
-            ->findOrFail($id);
-
-        // Check if product has inventory transactions
         if ($product->inventories()->count() > 0) {
             return redirect()->route('inventory.products.index')
                 ->with('error', 'Cannot delete product with existing inventory.');
         }
 
+        // Delete all associated media files first
+        if (method_exists($product, 'clearMediaCollection')) {
+            $product->clearMediaCollection('products');
+        }
+
+        // Delete the product
         $product->delete();
 
         return redirect()->route('inventory.products.index')
-            ->with('success', 'Product deleted successfully!');
+            ->with('success', 'Product deleted successfully.');
     }
 
     /**

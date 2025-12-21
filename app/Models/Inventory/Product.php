@@ -5,9 +5,10 @@ namespace App\Models\Inventory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Product extends Model
+class Product extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
@@ -194,9 +195,41 @@ class Product extends Model
         return $prefix . $year . $month . $nextNumber;
     }
 
+    /**
+     * Register media collections
+     */
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('products')
-            ->useDisk('public');
+            ->useDisk('public')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+            ->withResponsiveImages();
+    }
+
+    /**
+     * Get all product images
+     */
+    public function getProductImages()
+    {
+        return $this->getMedia('products');
+    }
+
+    /**
+     * Get the first product image URL
+     */
+    public function getFeaturedImageUrlAttribute()
+    {
+        $media = $this->getFirstMedia('products');
+        return $media ? $media->getUrl() : null;
+    }
+
+    /**
+     * Get product image URLs array
+     */
+    public function getImageUrlsAttribute()
+    {
+        return $this->getMedia('products')->map(function ($media) {
+            return $media->getUrl();
+        })->toArray();
     }
 }
