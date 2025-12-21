@@ -45,10 +45,18 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::middleware(['auth'])->group(function () {
     // Admin User Management
     Route::prefix('admin')->name('admin.')->group(function () {
-        Route::resource('users', UserController::class);
+        // Route::resource('users', UserController::class)->except(['create']);
+        Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::post('users', [UserController::class, 'store'])->name('users.store');
+        Route::get('users/create-modal', [UserController::class, 'createModal'])->name('users.create-modal');
+        Route::post('users/store-modal', [UserController::class, 'storeModal'])->name('users.store-modal');
+        Route::get('users/test',function(){
+            return 'test';
+        });
         Route::get('users-ajax', [UserController::class, 'getUsers'])->name('users.ajax');
         Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
         Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+        Route::get('users/export', [UserController::class, 'export'])->name('users.export');
         // User profile edit
         Route::get('profile', [UserController::class, 'editProfile'])->name('users.profile.edit');
         Route::put('profile', [UserController::class, 'updateProfile'])->name('users.profile.update');

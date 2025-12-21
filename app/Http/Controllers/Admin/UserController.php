@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Branch;
+use App\Models\Admin\Department;
 use App\Models\Admin\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,7 +52,7 @@ class UserController extends Controller
         $recentActivity = User::where('created_at', '>=', now()->subDay())->count();
 
         $branches = Branch::all();
-         $roles = [
+        $roles = [
             'super_admin' => 'Super Admin',
             'admin' => 'Administrator',
             'manager' => 'Manager',
@@ -74,19 +75,27 @@ class UserController extends Controller
         ));
     }
 
-    // public function create()
-    // {
-    //     $branchs = Branch::all();
-    //     $roles = [
-    //         'super_admin' => 'Super Admin',
-    //         'admin' => 'Administrator',
-    //         'manager' => 'Manager',
-    //         'staff' => 'Staff',
-    //         'customer' => 'Customer'
-    //     ];
+    public function create()
+    {
+        $branches = Branch::all();
+        $roles = [
+            'super_admin' => 'Super Admin',
+            'admin' => 'Administrator',
+            'manager' => 'Manager',
+            'staff' => 'Staff',
+            'customer' => 'Customer'
+        ];
 
-    //     return view('admin.users.create', compact('branchs', 'roles'));
-    // }
+        return view('admin.users.create', compact('branches', 'roles'));
+    }
+
+    public function createModal()
+    {
+        $roles = ['admin', 'manager', 'staff', 'customer', 'super_admin'];
+        $departments = Department::all(); // Adjust based on your model
+
+        return view('admin.users.partials.create-modal', compact('roles', 'departments'));
+    }
 
     public function store(Request $request)
     {
