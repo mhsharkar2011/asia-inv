@@ -45,14 +45,12 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::middleware(['auth'])->group(function () {
     // Admin User Management
     Route::prefix('admin')->name('admin.')->group(function () {
-        // Route::resource('users', UserController::class)->except(['create']);
-        Route::get('users', [UserController::class, 'index'])->name('users.index');
-        Route::post('users', [UserController::class, 'store'])->name('users.store');
-        Route::get('users/create-modal', [UserController::class, 'createModal'])->name('users.create-modal');
-        Route::post('users/store-modal', [UserController::class, 'storeModal'])->name('users.store-modal');
-        Route::get('users/test',function(){
-            return 'test';
-        });
+        Route::resource('users', UserController::class);
+        Route::patch('users/{user}/activate', [UserController::class, 'activate'])->name('users.activate');
+        Route::patch('users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
+        Route::patch('users/{user}/verify-email', [UserController::class, 'verifyEmail'])->name('users.verify-email');
+        Route::get('users/{user}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
+
         Route::get('users-ajax', [UserController::class, 'getUsers'])->name('users.ajax');
         Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
         Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
@@ -118,7 +116,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('customers', CustomerController::class);
         Route::post('customers/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customers.toggle-status');
         Route::get('customers-ajax', [CustomerController::class, 'getCustomers'])->name('customers.ajax');
-            Route::resource('organizations', OrganizationController::class);
+        Route::resource('organizations', OrganizationController::class);
 
         Route::resource('sales-orders', SalesOrderController::class);
         Route::post('sales-orders/{salesOrder}/change-status', [SalesOrderController::class, 'changeStatus'])->name('sales-orders.change-status');

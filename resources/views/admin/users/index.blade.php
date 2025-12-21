@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'User Management')
 
@@ -13,14 +13,13 @@
                         <p class="text-gray-600 mt-1">Manage system users, roles, and permissions</p>
                     </div>
                     <div class="flex items-center gap-3">
-                        <button
-                            class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md"
-                            onclick="openCreateModal()">
+                        <a href="{{ route('admin.users.create') }}"
+                            class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                             Add New User
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -166,10 +165,13 @@
                                             data-filter="admin">Admin Users</a>
                                         <a href="#"
                                             class="filter-option block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100"
-                                            data-filter="staff">Staff Users</a>
+                                            data-filter="manager">Manager Users</a>
                                         <a href="#"
                                             class="filter-option block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100"
-                                            data-filter="customer">Customer Users</a>
+                                            data-filter="user">Regular Users</a>
+                                        <a href="#"
+                                            class="filter-option block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100"
+                                            data-filter="viewer">Viewer Users</a>
                                     </div>
                                 </div>
                             </div>
@@ -202,7 +204,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Role</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Department</th>
+                                    Company & Branch</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Last Login</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -227,7 +229,8 @@
                                             <div class="flex-shrink-0">
                                                 @if ($user->avatar)
                                                     <img class="h-10 w-10 rounded-full object-cover ring-2 ring-white"
-                                                        src="{{ asset($user->avatar) }}" alt="{{ $user->name }}">
+                                                        src="{{ asset('storage/' . $user->avatar) }}"
+                                                        alt="{{ $user->name }}">
                                                 @else
                                                     <div
                                                         class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold ring-2 ring-white">
@@ -273,10 +276,10 @@
                                                     'color' => 'bg-amber-100 text-amber-800',
                                                     'icon' => 'briefcase',
                                                 ],
-                                                'staff' => ['color' => 'bg-blue-100 text-blue-800', 'icon' => 'user'],
-                                                'customer' => [
+                                                'user' => ['color' => 'bg-blue-100 text-blue-800', 'icon' => 'user'],
+                                                'viewer' => [
                                                     'color' => 'bg-green-100 text-green-800',
-                                                    'icon' => 'user-circle',
+                                                    'icon' => 'eye',
                                                 ],
                                                 'super_admin' => [
                                                     'color' => 'bg-purple-100 text-purple-800',
@@ -302,9 +305,11 @@
                                                             <path fill-rule="evenodd"
                                                                 d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z"
                                                                 clip-rule="evenodd" />
-                                                        @elseif($config['icon'] == 'user-circle')
+                                                        @elseif($config['icon'] == 'eye')
+                                                            <path fill-rule="evenodd" d="M10 12a2 2 0 100-4 2 2 0 000 4z"
+                                                                clip-rule="evenodd" />
                                                             <path fill-rule="evenodd"
-                                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
+                                                                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
                                                                 clip-rule="evenodd" />
                                                         @elseif($config['icon'] == 'star')
                                                             <path
@@ -318,34 +323,37 @@
                                                 @endif
                                                 {{ ucfirst(str_replace('_', ' ', $user->role)) }}
                                             </span>
-                                            @if ($user->permissions_count)
-                                                <span class="text-xs text-gray-500">{{ $user->permissions_count }}
-                                                    permission(s)</span>
-                                            @endif
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        @if ($user->department)
-                                            <div class="flex items-center">
-                                                <div class="p-2 bg-gray-100 rounded-lg mr-3">
-                                                    <svg class="w-4 h-4 text-gray-600" fill="currentColor"
+                                        <div class="flex flex-col space-y-1">
+                                            @if ($user->company)
+                                                <div class="flex items-center">
+                                                    <svg class="w-4 h-4 text-gray-400 mr-2" fill="currentColor"
                                                         viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd"
                                                             d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z"
                                                             clip-rule="evenodd" />
                                                     </svg>
+                                                    <span
+                                                        class="text-sm font-medium text-gray-900">{{ $user->company->name }}</span>
                                                 </div>
-                                                <div>
-                                                    <div class="text-sm font-medium text-gray-900">
-                                                        {{ $user->department->name }}</div>
-                                                    @if ($user->position)
-                                                        <div class="text-sm text-gray-500">{{ $user->position }}</div>
-                                                    @endif
+                                            @else
+                                                <span class="text-sm text-gray-500 italic">No company</span>
+                                            @endif
+
+                                            @if ($user->branch)
+                                                <div class="flex items-center ml-4">
+                                                    <svg class="w-3 h-3 text-gray-400 mr-2" fill="currentColor"
+                                                        viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd"
+                                                            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                                                            clip-rule="evenodd" />
+                                                    </svg>
+                                                    <span class="text-xs text-gray-500">{{ $user->branch->name }}</span>
                                                 </div>
-                                            </div>
-                                        @else
-                                            <span class="text-sm text-gray-500 italic">Not assigned</span>
-                                        @endif
+                                            @endif
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if ($user->last_login_at)
@@ -397,9 +405,9 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex justify-end space-x-2">
-                                            <button
-                                                class="view-user inline-flex items-center p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                                                data-id="{{ $user->id }}" title="View">
+                                            <a href="{{ route('admin.users.show', $user) }}"
+                                                class="inline-flex items-center p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                                                title="View">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -407,16 +415,16 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
-                                            </button>
-                                            <button
-                                                class="edit-user inline-flex items-center p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200"
-                                                data-id="{{ $user->id }}" title="Edit">
+                                            </a>
+                                            <a href="{{ route('admin.users.edit', $user) }}"
+                                                class="inline-flex items-center p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200"
+                                                title="Edit">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
-                                            </button>
+                                            </a>
                                             <div class="relative inline-block text-left">
                                                 <button
                                                     class="inline-flex items-center p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
@@ -429,69 +437,88 @@
                                                 <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10 hidden"
                                                     id="user-menu-{{ $user->id }}">
                                                     <div class="py-1">
-                                                        <a href="{{ route('admin.users.login-as', $user->id) }}"
-                                                            class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100">
-                                                            <svg class="w-4 h-4 mr-2 inline" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                                                            </svg>
-                                                            Login As User
-                                                        </a>
+                                                        @can('impersonate', $user)
+                                                            <a href="{{ route('admin.users.impersonate', $user) }}"
+                                                                class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100">
+                                                                <svg class="w-4 h-4 mr-2 inline" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2"
+                                                                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                                                                </svg>
+                                                                Login As User
+                                                            </a>
+                                                        @endcan
                                                         @if ($user->is_active)
-                                                            <button
-                                                                class="deactivate-user block w-full text-left px-4 py-2.5 text-sm text-amber-700 hover:bg-amber-50"
-                                                                data-id="{{ $user->id }}">
-                                                                <svg class="w-4 h-4 mr-2 inline" fill="none"
-                                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                                        stroke-width="2"
-                                                                        d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                </svg>
-                                                                Deactivate
-                                                            </button>
+                                                            <form action="{{ route('admin.users.deactivate', $user) }}"
+                                                                method="POST" class="inline">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <button type="submit"
+                                                                    class="block w-full text-left px-4 py-2.5 text-sm text-amber-700 hover:bg-amber-50">
+                                                                    <svg class="w-4 h-4 mr-2 inline" fill="none"
+                                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                    </svg>
+                                                                    Deactivate
+                                                                </button>
+                                                            </form>
                                                         @else
-                                                            <button
-                                                                class="activate-user block w-full text-left px-4 py-2.5 text-sm text-green-700 hover:bg-green-50"
-                                                                data-id="{{ $user->id }}">
-                                                                <svg class="w-4 h-4 mr-2 inline" fill="none"
-                                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                                        stroke-width="2"
-                                                                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                                        stroke-width="2"
-                                                                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                </svg>
-                                                                Activate
-                                                            </button>
+                                                            <form action="{{ route('admin.users.activate', $user) }}"
+                                                                method="POST" class="inline">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <button type="submit"
+                                                                    class="block w-full text-left px-4 py-2.5 text-sm text-green-700 hover:bg-green-50">
+                                                                    <svg class="w-4 h-4 mr-2 inline" fill="none"
+                                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                    </svg>
+                                                                    Activate
+                                                                </button>
+                                                            </form>
                                                         @endif
                                                         @if (!$user->email_verified_at)
-                                                            <button
-                                                                class="verify-email block w-full text-left px-4 py-2.5 text-sm text-cyan-700 hover:bg-cyan-50"
-                                                                data-id="{{ $user->id }}">
-                                                                <svg class="w-4 h-4 mr-2 inline" fill="currentColor"
-                                                                    viewBox="0 0 20 20">
-                                                                    <path fill-rule="evenodd"
-                                                                        d="M2.94 6.412A2 2 0 002 8.108V16a2 2 0 002 2h12a2 2 0 002-2V8.108a2 2 0 00-.94-1.696l-6-3.75a2 2 0 00-2.12 0l-6 3.75zm2.615 7.423a1 1 0 10-1.11 1.664l5 3.333a1 1 0 001.11 0l5-3.333a1 1 0 00-1.11-1.664L10 14.798l-4.445-2.963z"
-                                                                        clip-rule="evenodd" />
-                                                                </svg>
-                                                                Verify Email
-                                                            </button>
+                                                            <form action="{{ route('admin.users.verify-email', $user) }}"
+                                                                method="POST" class="inline">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <button type="submit"
+                                                                    class="block w-full text-left px-4 py-2.5 text-sm text-cyan-700 hover:bg-cyan-50">
+                                                                    <svg class="w-4 h-4 mr-2 inline" fill="currentColor"
+                                                                        viewBox="0 0 20 20">
+                                                                        <path fill-rule="evenodd"
+                                                                            d="M2.94 6.412A2 2 0 002 8.108V16a2 2 0 002 2h12a2 2 0 002-2V8.108a2 2 0 00-.94-1.696l-6-3.75a2 2 0 00-2.12 0l-6 3.75zm2.615 7.423a1 1 0 10-1.11 1.664l5 3.333a1 1 0 001.11 0l5-3.333a1 1 0 00-1.11-1.664L10 14.798l-4.445-2.963z"
+                                                                            clip-rule="evenodd" />
+                                                                    </svg>
+                                                                    Verify Email
+                                                                </button>
+                                                            </form>
                                                         @endif
                                                         <div class="border-t border-gray-200 my-1"></div>
-                                                        <button
-                                                            class="delete-user block w-full text-left px-4 py-2.5 text-sm text-red-700 hover:bg-red-50"
-                                                            data-id="{{ $user->id }}">
-                                                            <svg class="w-4 h-4 mr-2 inline" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                            </svg>
-                                                            Delete User
-                                                        </button>
+                                                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
+                                                            class="inline"
+                                                            onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit"
+                                                                class="block w-full text-left px-4 py-2.5 text-sm text-red-700 hover:bg-red-50">
+                                                                <svg class="w-4 h-4 mr-2 inline" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2"
+                                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                </svg>
+                                                                Delete User
+                                                            </button>
+                                                        </form>
                                                     </div>
                                                 </div>
                                             </div>
@@ -513,16 +540,15 @@
                                             </div>
                                             <h3 class="text-lg font-medium text-gray-900 mb-2">No users found</h3>
                                             <p class="text-gray-500 mb-6">Create your first user to get started</p>
-                                            <button
-                                                class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md"
-                                                onclick="openCreateModal()">
+                                            <a href="{{ route('admin.users.create') }}"
+                                                class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md">
                                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M12 4v16m8-8H4" />
                                                 </svg>
                                                 Add User
-                                            </button>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -549,212 +575,202 @@
             </div>
         </div>
     </div>
-
-    <!-- Include Modals -->
-    @include('admin.users.partials.create-modal')
-    @include('admin.users.partials.webcam-modal')
 @endsection
 
 @push('scripts')
-<script>
-    function openCreateModal() {
-        // Load create modal via AJAX
-        fetch("{{ route('admin.users.create-modal') }}")
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.text();
-            })
-            .then(html => {
-                // Create modal container if it doesn't exist
-                let modalContainer = document.getElementById('modal-container');
-                if (!modalContainer) {
-                    modalContainer = document.createElement('div');
-                    modalContainer.id = 'modal-container';
-                    document.body.appendChild(modalContainer);
-                }
+    <script>
+        // Toggle dropdown menus
+        document.querySelectorAll('[id^="menu-button-"]').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const menuId = this.id.replace('menu-button-', 'user-menu-');
+                const menu = document.getElementById(menuId);
+                const isVisible = menu.classList.contains('hidden');
 
-                modalContainer.innerHTML = html;
-
-                // Initialize modal
-                const modalElement = document.getElementById('createUserModal');
-                if (modalElement) {
-                    const modal = new bootstrap.Modal(modalElement);
-                    modal.show();
-
-                    // Initialize avatar upload functionality
-                    if (typeof initializeAvatarUpload === 'function') {
-                        initializeAvatarUpload();
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error loading modal:', error);
-                alert('Failed to load create user form. Please try again.');
-            });
-    }
-
-    // Toggle dropdown menus
-    document.querySelectorAll('[id^="menu-button-"]').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const menuId = this.id.replace('menu-button-', 'user-menu-');
-            const menu = document.getElementById(menuId);
-            const isVisible = menu.classList.contains('hidden');
-
-            // Hide all other menus and dropdowns
-            document.querySelectorAll('[id^="user-menu-"]').forEach(m => {
-                if (m.id !== menuId) {
-                    m.classList.add('hidden');
-                }
-            });
-
-            // Hide filter dropdown if open
-            const filterDropdown = document.getElementById('filterDropdown');
-            if (filterDropdown) {
-                filterDropdown.classList.add('hidden');
-            }
-
-            // Toggle current menu
-            if (isVisible) {
-                menu.classList.remove('hidden');
-            } else {
-                menu.classList.add('hidden');
-            }
-        });
-    });
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(e) {
-        // Close user menus
-        document.querySelectorAll('[id^="user-menu-"]').forEach(menu => {
-            if (!menu.contains(e.target)) {
-                menu.classList.add('hidden');
-            }
-        });
-
-        // Close filter dropdown
-        const filterDropdown = document.getElementById('filterDropdown');
-        const filterButton = document.getElementById('filterButton');
-        if (filterDropdown && filterButton &&
-            !filterDropdown.contains(e.target) &&
-            !filterButton.contains(e.target)) {
-            filterDropdown.classList.add('hidden');
-        }
-    });
-
-    // Search functionality
-    const searchInput = document.getElementById('searchUsers');
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const rows = document.querySelectorAll('.user-row');
-
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
-        });
-    }
-
-    // Filter functionality
-    const filterButton = document.getElementById('filterButton');
-    const filterDropdown = document.getElementById('filterDropdown');
-
-    if (filterButton && filterDropdown) {
-        filterButton.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const isVisible = !filterDropdown.classList.contains('hidden');
-
-            // Close all user menus first
-            document.querySelectorAll('[id^="user-menu-"]').forEach(menu => {
-                menu.classList.add('hidden');
-            });
-
-            // Toggle filter dropdown
-            if (isVisible) {
-                filterDropdown.classList.add('hidden');
-            } else {
-                filterDropdown.classList.remove('hidden');
-            }
-        });
-
-        // Add click listeners to filter options
-        document.querySelectorAll('.filter-option').forEach(filter => {
-            filter.addEventListener('click', function(e) {
-                e.preventDefault();
-                const filterType = this.getAttribute('data-filter');
-                const rows = document.querySelectorAll('.user-row');
-
-                rows.forEach(row => {
-                    if (filterType === 'all') {
-                        row.style.display = '';
-                    } else if (filterType === 'active') {
-                        row.style.display = row.getAttribute('data-status') === 'active' ? '' : 'none';
-                    } else if (filterType === 'inactive') {
-                        row.style.display = row.getAttribute('data-status') === 'inactive' ? '' : 'none';
-                    } else {
-                        row.style.display = row.getAttribute('data-role') === filterType ? '' : 'none';
+                // Hide all other menus and dropdowns
+                document.querySelectorAll('[id^="user-menu-"]').forEach(m => {
+                    if (m.id !== menuId) {
+                        m.classList.add('hidden');
                     }
                 });
 
-                filterDropdown.classList.add('hidden');
+                // Hide filter dropdown if open
+                const filterDropdown = document.getElementById('filterDropdown');
+                if (filterDropdown) {
+                    filterDropdown.classList.add('hidden');
+                }
 
-                // Update button text to show active filter
-                const filterText = this.textContent.trim();
-                filterButton.innerHTML = `
+                // Toggle current menu
+                if (isVisible) {
+                    menu.classList.remove('hidden');
+                } else {
+                    menu.classList.add('hidden');
+                }
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            // Close user menus
+            document.querySelectorAll('[id^="user-menu-"]').forEach(menu => {
+                if (!menu.contains(e.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
+
+            // Close filter dropdown
+            const filterDropdown = document.getElementById('filterDropdown');
+            const filterButton = document.getElementById('filterButton');
+            if (filterDropdown && filterButton &&
+                !filterDropdown.contains(e.target) &&
+                !filterButton.contains(e.target)) {
+                filterDropdown.classList.add('hidden');
+            }
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchUsers');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('.user-row');
+
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+
+        // Filter functionality
+        const filterButton = document.getElementById('filterButton');
+        const filterDropdown = document.getElementById('filterDropdown');
+
+        if (filterButton && filterDropdown) {
+            filterButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isVisible = !filterDropdown.classList.contains('hidden');
+
+                // Close all user menus first
+                document.querySelectorAll('[id^="user-menu-"]').forEach(menu => {
+                    menu.classList.add('hidden');
+                });
+
+                // Toggle filter dropdown
+                if (isVisible) {
+                    filterDropdown.classList.add('hidden');
+                } else {
+                    filterDropdown.classList.remove('hidden');
+                }
+            });
+
+            // Add click listeners to filter options
+            document.querySelectorAll('.filter-option').forEach(filter => {
+                filter.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const filterType = this.getAttribute('data-filter');
+                    const rows = document.querySelectorAll('.user-row');
+
+                    rows.forEach(row => {
+                        if (filterType === 'all') {
+                            row.style.display = '';
+                        } else if (filterType === 'active') {
+                            row.style.display = row.getAttribute('data-status') === 'active' ? '' :
+                                'none';
+                        } else if (filterType === 'inactive') {
+                            row.style.display = row.getAttribute('data-status') === 'inactive' ?
+                                '' : 'none';
+                        } else {
+                            row.style.display = row.getAttribute('data-role') === filterType ? '' :
+                                'none';
+                        }
+                    });
+
+                    filterDropdown.classList.add('hidden');
+
+                    // Update button text to show active filter
+                    const filterText = this.textContent.trim();
+                    filterButton.innerHTML = `
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                     </svg>
                     ${filterText}
                 `;
+                });
             });
-        });
 
-        // Close filter dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (filterDropdown && !filterDropdown.contains(e.target) &&
-                filterButton && !filterButton.contains(e.target)) {
-                filterDropdown.classList.add('hidden');
-            }
-        });
-    }
-
-    // Bulk selection
-    const selectAll = document.getElementById('selectAllUsers');
-    if (selectAll) {
-        selectAll.addEventListener('change', function() {
-            document.querySelectorAll('.user-checkbox').forEach(checkbox => {
-                checkbox.checked = this.checked;
+            // Close filter dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (filterDropdown && !filterDropdown.contains(e.target) &&
+                    filterButton && !filterButton.contains(e.target)) {
+                    filterDropdown.classList.add('hidden');
+                }
             });
-        });
-    }
+        }
 
-    // Export users
-    const exportBtn = document.getElementById('exportUsers');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', function() {
-            window.location.href = '{{ route("admin.users.export") }}';
-        });
-    }
-</script>
+        // Bulk selection
+        const selectAll = document.getElementById('selectAllUsers');
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+        }
 
-<!-- Include Cropper.js and avatar upload -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+        // Export users
+        const exportBtn = document.getElementById('exportUsers');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                // Get selected user IDs
+                const selectedUsers = Array.from(document.querySelectorAll('.user-checkbox:checked'))
+                    .map(checkbox => checkbox.value);
 
-<!-- Include avatar upload JS (make sure this file exists) -->
-<script>
-// If you have a separate avatar-upload.js file, include it here
-// Or you can define the function inline
-function initializeAvatarUpload() {
-    // Your avatar upload initialization code here
-    // This should match the code from avatar-upload.js
+                if (selectedUsers.length > 0) {
+                    // Export only selected users
+                    const url = new URL('{{ route('admin.users.export') }}');
+                    url.searchParams.append('users', selectedUsers.join(','));
+                    window.location.href = url.toString();
+                } else {
+                    // Export all users
+                    window.location.href = '{{ route('admin.users.export') }}';
+                }
+            });
+        }
 
-    console.log('Avatar upload initialized');
-    // Add your avatar upload functionality here
-}
-</script>
+        // Show success message if exists
+        @if (session('success'))
+            showAlert('{{ session('success') }}', 'success');
+        @endif
+
+        @if (session('error'))
+            showAlert('{{ session('error') }}', 'error');
+        @endif
+
+        function showAlert(message, type = 'success') {
+            const alert = document.createElement('div');
+            alert.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg ${
+            type === 'success'
+                ? 'bg-green-50 border border-green-200 text-green-700'
+                : 'bg-red-50 border border-red-200 text-red-700'
+        }`;
+            alert.innerHTML = `
+            <div class="flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    ${type === 'success'
+                        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                </svg>
+                <span>${message}</span>
+            </div>
+        `;
+
+            document.body.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+    </script>
 @endpush

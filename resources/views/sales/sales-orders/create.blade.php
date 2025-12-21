@@ -1,5 +1,5 @@
 {{-- resources/views/sales/sales-orders/create.blade.php --}}
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Create Sales Order')
 
@@ -151,12 +151,13 @@
                                             @foreach ($customers as $customer)
                                                 <option value="{{ $customer->id }}"
                                                     {{ old('customer_id') == $customer->id ? 'selected' : '' }}
+                                                    data-name="{{ $customer->name ?? '' }}"
                                                     data-address="{{ $customer->address ?? '' }}"
                                                     data-phone="{{ $customer->phone ?? '' }}"
                                                     data-email="{{ $customer->email ?? '' }}">
-                                                    {{ $customer->customer_name }}
-                                                    @if ($customer->company_name)
-                                                        ({{ $customer->company_name }})
+                                                    {{ $customer->code }}
+                                                    @if ($customer->code && $customer->name)
+                                                        ({{ $customer->name }})
                                                     @endif
                                                 </option>
                                             @endforeach
@@ -1038,12 +1039,25 @@
                 const selectedOption = elements.customerSelect.options[elements.customerSelect.selectedIndex];
 
                 if (selectedOption.value) {
+                    const name = selectedOption.getAttribute('data-name');
                     const address = selectedOption.getAttribute('data-address');
                     const phone = selectedOption.getAttribute('data-phone');
                     const email = selectedOption.getAttribute('data-email');
 
                     elements.customerDetails.innerHTML = `
                         <div class="space-y-3">
+
+                            <div class="flex items-start space-x-2">
+                                <svg class="h-5 w-5 text-gray-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
+                                    <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
+                                </svg>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">${name || 'Not Available'}</p>
+                                    <p class="text-xs text-gray-500">Name</p>
+                                </div>
+                            </div>
+
                             <div class="flex items-start space-x-2">
                                 <svg class="h-5 w-5 text-gray-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />

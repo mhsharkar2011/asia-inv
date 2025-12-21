@@ -1,5 +1,5 @@
 {{-- resources/views/sales/sales-orders/edit.blade.php --}}
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Edit Sales Order - ' . $salesOrder->order_number)
 

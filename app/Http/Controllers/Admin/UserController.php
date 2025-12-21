@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Branch;
 use App\Models\Admin\Department;
+use App\Models\Admin\Organization;
 use App\Models\Admin\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
 
 class UserController extends Controller
@@ -19,7 +21,7 @@ class UserController extends Controller
         $role = $request->input('role');
         $status = $request->input('status');
 
-        $users = User::with(['Branch'])
+        $users = User::with(['branch', 'company'])
             ->when($search, function ($query, $search) {
                 return $query->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
@@ -77,6 +79,78 @@ class UserController extends Controller
 
     public function create()
     {
+        $companies = Organization::where('type', 'company')->get();
+        $branches = Branch::all();
+        $roles = [
+            'super_admin' => 'Super Admin',
+            'admin' => 'Administrator',
+            'manager' => 'Manager',
+            'staff' => 'Staff',
+            'customer' => 'Customer',
+            'viewer' => 'Viewer',
+            'user' => 'User',
+
+        ];
+
+
+        return view('admin.users.create', compact('branches', 'roles', 'companies'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone' => 'nullable|string|max:20',
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => 'required|in:super_admin,admin,manager,user,viewer',
+            'company_id' => 'nullable|exists:organizations,id',
+            'branch_id' => 'nullable|exists:branches,id',
+            'address' => 'nullable|string',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'language_preference' => 'nullable|in:en,es,fr,de,zh',
+            'is_active' => 'boolean',
+        ]);
+
+        // Handle avatar upload
+        $avatarPath = null;
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'company_id' => $request->company_id,
+            'branch_id' => $request->branch_id,
+            'address' => $request->address,
+            'avatar' => $avatarPath,
+            'language_preference' => $request->language_preference ?? 'en',
+            'is_active' => $request->boolean('is_active', true),
+            'email_verified_at' => now(), // Auto-verify for admin-created users
+        ]);
+
+        // Send welcome email if needed
+        if ($request->boolean('send_welcome_email')) {
+            // Mail::to($user->email)->send(new WelcomeEmail($user, $request->password));
+        }
+
+        return redirect()->route('admin.users.index') // Updated route name
+            ->with('success', 'User created successfully.');
+    }
+
+    public function show(User $user)
+    {
+        $user->load('branch', 'company');
+        return view('admin.users.show', compact('user'));
+    }
+
+    public function edit(User $user)
+    {
+        $companies = Organization::where('type', 'company')->get();
         $branches = Branch::all();
         $roles = [
             'super_admin' => 'Super Admin',
@@ -86,137 +160,103 @@ class UserController extends Controller
             'customer' => 'Customer'
         ];
 
-        return view('admin.users.create', compact('branches', 'roles'));
-    }
-
-    public function createModal()
-    {
-        $roles = ['admin', 'manager', 'staff', 'customer', 'super_admin'];
-        $departments = Department::all(); // Adjust based on your model
-
-        return view('admin.users.partials.create-modal', compact('roles', 'departments'));
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'username' => 'required|string|max:255|unique:users',
-            'phone' => 'nullable|string|max:20',
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => 'required|in:super_admin,admin,manager,staff,customer',
-            'branch_id' => 'nullable|exists:branchs,id',
-            'position' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
-            'date_of_birth' => 'nullable|date',
-            'is_active' => 'boolean',
-            'send_welcome_email' => 'boolean',
-            'force_password_change' => 'boolean',
-            'two_factor_auth' => 'boolean',
-        ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'username' => $request->username,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'branch_id' => $request->branch_id,
-            'position' => $request->position,
-            'address' => $request->address,
-            'date_of_birth' => $request->date_of_birth,
-            'is_active' => $request->boolean('is_active'),
-            'email_verified_at' => $request->boolean('send_welcome_email') ? null : now(),
-            'force_password_change' => $request->boolean('force_password_change'),
-            'two_factor_auth' => $request->boolean('two_factor_auth'),
-        ]);
-
-        if ($request->boolean('send_welcome_email')) {
-            // Send welcome email
-            // Mail::to($user->email)->send(new WelcomeEmail($user, $request->password));
-        }
-
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User created successfully.');
-    }
-
-    public function show(User $user)
-    {
-        return response()->json([
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role,
-            'phone' => $user->phone,
-            'address' => $user->address,
-            'is_active' => $user->is_active,
-            'last_login_at' => $user->last_login_at ? $user->last_login_at->format('Y-m-d H:i:s') : null,
-            'created_at' => $user->created_at->format('Y-m-d H:i:s'),
-        ]);
-    }
-
-    public function edit(User $user)
-    {
-        $branchs = Branch::all();
-        $roles = [
-            'super_admin' => 'Super Admin',
-            'admin' => 'Administrator',
-            'manager' => 'Manager',
-            'staff' => 'Staff',
-            'customer' => 'Customer'
-        ];
-
-        return view('users.edit', compact('user', 'Branchs', 'roles'));
+        return view('admin.users.edit', compact('user', 'branches', 'roles', 'companies'));
     }
 
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        // Validation rules
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'phone' => 'nullable|string|max:20',
             'role' => 'required|in:super_admin,admin,manager,staff,customer',
-            'Branch_id' => 'nullable|exists:branches,id',
+            'branch_id' => 'nullable|exists:branches,id',
+            'company_id' => 'nullable|exists:organizations,id',
             'position' => 'nullable|string|max:255',
             'address' => 'nullable|string',
             'date_of_birth' => 'nullable|date',
+            'bio' => 'nullable|string|max:1000',
+            'language_preference' => 'nullable|in:en,es,fr,de,zh',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'password' => 'nullable|string|min:8|confirmed',
             'is_active' => 'boolean',
             'force_password_change' => 'boolean',
             'two_factor_auth' => 'boolean',
-        ]);
+        ];
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'username' => $request->username,
-            'phone' => $request->phone,
-            'role' => $request->role,
-            'branch_id' => $request->branch_id,
-            'position' => $request->position,
-            'address' => $request->address,
-            'date_of_birth' => $request->date_of_birth,
-            'is_active' => $request->boolean('is_active'),
-            'force_password_change' => $request->boolean('force_password_change'),
-            'two_factor_auth' => $request->boolean('two_factor_auth'),
-        ]);
+        // Remove unique rule for username if not provided
+        if (!$request->has('username') || $request->username === $user->username) {
+            $rules['username'] = 'required|string|max:255';
+        }
 
-        return redirect()->route('users.index')
+        $validated = $request->validate($rules);
+
+        // Handle avatar upload
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if exists
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            // Store new avatar
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = $avatarPath;
+        } elseif ($request->has('remove_avatar')) {
+            // Remove avatar if requested
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $validated['avatar'] = null;
+        } else {
+            // Keep existing avatar
+            unset($validated['avatar']);
+        }
+
+        // Handle password update
+        if ($request->filled('password')) {
+            $validated['password'] = Hash::make($request->password);
+        } else {
+            unset($validated['password']);
+        }
+
+        // Handle email verification
+        if ($request->has('verify_email')) {
+            $validated['email_verified_at'] = now();
+        }
+
+        // Handle boolean fields
+        $validated['is_active'] = $request->boolean('is_active');
+        $validated['force_password_change'] = $request->boolean('force_password_change');
+        $validated['two_factor_auth'] = $request->boolean('two_factor_auth');
+
+        // Update user
+        $user->update($validated);
+
+        // Redirect based on request source
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User updated successfully.',
+                'user' => $user->fresh()
+            ]);
+        }
+
+        return redirect()->route('admin.users.show', $user)
             ->with('success', 'User updated successfully.');
     }
-
     public function destroy(User $user)
     {
         // Prevent deleting own account
         if ($user->id === Auth::id()) {
-            return redirect()->route('users.index')
+            return redirect()->route('admin.users.index')
                 ->with('error', 'You cannot delete your own account.');
         }
 
         $user->delete();
 
-        return redirect()->route('users.index')
+        return redirect()->route('admin.users.index')
             ->with('success', 'User deleted successfully.');
     }
 
@@ -242,7 +282,7 @@ class UserController extends Controller
     {
         $user->update(['email_verified_at' => now()]);
 
-        return redirect()->route('users.index')
+        return redirect()->route('admin.users.index')
             ->with('success', 'Email verified successfully.');
     }
 
@@ -257,7 +297,7 @@ class UserController extends Controller
             'force_password_change' => true,
         ]);
 
-        return redirect()->route('users.index')
+        return redirect()->route('admin.users.index')
             ->with('success', 'Password reset successfully.');
     }
 

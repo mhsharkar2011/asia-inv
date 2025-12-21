@@ -5,6 +5,7 @@ namespace App\Models\Inventory;
 use App\Models\Admin\Organization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Category extends Model
 {
@@ -19,6 +20,16 @@ class Category extends Model
         'tax_rate_applicable'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($modal) {
+            if (Auth::check()) {
+                $modal->company_id = Auth::user()->company_id;
+            }
+        });
+    }
     protected $casts = [
         'tax_rate_applicable' => 'decimal:2',
     ];

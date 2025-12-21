@@ -175,9 +175,9 @@
                                 <span class="text-lg font-bold text-gray-900">
                                     ৳{{ number_format($product->selling_price, 2) }}
                                 </span>
-                                @if($product->cost_price && $product->selling_price > $product->cost_price)
+                                @if($product->mrp && $product->selling_price > $product->price_purchase)
                                     <div class="text-xs text-gray-500 line-through">
-                                        ৳{{ number_format($product->cost_price, 2) }}
+                                        ৳{{ number_format($product->mrp, 2) }}
                                     </div>
                                 @endif
                             </div>

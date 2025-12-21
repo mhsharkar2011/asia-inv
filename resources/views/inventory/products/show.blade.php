@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', $product->product_name . ' - Product Details - Asia Enterprise')
 

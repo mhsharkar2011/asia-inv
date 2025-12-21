@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', $category->category_name . ' - Asia Enterprise')
 
@@ -293,7 +293,7 @@
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                            
+
                                             @foreach ($products as $product)
                                                 <tr class="hover:bg-gray-50 transition-colors duration-150">
                                                     <td class="px-6 py-4 whitespace-nowrap">

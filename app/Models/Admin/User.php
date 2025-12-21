@@ -6,6 +6,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -56,21 +57,43 @@ class User extends Authenticatable
         ];
     }
 
-    // Custom: Use email for authentication
-    public function username()
+    public function roles()
     {
-        return 'email';
+        return [
+            'super_admin',
+            'admin',
+            'manager',
+            'staff',
+            'user',
+            'customer'
+        ];
     }
-
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Company::class, 'company_id');
+        return $this->belongsTo(Organization::class, 'company_id');
     }
 
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class, 'branch_id');
     }
+
+    // In User model
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar) {
+            if (filter_var($this->avatar, FILTER_VALIDATE_URL)) {
+                return $this->avatar;
+            }
+            if (str_starts_with($this->avatar, 'avatars/')) {
+                return Storage::url($this->avatar);
+            }
+            return Storage::url('avatars/' . $this->avatar);
+        }
+
+        return null;
+    }
+
 
     // Scopes
     public function scopeActive($query)
@@ -101,8 +124,8 @@ class User extends Authenticatable
     public function scopeSearch($query, $search)
     {
         return $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%");
+            ->orWhere('email', 'like', "%{$search}%")
+            ->orWhere('phone', 'like', "%{$search}%");
     }
 
     // Helper methods
@@ -138,18 +161,6 @@ class User extends Authenticatable
 
         return $badges[$this->role] ?? '<span class="badge bg-light text-dark">Unknown</span>';
     }
-
-    public function getAvatarUrlAttribute(): string
-    {
-        if ($this->avatar) {
-            return asset('storage/' . $this->avatar);
-        }
-
-        // Generate initials avatar
-        $initials = strtoupper(substr($this->name, 0, 1));
-        return "https://ui-avatars.com/api/?name={$initials}&background=random&color=fff&size=128";
-    }
-
     public function markAsLoggedIn(): void
     {
         $this->update(['last_login_at' => now()]);

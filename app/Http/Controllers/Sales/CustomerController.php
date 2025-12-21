@@ -91,7 +91,7 @@ class CustomerController extends Controller
         $validated['company_id'] = $companyId;
         $validated['is_active'] = $request->has('is_active');
 
-        Customer::create($validated);
+        Organization::create($validated);
 
         return redirect()->route('sales.customers.index')
             ->with('success', 'Customer created successfully!');
@@ -104,7 +104,7 @@ class CustomerController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        $customer = Customer::where('company_id', $companyId)
+        $customer = Organization::where('type', 'customer')
             ->findOrFail($id);
 
         return view('sales.customers.show', compact('customer'));
@@ -117,7 +117,7 @@ class CustomerController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        $customer = Customer::where('company_id', $companyId)
+        $customer = Organization::where('type', 'customer')
             ->findOrFail($id);
 
         return view('sales.customers.edit', compact('customer'));
@@ -130,7 +130,7 @@ class CustomerController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        $customer = Customer::where('company_id', $companyId)
+        $customer = Organization::where('type', 'customer')
             ->findOrFail($id);
 
         $validated = $request->validate([
@@ -167,7 +167,7 @@ class CustomerController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        $customer = Customer::where('company_id', $companyId)
+        $customer = Organization::where('type', 'customer')
             ->findOrFail($id);
 
         // Check if customer has sales orders
@@ -190,7 +190,7 @@ class CustomerController extends Controller
         $companyId = Auth::user()->company_id;
         $search = $request->get('search');
 
-        $customers = Customer::where('company_id', $companyId)
+        $customers = Organization::where('type', 'customer')
             ->where('is_active', true)
             ->when($search, function ($query) use ($search) {
                 return $query->where('customer_name', 'like', "%{$search}%")
@@ -210,7 +210,7 @@ class CustomerController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        $customer = Customer::where('company_id', $companyId)
+        $customer = Organization::where('type', 'customer')
             ->findOrFail($id);
 
         $customer->update(['is_active' => !$customer->is_active]);

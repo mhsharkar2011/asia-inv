@@ -67,7 +67,7 @@ class CategoryController extends Controller
             'tax_rate_applicable' => 'nullable|numeric|min:0|max:100',
         ]);
 
-        $validated['company_id'] = $companyId;
+        // $validated['company_id'] = $companyId;
 
         Category::create($validated);
 

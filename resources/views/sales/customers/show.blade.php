@@ -1,5 +1,5 @@
 {{-- resources/views/customers/show.blade.php --}}
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Customer Details - ' . $customer->name)
 

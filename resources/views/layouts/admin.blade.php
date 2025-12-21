@@ -20,9 +20,12 @@
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <!-- Header -->
+    @include('layouts.navigation')
+
         <!-- Main Layout -->
     <div class="flex">
         <!-- Sidebar -->
+        @include('layouts.sidebar')
         <!-- Main Content -->
         <div class="flex-grow p-6">
             @yield('content')
