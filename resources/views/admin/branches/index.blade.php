@@ -83,7 +83,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <h6 class="text-uppercase text-muted mb-2">Total Staff</h6>
-                                <h2 class="fw-bold mb-0">{{ App\Models\User::count() }}</h2>
+                                <h2 class="fw-bold mb-0">{{ $totalStaff }}</h2>
                             </div>
                             <div class="bg-info bg-opacity-10 p-3 rounded">
                                 <i class="bi bi-people-fill text-info fs-4"></i>

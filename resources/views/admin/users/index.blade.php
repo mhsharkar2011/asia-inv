@@ -217,7 +217,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($users as $user)
                                 <tr class="user-row hover:bg-gray-50 transition-colors duration-150"
-                                    data-status="{{ $user->is_active ? 'active' : 'inactive' }}"
+                                    data-status="{{ $user->is_active ? '1' : '0' }}"
                                     data-role="{{ strtolower($user->role) }}">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <input type="checkbox"

@@ -42,7 +42,7 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register']);
 
 // Protected Routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','role:admin|super_admin'])->group(function () {
     // Admin User Management
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class);
@@ -144,3 +144,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/placeholder', [ReportController::class, 'placeholder'])->name('placeholder');
     });
 });
+
+
+// Auth routes (if using Laravel Breeze/Jetstream)
+require __DIR__.'/auth.php';

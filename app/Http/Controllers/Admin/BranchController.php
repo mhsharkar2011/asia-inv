@@ -7,6 +7,7 @@ use App\Models\Admin\Branch;
 use App\Models\Admin\Company;
 use App\Models\Admin\User;
 use App\Http\Requests\Admin\BranchRequest;
+use App\Models\Admin\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -44,7 +45,7 @@ class BranchController extends Controller
             ->orderBy('branch_name')
             ->paginate(15);
 
-        $companies = Company::active()->orderBy('name')->get();
+        $companies = Organization::active()->orderBy('name')->get();
 
         $branchTypes = [
             'retail' => 'Retail Store',
@@ -56,12 +57,14 @@ class BranchController extends Controller
         ];
 
         // Statistics
+        $totalStaff = User::count();
         $totalBranches = Branch::count();
         $activeBranches = Branch::active()->count();
         $headOffices = Branch::headOffice()->count();
         $branchesWithWarehouse = Branch::withWarehouse()->count();
 
         return view('admin.branches.index', compact(
+            'totalStaff',
             'branches',
             'companies',
             'branchTypes',
@@ -141,7 +144,7 @@ class BranchController extends Controller
 
     public function edit(Branch $branch)
     {
-        $companies = Company::active()->orderBy('name')->get();
+        $companies = Organization::active()->orderBy('name')->get();
 
         $branchTypes = [
             'retail' => 'Retail Store',

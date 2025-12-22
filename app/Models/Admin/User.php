@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     protected $fillable = [
         'company_id',
@@ -18,7 +19,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
         'phone',
         'address',
         'avatar',
@@ -26,7 +26,8 @@ class User extends Authenticatable
         'is_active',
         'last_login_at',
         'email_verified_at',
-        'remember_token'
+        'remember_token',
+        'username' // Add this if you're using username field
     ];
 
     protected $hidden = [
@@ -57,17 +58,40 @@ class User extends Authenticatable
         ];
     }
 
-    public function roles()
+    /**
+     * Custom role array for legacy purposes (rename this method)
+     */
+    public function availableRoles(): array
     {
         return [
-            'super_admin',
-            'admin',
-            'manager',
-            'staff',
-            'user',
-            'customer'
+            'super_admin' => 'Super Admin',
+            'admin' => 'Administrator',
+            'manager' => 'Manager',
+            'staff' => 'Staff',
+            'user' => 'User',
+            'customer' => 'Customer',
+            'viewer' => 'Viewer'
         ];
     }
+
+    /**
+     * Get the user's legacy role (for backward compatibility)
+     */
+    public function getLegacyRoleAttribute(): string
+    {
+        // Get the first role name or fallback to 'user'
+        return $this->getRoleNames()->first() ?? 'user';
+    }
+
+    /**
+     * Set the legacy role (for backward compatibility)
+     */
+    public function setLegacyRoleAttribute($value): void
+    {
+        // Sync roles with the legacy role
+        $this->syncRoles([$value]);
+    }
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Organization::class, 'company_id');
@@ -78,7 +102,6 @@ class User extends Authenticatable
         return $this->belongsTo(Branch::class, 'branch_id');
     }
 
-    // In User model
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar) {
@@ -94,7 +117,6 @@ class User extends Authenticatable
         return null;
     }
 
-
     // Scopes
     public function scopeActive($query)
     {
@@ -106,9 +128,20 @@ class User extends Authenticatable
         return $query->where('is_active', false);
     }
 
+    /**
+     * Scope for filtering by role (compatible with Spatie)
+     */
     public function scopeByRole($query, $role)
     {
-        return $query->where('role', $role);
+        if (is_array($role)) {
+            return $query->whereHas('roles', function ($q) use ($role) {
+                $q->whereIn('name', $role);
+            });
+        }
+
+        return $query->whereHas('roles', function ($q) use ($role) {
+            $q->where('name', $role);
+        });
     }
 
     public function scopeByCompany($query, $companyId)
@@ -128,39 +161,44 @@ class User extends Authenticatable
             ->orWhere('phone', 'like', "%{$search}%");
     }
 
-    // Helper methods
+    // Helper methods - updated to work with Spatie
     public function isAdmin(): bool
     {
-        return in_array($this->role, ['admin', 'super_admin']);
+        return $this->hasRole('admin') || $this->hasRole('super_admin');
     }
 
     public function isSuperAdmin(): bool
     {
-        return $this->role === 'super_admin';
+        return $this->hasRole('super_admin');
     }
 
     public function isManager(): bool
     {
-        return $this->role === 'manager';
+        return $this->hasRole('manager');
     }
 
     public function isStaff(): bool
     {
-        return $this->role === 'staff';
+        return $this->hasRole('staff');
     }
 
     public function getRoleBadgeAttribute(): string
     {
+        $role = $this->getRoleNames()->first() ?? 'user';
+
         $badges = [
             'super_admin' => '<span class="badge bg-danger">Super Admin</span>',
             'admin' => '<span class="badge bg-warning">Admin</span>',
             'manager' => '<span class="badge bg-info">Manager</span>',
             'staff' => '<span class="badge bg-primary">Staff</span>',
             'user' => '<span class="badge bg-secondary">User</span>',
+            'customer' => '<span class="badge bg-success">Customer</span>',
+            'viewer' => '<span class="badge bg-secondary">Viewer</span>',
         ];
 
-        return $badges[$this->role] ?? '<span class="badge bg-light text-dark">Unknown</span>';
+        return $badges[$role] ?? '<span class="badge bg-light text-dark">' . ucfirst($role) . '</span>';
     }
+
     public function markAsLoggedIn(): void
     {
         $this->update(['last_login_at' => now()]);
@@ -169,5 +207,23 @@ class User extends Authenticatable
     public function canImpersonate(): bool
     {
         return $this->isAdmin() || $this->isSuperAdmin();
+    }
+
+    /**
+     * Accessor for backward compatibility
+     */
+    public function getRoleAttribute()
+    {
+        return $this->getRoleNames()->first();
+    }
+
+    /**
+     * Mutator for backward compatibility
+     */
+    public function setRoleAttribute($value)
+    {
+        if (!empty($value)) {
+            $this->syncRoles([$value]);
+        }
     }
 }
