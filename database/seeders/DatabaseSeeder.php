@@ -13,9 +13,11 @@ class DatabaseSeeder extends Seeder
         // Disable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Clear tables
+        // Clear tables but NOT users table (to preserve existing users)
         DB::table('categories')->truncate();
-        DB::table('users')->truncate();
+
+        // Only truncate users if empty or you want fresh start
+        // DB::table('users')->truncate();
 
         // If you have Spatie tables, clear them too
         if (DB::getSchemaBuilder()->hasTable('permissions')) {
@@ -50,24 +52,28 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        // Insert users
-        DB::table('users')->insert([
-            [
-                'name' => 'System Administrator',
-                'email' => 'admin@asiaenterprise.com',
-                'password' => Hash::make('admin@123'),
-                'avatar' => 'default_avatar.png',
-                'company_id' => $companyId,
-                'role' => 'admin', // Keep legacy role field
-                'phone' => '+8801733172007',
-                'language_preference' => 'en',
-                'is_active' => true,
-                'email_verified_at' => now(),
-                'last_login_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        ]);
+        // Insert admin user ONLY if doesn't exist
+        $adminExists = DB::table('users')->where('email', 'admin@asiaenterprise.com')->exists();
+
+        if (!$adminExists) {
+            DB::table('users')->insert([
+                [
+                    'name' => 'System Administrator',
+                    'email' => 'admin@asiaenterprise.com',
+                    'password' => Hash::make('admin@123'),
+                    'avatar' => 'default_avatar.png',
+                    'company_id' => $companyId,
+                    'role' => 'admin',
+                    'phone' => '+8801733172007',
+                    'language_preference' => 'en',
+                    'is_active' => true,
+                    'email_verified_at' => now(),
+                    'last_login_at' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            ]);
+        }
 
         // Insert categories
         $electronicsId = DB::table('categories')->insertGetId([
@@ -140,8 +146,6 @@ class DatabaseSeeder extends Seeder
         $this->call(PermissionsSeeder::class);
 
         $this->command->info('Database seeded successfully!');
-        $this->command->info('Login credentials:');
-        $this->command->info('Admin: admin@asiaenterprise.com / admin@123');
-        $this->command->info('User has been assigned super_admin role with all permissions');
+        $this->command->info('Admin login: admin@asiaenterprise.com / admin@123');
     }
 }

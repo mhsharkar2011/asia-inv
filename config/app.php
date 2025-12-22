@@ -2,6 +2,12 @@
 
 return [
 
+
+    'registration_open' => env('REGISTRATION_OPEN', true),
+    'auto_activate_users' => env('AUTO_ACTIVATE_USERS', false),
+    'auto_verify_email' => env('AUTO_VERIFY_EMAIL', false),
+    'auto_login_after_registration' => env('AUTO_LOGIN_AFTER_REGISTRATION', false),
+    'send_verification_email' => env('SEND_VERIFICATION_EMAIL', true),
     /*
     |--------------------------------------------------------------------------
     | Application Name
