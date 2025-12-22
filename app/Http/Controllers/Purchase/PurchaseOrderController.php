@@ -43,8 +43,9 @@ class PurchaseOrderController extends Controller
             ->orderBy('created_at', 'desc');
 
         $purchaseOrders = $query->paginate($perPage);
-
+        $companies = Organization::where('type', 'company')->get();
         return view('purchase.purchase-orders.index', compact(
+            'companies',
             'purchaseOrders',
             'search',
             'status',
@@ -56,7 +57,7 @@ class PurchaseOrderController extends Controller
 
     public function create()
     {
-        $companies = Organization::all();
+        $companies = Organization::where('type', 'company')->get();
         $suppliers = Organization::where('type', 'supplier')->get();
         $warehouses = Warehouse::all();
         $statuses = ['draft', 'pending', 'partial', 'completed', 'cancelled'];
@@ -90,7 +91,8 @@ class PurchaseOrderController extends Controller
 
     public function edit(PurchaseOrder $purchaseOrder)
     {
-        $companies = Organization::all();
+        $poNumber = $this->generatePONumber();
+        $companies = Organization::where('type', 'company')->get();
         $suppliers = Organization::where('type', 'supplier')->get();
         $warehouses = Warehouse::all();
         $statuses = ['draft', 'pending', 'partial', 'completed', 'cancelled'];
@@ -123,5 +125,12 @@ class PurchaseOrderController extends Controller
             return redirect()->back()
                 ->with('error', 'Error deleting purchase order: ' . $e->getMessage());
         }
+    }
+
+    private function generatePONumber()
+    {
+        $lastPO = PurchaseOrder::latest()->first();
+        $number = $lastPO ? intval(substr($lastPO->po_number, 3)) + 1 : 1;
+        return 'PO-' . str_pad($number, 6, '0', STR_PAD_LEFT);
     }
 }

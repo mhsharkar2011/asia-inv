@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Purchase\SupplierController;
+use Illuminate\Validation\Rules\Can;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,15 +30,13 @@ use App\Http\Controllers\Purchase\SupplierController;
 |--------------------------------------------------------------------------
 */
 //public Routes
-Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Auth routes
 Route::middleware('guest')->group(function () {
     // Login
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-
-    // Registration (can be disabled via config)
+    //Register Can be disable by config
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
 });
@@ -51,26 +50,6 @@ Route::middleware(['auth'])->group(function () {
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-
-    // Admin routes
-    Route::middleware(['can:view users'])->prefix('admin')->name('admin.')->group(function () {
-        // Users
-        Route::resource('users', UserController::class);
-
-        // Additional user routes
-        Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
-            ->name('users.toggle-status');
-        Route::post('users/{user}/verify-email', [UserController::class, 'verifyEmail'])
-            ->name('users.verify-email');
-        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])
-            ->name('users.reset-password');
-        Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])
-            ->name('users.login-as');
-        Route::get('users/export', [UserController::class, 'export'])
-            ->name('users.export');
-        Route::post('users/bulk-action', [UserController::class, 'bulkAction'])
-            ->name('users.bulk-action');
-    });
 });
 
 
@@ -78,7 +57,7 @@ Route::middleware(['auth'])->group(function () {
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Protected Routes
-Route::middleware(['auth', 'role:admin|super_admin|user'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Admin User Management
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class);
@@ -132,9 +111,16 @@ Route::middleware(['auth', 'role:admin|super_admin|user'])->group(function () {
 
     // Purchase Management
     Route::prefix('purchase')->name('purchase.')->group(function () {
+        Route::resource('suppliers', OrganizationController::class);
+        Route::resource('purchase-orders', PurchaseOrderController::class);
+        Route::get('purchase-orders/clone', [PurchaseOrderController::class,'PDF'])->name('purchase-orders.clone');
+        Route::get('purchase-orders/email', [PurchaseOrderController::class,'email'])->name('purchase-orders.email');
+        Route::get('purchase-orders/po-upload', [PurchaseOrderController::class,'poUpload'])->name('purchase-orders.upload');
+        Route::get('purchase-orders/po-cancel', [PurchaseOrderController::class,'poCancel'])->name('purchase-orders.cancel');
+        Route::get('purchase-orders/po-receive', [PurchaseOrderController::class,'poReceive'])->name('purchase-orders.receive');
+        Route::get('purchase-orders/pdf', [PurchaseOrderController::class,'OrderPDF'])->name('purchase-orders.pdf');
         Route::post('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
         Route::get('suppliers-ajax', [SupplierController::class, 'getSuppliers'])->name('suppliers.ajax');
-        Route::resource('purchase-orders', PurchaseOrderController::class);
         Route::resource('organizations', OrganizationController::class);
     });
 
@@ -173,5 +159,4 @@ Route::middleware(['auth', 'role:admin|super_admin|user'])->group(function () {
 });
 
 
-// Auth routes (if using Laravel Breeze/Jetstream)
-require __DIR__ . '/auth.php';
+Route::get('/', [HomeController::class, 'index'])->name('home');
