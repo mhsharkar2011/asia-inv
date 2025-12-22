@@ -95,6 +95,7 @@ Route::middleware(['auth', 'role:admin|super_admin'])->group(function () {
         Route::get('profile', [UserController::class, 'editProfile'])->name('users.profile.edit');
         Route::put('profile', [UserController::class, 'updateProfile'])->name('users.profile.update');
 
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Route::resource('organizations', OrganizationController::class)->except(['index', 'create']);
         Route::get('organizations/{type?}', [OrganizationController::class, 'index'])->name('organizations.index');
@@ -107,19 +108,9 @@ Route::middleware(['auth', 'role:admin|super_admin'])->group(function () {
         Route::get('organizations/export', [OrganizationController::class, 'export'])->name('organizations.export');
         Route::get('organizations/{type?}/import', [OrganizationController::class, 'import'])->name('organizations.import');
         Route::post('organizations/{organization}/toggle-status', [OrganizationController::class, 'toggleStatus'])->name('organizations.toggle-status');
-
-        Route::resource('branches', BranchController::class);
-        Route::prefix('branches')->name('branches.')->group(function () {
-            Route::post('/{branch}/toggle-status', [BranchController::class, 'toggleStatus'])->name('toggle-status');
-            Route::post('/{branch}/set-head-office', [BranchController::class, 'setHeadOffice'])->name('set-head-office');
-            Route::get('/company/{companyId}', [BranchController::class, 'getByCompany'])->name('by-company');
-            Route::get('/export', [BranchController::class, 'export'])->name('export');
-        });
-        Route::resource('departments', DepartmentController::class);
     });
 
     // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Inventory Management
     Route::prefix('inventory')->name('inventory.')->group(function () {
