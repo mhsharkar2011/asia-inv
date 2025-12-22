@@ -6,34 +6,28 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
+    public function up()
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->nullable()->constrained('organizations')->onDelete('set null');
-            $table->foreignId('branch_id')->nullable()->constrained('branches')->onDelete('set null');
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->string('role')->default('user');
             $table->string('phone')->nullable();
-            $table->text('address')->nullable();
             $table->string('avatar')->nullable();
-            $table->string('language_preference')->default('en');
+            $table->string('password');
+            $table->enum('role', ['super_admin', 'admin', 'manager', 'staff', 'viewer'])->default('staff');
             $table->boolean('is_active')->default(true);
+            $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('last_login_at')->nullable();
+            $table->string('language_preference')->default('en');
             $table->rememberToken();
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
-
-            // Indexes
-            $table->index(['company_id', 'email']);
-            $table->index(['role', 'is_active']);
         });
     }
 
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('users');
     }

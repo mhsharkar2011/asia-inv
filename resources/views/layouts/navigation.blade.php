@@ -34,7 +34,19 @@
                         </button>
                     </x-slot>
 
+
+
                     <x-slot name="content">
+
+                         <!-- User Info -->
+                        <div class="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+                            <p class="text-sm font-semibold text-gray-900">{{ Auth::user()?->name }}</p>
+                            <p class="text-sm text-gray-600 truncate">{{ Auth::user()?->email }}</p>
+                            <p class="text-xs text-gray-500 capitalize mt-1">
+                                {{ Auth::user()->role ?? 'User' }}
+                            </p>
+                        </div>
+
                         <x-dropdown-link :href="route('admin.users.profile.edit')">
                             {{ __('Profile') }}
                         </x-dropdown-link>

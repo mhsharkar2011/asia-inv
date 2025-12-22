@@ -78,7 +78,7 @@ Route::middleware(['auth'])->group(function () {
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Protected Routes
-Route::middleware(['auth', 'role:admin|super_admin'])->group(function () {
+Route::middleware(['auth', 'role:admin|super_admin|user'])->group(function () {
     // Admin User Management
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class);
