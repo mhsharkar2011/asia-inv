@@ -18,7 +18,7 @@ use App\Http\Controllers\Sales\SalesOrderController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\DepartmentController;
-use App\Http\Controllers\Admin\OrganizationController;
+use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Purchase\SupplierController;
@@ -97,17 +97,17 @@ Route::middleware(['auth', 'role:admin|super_admin|user'])->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Route::resource('organizations', OrganizationController::class)->except(['index', 'create']);
-        Route::get('organizations/{type?}', [OrganizationController::class, 'index'])->name('organizations.index');
-        Route::get('organizations/{type?}/create', [OrganizationController::class, 'create'])->name('organizations.create');
-        Route::post('organizations', [OrganizationController::class, 'store'])->name('organizations.store');
-        Route::get('organizations/{organization}/show', [OrganizationController::class, 'show'])->name('organizations.show');
-        Route::get('organizations/{organization}/edit', [OrganizationController::class, 'edit'])->name('organizations.edit');
-        Route::put('organizations/{organization}', [OrganizationController::class, 'update'])->name('organizations.update');
-        Route::delete('organizations/{organization}', [OrganizationController::class, 'destroy'])->name('organizations.destroy');
-        Route::get('organizations/export', [OrganizationController::class, 'export'])->name('organizations.export');
-        Route::get('organizations/{type?}/import', [OrganizationController::class, 'import'])->name('organizations.import');
-        Route::post('organizations/{organization}/toggle-status', [OrganizationController::class, 'toggleStatus'])->name('organizations.toggle-status');
+        // Route::resource('companies', CompanyController::class)->except(['index', 'create']);
+        Route::get('companies/{type?}', [CompanyController::class, 'index'])->name('companies.index');
+        Route::get('companies/{type?}/create', [CompanyController::class, 'create'])->name('companies.create');
+        Route::post('companies', [CompanyController::class, 'store'])->name('companies.store');
+        Route::get('companies/{Company}/show', [CompanyController::class, 'show'])->name('companies.show');
+        Route::get('companies/{Company}/edit', [CompanyController::class, 'edit'])->name('companies.edit');
+        Route::put('companies/{Company}', [CompanyController::class, 'update'])->name('companies.update');
+        Route::delete('companies/{Company}', [CompanyController::class, 'destroy'])->name('companies.destroy');
+        Route::get('companies/export', [CompanyController::class, 'export'])->name('companies.export');
+        Route::get('companies/{type?}/import', [CompanyController::class, 'import'])->name('companies.import');
+        Route::post('companies/{Company}/toggle-status', [CompanyController::class, 'toggleStatus'])->name('companies.toggle-status');
     });
 
     // Dashboard
@@ -135,7 +135,7 @@ Route::middleware(['auth', 'role:admin|super_admin|user'])->group(function () {
         Route::post('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
         Route::get('suppliers-ajax', [SupplierController::class, 'getSuppliers'])->name('suppliers.ajax');
         Route::resource('purchase-orders', PurchaseOrderController::class);
-        Route::resource('organizations', OrganizationController::class);
+        Route::resource('companies', CompanyController::class);
     });
 
     // Sales Management
@@ -143,7 +143,7 @@ Route::middleware(['auth', 'role:admin|super_admin|user'])->group(function () {
         Route::resource('customers', CustomerController::class);
         Route::post('customers/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customers.toggle-status');
         Route::get('customers-ajax', [CustomerController::class, 'getCustomers'])->name('customers.ajax');
-        Route::resource('organizations', OrganizationController::class);
+        Route::resource('companies', CompanyController::class);
 
         Route::resource('sales-orders', SalesOrderController::class);
         Route::post('sales-orders/{salesOrder}/change-status', [SalesOrderController::class, 'changeStatus'])->name('sales-orders.change-status');

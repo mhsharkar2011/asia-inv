@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\User;
-use App\Models\Admin\Organization;
+use App\Models\Admin\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -26,7 +26,7 @@ class RegisterController extends Controller
         }
 
         // Get companies for selection (if needed)
-        $companies = Organization::where('type', 'company')->get(['id', 'name']);
+        $companies = Company::where('type', 'company')->get(['id', 'name']);
 
         return view('auth.register', compact('companies'));
     }
@@ -48,7 +48,7 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'phone' => ['nullable', 'string', 'max:20'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'company_id' => ['nullable', 'exists:organizations,id'],
+            'company_id' => ['nullable', 'exists:companies,id'],
             'terms' => ['required', 'accepted'],
         ]);
 
@@ -109,7 +109,7 @@ class RegisterController extends Controller
     public function showAdminCreateForm()
     {
         // This should be accessed via admin panel
-        $companies = Organization::where('type', 'company')->get(['id', 'name']);
+        $companies = Company::where('type', 'company')->get(['id', 'name']);
         $roles = [];
 
         if (class_exists(Role::class)) {
@@ -130,7 +130,7 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'phone' => ['nullable', 'string', 'max:20'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'company_id' => ['nullable', 'exists:organizations,id'],
+            'company_id' => ['nullable', 'exists:companies,id'],
             'roles' => ['required', 'array'],
             'roles.*' => ['exists:roles,name'],
             'is_active' => ['boolean'],

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('organizations', function (Blueprint $table) {
+        Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->string('code')->unique();
             $table->string('name');
@@ -69,10 +69,10 @@ return new class extends Migration
         });
 
         // Create pivot table for company-customer-supplier relationships
-        Schema::create('organization_relationships', function (Blueprint $table) {
+        Schema::create('company_relationships', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->constrained('organizations')->onDelete('cascade');
-            $table->foreignId('related_id')->constrained('organizations')->onDelete('cascade');
+            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            $table->foreignId('related_id')->constrained('companies')->onDelete('cascade');
             $table->enum('relationship_type', ['customer', 'supplier', 'branch', 'parent']);
             $table->json('settings')->nullable()->comment('Relationship specific settings');
             $table->timestamps();
@@ -84,7 +84,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('organization_relationships');
-        Schema::dropIfExists('organizations');
+        Schema::dropIfExists('company_relationships');
+        Schema::dropIfExists('companies');
     }
 };

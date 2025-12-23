@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\OrganizationRelationship;
+use App\Models\CompanyRelationship;
 use Illuminate\Http\Request;
 
-class OrganizationRelationshipController extends Controller
+class CompanyRelationshipController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class OrganizationRelationshipController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(OrganizationRelationship $organizationRelationship)
+    public function show(CompanyRelationship $CompanyRelationship)
     {
         //
     }
@@ -42,7 +42,7 @@ class OrganizationRelationshipController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(OrganizationRelationship $organizationRelationship)
+    public function edit(CompanyRelationship $CompanyRelationship)
     {
         //
     }
@@ -50,7 +50,7 @@ class OrganizationRelationshipController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, OrganizationRelationship $organizationRelationship)
+    public function update(Request $request, CompanyRelationship $CompanyRelationship)
     {
         //
     }
@@ -58,7 +58,7 @@ class OrganizationRelationshipController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(OrganizationRelationship $organizationRelationship)
+    public function destroy(CompanyRelationship $CompanyRelationship)
     {
         //
     }

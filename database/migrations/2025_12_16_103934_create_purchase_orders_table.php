@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->constrained('organizations')->onDelete('cascade');
+            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
             $table->string('po_number')->unique();
-            $table->foreignId('supplier_id')->constrained('organizations')->onDelete('cascade');
+            $table->foreignId('supplier_id')->constrained('companies')->onDelete('cascade');
             $table->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $table->date('order_date');
             $table->date('expected_delivery_date')->nullable();

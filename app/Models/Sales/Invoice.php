@@ -2,7 +2,7 @@
 
 namespace App\Models\Sales;
 
-use App\Models\Admin\Organization;
+use App\Models\Admin\Company;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -41,7 +41,7 @@ class Invoice extends Model
      */
     public function customer()
     {
-        return $this->belongsTo(Organization::class, 'customer_id');
+        return $this->belongsTo(Company::class, 'customer_id');
     }
 
     /**

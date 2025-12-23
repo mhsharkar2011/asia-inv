@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->constrained('organizations')->onDelete('cascade');
-            $table->foreignId('customer_id')->constrained('organizations')->onDelete('cascade');
+            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            $table->foreignId('customer_id')->constrained('companies')->onDelete('cascade');
             $table->string('invoice_number')->unique();
             $table->date('invoice_date');
             $table->date('due_date');

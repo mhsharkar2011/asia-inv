@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Organization extends Model
+class Company extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -181,21 +181,21 @@ class Organization extends Model
     // Relationships
     public function relatedCompanies(): HasMany
     {
-        return $this->hasMany(OrganizationRelationship::class, 'related_id');
+        return $this->hasMany(CompanyRelationship::class, 'related_id');
     }
 
     public function customers(): HasMany
     {
-        return $this->hasMany(OrganizationRelationship::class, 'company_id')
+        return $this->hasMany(CompanyRelationship::class, 'company_id')
             ->where('relationship_type', 'customer_of')
-            ->with('relatedOrganization');
+            ->with('relatedCompany');
     }
 
     public function suppliers(): HasMany
     {
-        return $this->hasMany(OrganizationRelationship::class, 'company_id')
+        return $this->hasMany(CompanyRelationship::class, 'company_id')
             ->where('relationship_type', 'supplier_of')
-            ->with('relatedOrganization');
+            ->with('relatedCompany');
     }
 
     // Helper Methods
@@ -219,17 +219,17 @@ class Organization extends Model
     {
         parent::boot();
 
-        static::creating(function ($organization) {
-            if (empty($organization->code)) {
-                $prefix = match ($organization->type) {
+        static::creating(function ($Company) {
+            if (empty($Company->code)) {
+                $prefix = match ($Company->type) {
                     'company' => 'COMP',
                     'customer' => 'CUST',
                     'supplier' => 'SUPP',
                     default => 'ORG'
                 };
 
-                $count = self::where('type', $organization->type)->count() + 1;
-                $organization->code = $prefix . str_pad($count, 5, '0', STR_PAD_LEFT);
+                $count = self::where('type', $Company->type)->count() + 1;
+                $Company->code = $prefix . str_pad($count, 5, '0', STR_PAD_LEFT);
             }
         });
     }
@@ -237,5 +237,5 @@ class Organization extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class, 'company_id');
-    }   
+    }
 }

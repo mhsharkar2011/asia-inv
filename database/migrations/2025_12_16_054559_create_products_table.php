@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->constrained('organizations')->onDelete('cascade');
+            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->string('product_code')->unique();
             $table->string('product_name');
@@ -29,7 +29,9 @@ return new class extends Migration
             $table->boolean('track_batch')->default(false);
             $table->boolean('track_expiry')->default(false);
             $table->boolean('is_active')->default(true);
+
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

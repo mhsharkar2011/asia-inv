@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Sales;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\Organization;
+use App\Models\Admin\Company;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\Customer;
 use App\Models\Sales\InvoiceItem;
@@ -48,7 +48,7 @@ class InvoiceController extends Controller
      */
     public function create(Request $request)
     {
-        $customers = Organization::where('type', 'customer')->orderBy('name')->get();
+        $customers = Company::where('type', 'customer')->orderBy('name')->get();
         $invoice_number = Invoice::generateInvoiceNumber();
 
         // Pre-select customer if coming from customer page
@@ -65,7 +65,7 @@ class InvoiceController extends Controller
         try {
             // Validate basic invoice data
             $validated = $request->validate([
-                'customer_id' => 'required|exists:organizations,id',
+                'customer_id' => 'required|exists:companies,id',
                 'invoice_date' => 'required|date',
                 'due_date' => 'required|date|after_or_equal:invoice_date',
                 'notes' => 'nullable|string',
@@ -163,7 +163,7 @@ class InvoiceController extends Controller
         }
 
         $invoice->load('items');
-        $customers = Organization::where('type', 'customer')->orderBy('name')->get();
+        $customers = Company::where('type', 'customer')->orderBy('name')->get();
 
         return view('sales.invoices.edit', compact('invoice', 'customers'));
     }
@@ -180,7 +180,7 @@ class InvoiceController extends Controller
 
         try {
             $validated = $request->validate([
-                'customer_id' => 'required|exists:organizations,id',
+                'customer_id' => 'required|exists:companies,id',
                 'invoice_date' => 'required|date',
                 'due_date' => 'required|date|after_or_equal:invoice_date',
                 'notes' => 'nullable|string',
@@ -341,7 +341,7 @@ class InvoiceController extends Controller
             $invoice = Invoice::with(['customer', 'items'])->findOrFail($id);
 
             // Get company information
-            $company = Organization::where('type', 'company')->first();
+            $company = Company::where('type', 'company')->first();
 
             if (!$company) {
                 // Create a default company object

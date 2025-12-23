@@ -226,7 +226,7 @@
                         </div>
                     </div>
 
-                    <!-- Organization & Profile Card -->
+                    <!-- Company & Profile Card -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                         <div class="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
                             <div class="flex items-center">
@@ -238,7 +238,7 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h2 class="text-xl font-bold text-gray-900">Organization & Profile</h2>
+                                    <h2 class="text-xl font-bold text-gray-900">Company & Profile</h2>
                                     <p class="text-sm text-gray-600 mt-1">Company assignment and profile settings</p>
                                 </div>
                             </div>

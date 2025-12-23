@@ -33,13 +33,13 @@ class DatabaseSeeder extends Seeder
             DB::table('role_has_permissions')->truncate();
         }
 
-        DB::table('organizations')->truncate();
+        DB::table('companies')->truncate();
 
         // Enable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // Insert company
-        $companyId = DB::table('organizations')->insertGetId([
+        $companyId = DB::table('companies')->insertGetId([
             'code' => 'AEL.',
             'name' => 'Asia Enterprises Ltd.',
             'tin' => '123456789321',
@@ -56,23 +56,24 @@ class DatabaseSeeder extends Seeder
         $adminExists = DB::table('users')->where('email', 'admin@asiaenterprise.com')->exists();
 
         if (!$adminExists) {
-            DB::table('users')->insert([
-                [
-                    'name' => 'System Administrator',
-                    'email' => 'admin@asiaenterprise.com',
-                    'password' => Hash::make('admin@123'),
-                    'avatar' => 'default_avatar.png',
-                    'company_id' => $companyId,
-                    'role' => 'admin',
-                    'phone' => '+8801733172007',
-                    'language_preference' => 'en',
-                    'is_active' => true,
-                    'email_verified_at' => now(),
-                    'last_login_at' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
+            $adminId = DB::table('users')->insertGetId([
+                'name' => 'System Administrator',
+                'email' => 'admin@asiaenterprise.com',
+                'password' => Hash::make('admin@123'),
+                'avatar' => 'default_avatar.png',
+                'company_id' => $companyId,
+                'phone' => '+8801733172007',
+                'language_preference' => 'en',
+                'is_active' => true,
+                'email_verified_at' => now(),
+                'last_login_at' => now(),
+                'created_by' => 1, // Self-created
+                'updated_by' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
+        } else {
+            $adminId = DB::table('users')->where('email', 'admin@asiaenterprise.com')->value('id');
         }
 
         // Insert categories
@@ -83,17 +84,8 @@ class DatabaseSeeder extends Seeder
             'parent_category_id' => null,
             'description' => 'Electronic items and gadgets',
             'tax_rate_applicable' => 18.00,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        $clothingId = DB::table('categories')->insertGetId([
-            'company_id' => $companyId,
-            'category_code' => 'CLOTH',
-            'category_name' => 'Clothing',
-            'parent_category_id' => null,
-            'description' => 'Apparel and clothing items',
-            'tax_rate_applicable' => 12.00,
+            'created_by' => $adminId,
+            'updated_by' => $adminId,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -102,11 +94,13 @@ class DatabaseSeeder extends Seeder
         DB::table('categories')->insert([
             [
                 'company_id' => $companyId,
-                'category_code' => 'MOB',
-                'category_name' => 'Mobile Phones',
+                'category_code' => 'PRNT',
+                'category_name' => 'Printers',
                 'parent_category_id' => $electronicsId,
-                'description' => 'Smartphones and mobile phones',
-                'tax_rate_applicable' => 18.00,
+                'description' => 'Printers and Toners Service Provider',
+                'tax_rate_applicable' => 5.00,
+                'created_by' => $adminId,
+                'updated_by' => $adminId,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -116,27 +110,9 @@ class DatabaseSeeder extends Seeder
                 'category_name' => 'Laptops',
                 'parent_category_id' => $electronicsId,
                 'description' => 'Laptops and notebooks',
-                'tax_rate_applicable' => 18.00,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'company_id' => $companyId,
-                'category_code' => 'MEN',
-                'category_name' => "Men's Wear",
-                'parent_category_id' => $clothingId,
-                'description' => 'Clothing for men',
-                'tax_rate_applicable' => 12.00,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'company_id' => $companyId,
-                'category_code' => 'WOMEN',
-                'category_name' => "Women's Wear",
-                'parent_category_id' => $clothingId,
-                'description' => 'Clothing for women',
-                'tax_rate_applicable' => 12.00,
+                'tax_rate_applicable' => 5.00,
+                'created_by' => $adminId,
+                'updated_by' => $adminId,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

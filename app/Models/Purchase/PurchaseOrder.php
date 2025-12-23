@@ -2,7 +2,7 @@
 
 namespace App\Models\Purchase;
 
-use App\Models\Admin\Organization;
+use App\Models\Admin\Company;
 use App\Models\Purchase\Supplier;
 use App\Models\Inventory\Warehouse;
 use App\Models\Purchase\PurchaseOrderItem;
@@ -41,7 +41,7 @@ class PurchaseOrder extends Model
 
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Organization::class);
+        return $this->belongsTo(Company::class);
     }
 
     public function supplier(): BelongsTo
