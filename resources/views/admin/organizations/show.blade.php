@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', $organization->name)
+@section('title', $Company->name)
 
 @section('content')
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
@@ -12,15 +12,15 @@
                         <div class="flex items-start space-x-4">
                             <div
                                 class="p-4 rounded-2xl bg-gradient-to-br
-                            @if ($organization->type == 'company') from-blue-500 to-blue-600
-                            @elseif($organization->type == 'customer') from-green-500 to-green-600
+                            @if ($Company->type == 'company') from-blue-500 to-blue-600
+                            @elseif($Company->type == 'customer') from-green-500 to-green-600
                             @else from-amber-500 to-amber-600 @endif shadow-lg">
-                                @if ($organization->type == 'company')
+                                @if ($Company->type == 'company')
                                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                     </svg>
-                                @elseif($organization->type == 'customer')
+                                @elseif($Company->type == 'customer')
                                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -36,15 +36,15 @@
                             </div>
                             <div>
                                 <div class="flex items-center flex-wrap gap-2 mb-2">
-                                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">{{ $organization->name }}</h1>
+                                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">{{ $Company->name }}</h1>
                                     <span
                                         class="px-3 py-1 text-sm font-bold rounded-full
-                                    @if ($organization->type == 'company') bg-blue-100 text-blue-800
-                                    @elseif($organization->type == 'customer') bg-green-100 text-green-800
+                                    @if ($Company->type == 'company') bg-blue-100 text-blue-800
+                                    @elseif($Company->type == 'customer') bg-green-100 text-green-800
                                     @else bg-amber-100 text-amber-800 @endif">
-                                        {{ ucfirst($organization->type) }}
+                                        {{ ucfirst($Company->type) }}
                                     </span>
-                                    @if ($organization->is_active)
+                                    @if ($Company->is_active)
                                         <span
                                             class="px-3 py-1 text-sm font-bold rounded-full bg-gradient-to-r from-green-100 to-green-200 text-green-800">
                                             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
@@ -73,16 +73,16 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                                         </svg>
-                                        <span class="font-medium">Code: {{ $organization->code }}</span>
+                                        <span class="font-medium">Code: {{ $Company->code }}</span>
                                     </div>
-                                    @if ($organization->sub_type)
+                                    @if ($Company->sub_type)
                                         <div class="flex items-center">
                                             <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                                             </svg>
-                                            <span>{{ ucfirst($organization->sub_type) }}</span>
+                                            <span>{{ ucfirst($Company->sub_type) }}</span>
                                         </div>
                                     @endif
                                 </div>
@@ -90,16 +90,16 @@
                         </div>
                     </div>
                     <div class="flex space-x-3">
-                        <a href="{{ route('admin.organizations.edit', $organization) }}"
+                        <a href="{{ route('admin.companies.edit', $Company) }}"
                             class="group inline-flex items-center px-5 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-amber-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200 transform hover:-translate-y-0.5">
                             <svg class="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
-                            Edit Organization
+                            Edit Company
                         </a>
-                        <a href="{{ route('admin.organizations.index', ['type' => $organization->type]) }}"
+                        <a href="{{ route('admin.companies.index', ['type' => $Company->type]) }}"
                             class="inline-flex items-center px-5 py-3 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 font-semibold rounded-xl shadow-lg hover:shadow hover:from-gray-300 hover:to-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -134,11 +134,11 @@
                                 <div class="space-y-4">
                                     <div>
                                         <p class="text-sm font-medium text-gray-500 mb-1">Contact Person</p>
-                                        <p class="font-semibold text-gray-900">{{ $organization->contact_person ?? 'N/A' }}
+                                        <p class="font-semibold text-gray-900">{{ $Company->contact_person ?? 'N/A' }}
                                         </p>
                                     </div>
 
-                                    @if ($organization->email)
+                                    @if ($Company->email)
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0">
                                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
@@ -149,15 +149,15 @@
                                             </div>
                                             <div class="ml-3">
                                                 <p class="text-sm font-medium text-gray-500">Email</p>
-                                                <a href="mailto:{{ $organization->email }}"
+                                                <a href="mailto:{{ $Company->email }}"
                                                     class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
-                                                    {{ $organization->email }}
+                                                    {{ $Company->email }}
                                                 </a>
                                             </div>
                                         </div>
                                     @endif
 
-                                    @if ($organization->phone)
+                                    @if ($Company->phone)
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0">
                                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
@@ -168,15 +168,15 @@
                                             </div>
                                             <div class="ml-3">
                                                 <p class="text-sm font-medium text-gray-500">Phone</p>
-                                                <a href="tel:{{ $organization->phone }}"
+                                                <a href="tel:{{ $Company->phone }}"
                                                     class="text-gray-900 font-medium hover:text-blue-600 transition-colors duration-200">
-                                                    {{ $organization->phone }}
+                                                    {{ $Company->phone }}
                                                 </a>
                                             </div>
                                         </div>
                                     @endif
 
-                                    @if ($organization->mobile)
+                                    @if ($Company->mobile)
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0">
                                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
@@ -187,15 +187,15 @@
                                             </div>
                                             <div class="ml-3">
                                                 <p class="text-sm font-medium text-gray-500">Mobile</p>
-                                                <a href="tel:{{ $organization->mobile }}"
+                                                <a href="tel:{{ $Company->mobile }}"
                                                     class="text-gray-900 font-medium hover:text-blue-600 transition-colors duration-200">
-                                                    {{ $organization->mobile }}
+                                                    {{ $Company->mobile }}
                                                 </a>
                                             </div>
                                         </div>
                                     @endif
 
-                                    @if ($organization->website)
+                                    @if ($Company->website)
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0">
                                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
@@ -206,9 +206,9 @@
                                             </div>
                                             <div class="ml-3">
                                                 <p class="text-sm font-medium text-gray-500">Website</p>
-                                                <a href="{{ $organization->website }}" target="_blank"
+                                                <a href="{{ $Company->website }}" target="_blank"
                                                     class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
-                                                    {{ $organization->website }}
+                                                    {{ $Company->website }}
                                                 </a>
                                             </div>
                                         </div>
@@ -235,47 +235,47 @@
                             </div>
                             <div class="p-6">
                                 <div class="space-y-4">
-                                    @if ($organization->address)
+                                    @if ($Company->address)
                                         <div>
                                             <p class="text-sm font-medium text-gray-500 mb-1">Address</p>
-                                            <p class="font-semibold text-gray-900">{{ $organization->address }}</p>
+                                            <p class="font-semibold text-gray-900">{{ $Company->address }}</p>
                                         </div>
                                     @endif
 
                                     <div class="grid grid-cols-2 gap-4">
-                                        @if ($organization->city)
+                                        @if ($Company->city)
                                             <div>
                                                 <p class="text-sm font-medium text-gray-500 mb-1">City</p>
-                                                <p class="font-semibold text-gray-900">{{ $organization->city }}</p>
+                                                <p class="font-semibold text-gray-900">{{ $Company->city }}</p>
                                             </div>
                                         @endif
 
-                                        @if ($organization->district)
+                                        @if ($Company->district)
                                             <div>
                                                 <p class="text-sm font-medium text-gray-500 mb-1">District</p>
-                                                <p class="font-semibold text-gray-900">{{ $organization->district }}</p>
+                                                <p class="font-semibold text-gray-900">{{ $Company->district }}</p>
                                             </div>
                                         @endif
 
-                                        @if ($organization->country)
+                                        @if ($Company->country)
                                             <div>
                                                 <p class="text-sm font-medium text-gray-500 mb-1">Country</p>
-                                                <p class="font-semibold text-gray-900">{{ $organization->country }}</p>
+                                                <p class="font-semibold text-gray-900">{{ $Company->country }}</p>
                                             </div>
                                         @endif
 
-                                        @if ($organization->postal_code)
+                                        @if ($Company->postal_code)
                                             <div>
                                                 <p class="text-sm font-medium text-gray-500 mb-1">Postal Code</p>
-                                                <p class="font-semibold text-gray-900">{{ $organization->postal_code }}
+                                                <p class="font-semibold text-gray-900">{{ $Company->postal_code }}
                                                 </p>
                                             </div>
                                         @endif
                                     </div>
 
-                                    @if ($organization->latitude && $organization->longitude)
+                                    @if ($Company->latitude && $Company->longitude)
                                         <div class="pt-4">
-                                            <a href="https://maps.google.com/?q={{ $organization->latitude }},{{ $organization->longitude }}"
+                                            <a href="https://maps.google.com/?q={{ $Company->latitude }},{{ $Company->longitude }}"
                                                 target="_blank"
                                                 class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 font-medium rounded-lg hover:from-blue-100 hover:to-blue-200 transition-all duration-200">
                                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
@@ -311,46 +311,46 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                                 <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4">
                                     <p class="text-sm font-medium text-gray-500 mb-2">TIN Number</p>
-                                    <p class="text-lg font-bold text-gray-900">{{ $organization->tin ?? 'N/A' }}</p>
+                                    <p class="text-lg font-bold text-gray-900">{{ $Company->tin ?? 'N/A' }}</p>
                                 </div>
                                 <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4">
                                     <p class="text-sm font-medium text-gray-500 mb-2">BIN Number</p>
-                                    <p class="text-lg font-bold text-gray-900">{{ $organization->bin ?? 'N/A' }}</p>
+                                    <p class="text-lg font-bold text-gray-900">{{ $Company->bin ?? 'N/A' }}</p>
                                 </div>
                                 <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4">
                                     <p class="text-sm font-medium text-gray-500 mb-2">Trade License</p>
-                                    <p class="text-lg font-bold text-gray-900">{{ $organization->trade_license ?? 'N/A' }}
+                                    <p class="text-lg font-bold text-gray-900">{{ $Company->trade_license ?? 'N/A' }}
                                     </p>
                                 </div>
                             </div>
 
                             <!-- Type-specific Financial Info -->
-                            @if ($organization->type == 'customer')
+                            @if ($Company->type == 'customer')
                                 <div class="border-t border-gray-200 pt-6">
                                     <h4 class="text-md font-bold text-gray-900 mb-4">Credit Information</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5">
                                             <p class="text-sm font-medium text-gray-500 mb-2">Credit Limit</p>
                                             <p class="text-2xl font-bold text-blue-600">
-                                                ৳{{ number_format($organization->credit_limit, 2) }}
+                                                ৳{{ number_format($Company->credit_limit, 2) }}
                                             </p>
                                         </div>
                                         <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-5">
                                             <p class="text-sm font-medium text-gray-500 mb-2">Outstanding Balance</p>
                                             <p
-                                                class="text-2xl font-bold {{ $organization->outstanding_balance > 0 ? 'text-red-600' : 'text-green-600' }}">
-                                                ৳{{ number_format($organization->outstanding_balance, 2) }}
+                                                class="text-2xl font-bold {{ $Company->outstanding_balance > 0 ? 'text-red-600' : 'text-green-600' }}">
+                                                ৳{{ number_format($Company->outstanding_balance, 2) }}
                                             </p>
                                         </div>
                                     </div>
                                 </div>
                             @endif
 
-                            @if ($organization->type == 'supplier' && $organization->payment_terms)
+                            @if ($Company->type == 'supplier' && $Company->payment_terms)
                                 <div class="border-t border-gray-200 pt-6">
                                     <h4 class="text-md font-bold text-gray-900 mb-4">Payment Terms</h4>
                                     <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-5">
-                                        <p class="text-lg font-bold text-amber-700">{{ $organization->payment_terms }}</p>
+                                        <p class="text-lg font-bold text-amber-700">{{ $Company->payment_terms }}</p>
                                     </div>
                                 </div>
                             @endif
@@ -358,7 +358,7 @@
                     </div>
 
                     <!-- Additional Information -->
-                    @if ($organization->description || $organization->notes)
+                    @if ($Company->description || $Company->notes)
                         <div class="bg-white rounded-2xl shadow-xl border border-gray-100">
                             <div class="px-6 py-5 border-b border-gray-100">
                                 <div class="flex items-center">
@@ -373,20 +373,20 @@
                                 </div>
                             </div>
                             <div class="p-6">
-                                @if ($organization->description)
+                                @if ($Company->description)
                                     <div class="mb-6">
                                         <p class="text-sm font-medium text-gray-500 mb-3">Description</p>
                                         <div class="bg-gray-50 rounded-xl p-4">
-                                            <p class="text-gray-700 leading-relaxed">{{ $organization->description }}</p>
+                                            <p class="text-gray-700 leading-relaxed">{{ $Company->description }}</p>
                                         </div>
                                     </div>
                                 @endif
 
-                                @if ($organization->notes)
+                                @if ($Company->notes)
                                     <div>
                                         <p class="text-sm font-medium text-gray-500 mb-3">Notes</p>
                                         <div class="bg-amber-50 rounded-xl p-4">
-                                            <p class="text-amber-800 leading-relaxed">{{ $organization->notes }}</p>
+                                            <p class="text-amber-800 leading-relaxed">{{ $Company->notes }}</p>
                                         </div>
                                     </div>
                                 @endif
@@ -403,7 +403,7 @@
                         <div class="p-3">
                             <div class="grid grid-cols-4 gap-4">
                                 <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
-                                    <p class="text-2xl font-bold text-blue-600 mb-1">{{ $organization->transaction ?? '0' }}</p>
+                                    <p class="text-2xl font-bold text-blue-600 mb-1">{{ $Company->transaction ?? '0' }}</p>
                                     <p class="text-sm font-medium text-gray-500">Transactions</p>
                                 </div>
                                 <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center">
@@ -434,7 +434,7 @@
                             <div class="space-y-4">
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-500">Status</span>
-                                    @if ($organization->is_active)
+                                    @if ($Company->is_active)
                                         <span
                                             class="px-3 py-1 text-sm font-bold rounded-full bg-gradient-to-r from-green-100 to-green-200 text-green-800">
                                             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
@@ -460,30 +460,30 @@
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-500">Created</span>
                                     <span
-                                        class="font-semibold text-gray-900">{{ $organization->created_at->format('d M Y, h:i A') }}</span>
+                                        class="font-semibold text-gray-900">{{ $Company->created_at->format('d M Y, h:i A') }}</span>
                                 </div>
 
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-500">Updated</span>
                                     <span
-                                        class="font-semibold text-gray-900">{{ $organization->updated_at->format('d M Y, h:i A') }}</span>
+                                        class="font-semibold text-gray-900">{{ $Company->updated_at->format('d M Y, h:i A') }}</span>
                                 </div>
 
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-500">Currency</span>
-                                    <span class="font-semibold text-gray-900">{{ $organization->currency }}</span>
+                                    <span class="font-semibold text-gray-900">{{ $Company->currency }}</span>
                                 </div>
 
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-500">Language</span>
                                     <span class="font-semibold text-gray-900">
-                                        {{ $organization->language == 'en' ? 'English' : 'Bangla' }}
+                                        {{ $Company->language == 'en' ? 'English' : 'Bangla' }}
                                     </span>
                                 </div>
 
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-500">Timezone</span>
-                                    <span class="font-semibold text-gray-900">{{ $organization->timezone }}</span>
+                                    <span class="font-semibold text-gray-900">{{ $Company->timezone }}</span>
                                 </div>
                             </div>
                         </div>
@@ -496,8 +496,8 @@
                         </div>
                         <div class="p-6">
                             <div class="space-y-3">
-                                @if ($organization->is_active)
-                                    <form action="{{ route('admin.organizations.toggle-status', $organization) }}"
+                                @if ($Company->is_active)
+                                    <form action="{{ route('admin.companies.toggle-status', $Company) }}"
                                         method="POST">
                                         @csrf
                                         <button type="submit"
@@ -518,7 +518,7 @@
                                         </button>
                                     </form>
                                 @else
-                                    <form action="{{ route('admin.organizations.toggle-status', $organization) }}"
+                                    <form action="{{ route('admin.companies.toggle-status', $Company) }}"
                                         method="POST">
                                         @csrf
                                         <button type="submit"
@@ -594,8 +594,8 @@
                                     </svg>
                                 </button>
 
-                                <form action="{{ route('admin.organizations.destroy', $organization) }}" method="POST"
-                                    onsubmit="return confirm('Are you sure you want to delete this organization? This action cannot be undone.')">
+                                <form action="{{ route('admin.companies.destroy', $Company) }}" method="POST"
+                                    onsubmit="return confirm('Are you sure you want to delete this Company? This action cannot be undone.')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"
@@ -606,7 +606,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
-                                            <span class="font-semibold">Delete Organization</span>
+                                            <span class="font-semibold">Delete Company</span>
                                         </div>
                                         <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -628,7 +628,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-xl p-6">
-                    <h5 class="modal-title text-xl font-bold">Send Email to {{ $organization->name }}</h5>
+                    <h5 class="modal-title text-xl font-bold">Send Email to {{ $Company->name }}</h5>
                     <button type="button" class="btn-close text-white opacity-80 hover:opacity-100"
                         data-bs-dismiss="modal"></button>
                 </div>
@@ -657,12 +657,12 @@
                                     <div>
                                         <p class="text-sm font-bold text-blue-800">Email Recipient</p>
                                         <p class="text-sm text-blue-700 mt-1">
-                                            @if ($organization->email)
+                                            @if ($Company->email)
                                                 Email will be sent to: <span
-                                                    class="font-bold">{{ $organization->email }}</span>
+                                                    class="font-bold">{{ $Company->email }}</span>
                                             @else
                                                 <span class="text-red-600 font-bold">No email address available for this
-                                                    organization.</span>
+                                                    Company.</span>
                                             @endif
                                         </p>
                                     </div>
@@ -676,7 +676,7 @@
                                 </button>
                                 <button type="submit"
                                     class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:-translate-y-0.5"
-                                    @if (!$organization->email) disabled @endif>
+                                    @if (!$Company->email) disabled @endif>
                                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -740,7 +740,7 @@
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     if (!confirm(
-                            'Are you sure you want to delete this organization? This action cannot be undone.'
+                            'Are you sure you want to delete this Company? This action cannot be undone.'
                             )) {
                         e.preventDefault();
                     }

@@ -745,7 +745,7 @@
                             </div>
 
                             <div class="mt-6">
-                                <a href="{{ route('sales.organizations.show', $salesOrder->customer) }}"
+                                <a href="{{ route('sales.companies.show', $salesOrder->customer) }}"
                                     class="w-full inline-flex items-center justify-center px-4 py-2 border border-emerald-300 shadow-sm text-sm font-medium rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-150">
                                     <svg class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />

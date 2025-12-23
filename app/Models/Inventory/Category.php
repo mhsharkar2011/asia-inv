@@ -2,12 +2,13 @@
 
 namespace App\Models\Inventory;
 
-use App\Models\Admin\Organization;
+use App\Models\Admin\Company;
+use App\Models\Admin\User;
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class Category extends Model
+class Category extends BaseModel
 {
     use HasFactory;
 
@@ -20,24 +21,29 @@ class Category extends Model
         'tax_rate_applicable'
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($modal) {
-            if (Auth::check()) {
-                $modal->company_id = Auth::user()->company_id;
-            }
-        });
-    }
     protected $casts = [
         'tax_rate_applicable' => 'decimal:2',
     ];
 
+    // Relationships
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function deleter()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
+    }
     // Relationship with Company
     public function company()
     {
-        return $this->belongsTo(Organization::class, 'company_id');
+        return $this->belongsTo(Company::class, 'company_id');
     }
 
     // Self-referential relationship for parent category

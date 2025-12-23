@@ -8,7 +8,7 @@ use App\Models\Inventory\Company;
 use App\Models\Purchase\Supplier;
 use App\Models\Inventory\Warehouse;
 use App\Http\Requests\PurchaseOrderRequest;
-use App\Models\Admin\Organization;
+use App\Models\Admin\Company;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -43,7 +43,7 @@ class PurchaseOrderController extends Controller
             ->orderBy('created_at', 'desc');
 
         $purchaseOrders = $query->paginate($perPage);
-        $companies = Organization::where('type', 'company')->get();
+        $companies = Company::where('type', 'company')->get();
         return view('purchase.purchase-orders.index', compact(
             'companies',
             'purchaseOrders',
@@ -57,8 +57,8 @@ class PurchaseOrderController extends Controller
 
     public function create()
     {
-        $companies = Organization::where('type', 'company')->get();
-        $suppliers = Organization::where('type', 'supplier')->get();
+        $companies = Company::where('type', 'company')->get();
+        $suppliers = Company::where('type', 'supplier')->get();
         $warehouses = Warehouse::all();
         $statuses = ['draft', 'pending', 'partial', 'completed', 'cancelled'];
 
@@ -92,8 +92,8 @@ class PurchaseOrderController extends Controller
     public function edit(PurchaseOrder $purchaseOrder)
     {
         $poNumber = $this->generatePONumber();
-        $companies = Organization::where('type', 'company')->get();
-        $suppliers = Organization::where('type', 'supplier')->get();
+        $companies = Company::where('type', 'company')->get();
+        $suppliers = Company::where('type', 'supplier')->get();
         $warehouses = Warehouse::all();
         $statuses = ['draft', 'pending', 'partial', 'completed', 'cancelled'];
 

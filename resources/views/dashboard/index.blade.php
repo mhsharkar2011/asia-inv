@@ -50,7 +50,7 @@
                     </div>
                 </div>
                 <div class="mt-6 pt-4 border-t border-gray-100">
-                    <a href="{{ route('sales.organizations.index') }}"
+                    <a href="{{ route('sales.companies.index') }}"
                         class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800">
                         View all customers
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,7 +242,7 @@
                                     Invoice</span>
                             </a>
 
-                            <a href="{{ route('sales.organizations.create') }}"
+                            <a href="{{ route('sales.companies.create') }}"
                                 class="group p-4 border border-gray-200 rounded-lg hover:border-cyan-300 hover:bg-cyan-50 transition-all text-center">
                                 <div
                                     class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-cyan-200 transition-colors">
