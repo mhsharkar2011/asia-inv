@@ -6,7 +6,6 @@ use App\Models\Admin\Company;
 use App\Models\Admin\User;
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Facades\Auth;
 
 class Category extends BaseModel
 {

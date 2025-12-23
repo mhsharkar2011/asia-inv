@@ -41,7 +41,7 @@ class Invoice extends Model
      */
     public function customer()
     {
-        return $this->belongsTo(Company::class, 'customer_id');
+        return $this->belongsTo(Company::class, 'customer_id')->where('type','customer');
     }
 
     /**

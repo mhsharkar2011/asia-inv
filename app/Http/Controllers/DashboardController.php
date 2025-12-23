@@ -6,7 +6,6 @@ use App\Models\Inventory\Product;
 use App\Models\Admin\Company;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\SalesOrder;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
