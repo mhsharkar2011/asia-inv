@@ -15,7 +15,6 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('avatar')->nullable();
             $table->string('password');
-            $table->enum('role', ['super_admin', 'admin', 'manager', 'staff', 'viewer'])->default('staff');
             $table->boolean('is_active')->default(true);
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('last_login_at')->nullable();
