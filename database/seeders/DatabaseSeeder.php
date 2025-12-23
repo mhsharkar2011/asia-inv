@@ -13,10 +13,26 @@ class DatabaseSeeder extends Seeder
         // Disable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Clear tables
+        // Clear tables but NOT users table (to preserve existing users)
         DB::table('categories')->truncate();
-        DB::table('users')->truncate();
-        // DB::table('branches')->truncate();
+
+        // Only truncate users if empty or you want fresh start
+        // DB::table('users')->truncate();
+
+        // If you have Spatie tables, clear them too
+        if (DB::getSchemaBuilder()->hasTable('permissions')) {
+            DB::table('permissions')->truncate();
+        }
+        if (DB::getSchemaBuilder()->hasTable('roles')) {
+            DB::table('roles')->truncate();
+        }
+        if (DB::getSchemaBuilder()->hasTable('model_has_roles')) {
+            DB::table('model_has_roles')->truncate();
+        }
+        if (DB::getSchemaBuilder()->hasTable('role_has_permissions')) {
+            DB::table('role_has_permissions')->truncate();
+        }
+
         DB::table('organizations')->truncate();
 
         // Enable foreign key checks
@@ -36,39 +52,28 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        // Insert branch
-        // $branchId = DB::table('branches')->insertGetId([
-        //     'company_id' => $companyId,
-        //     'branch_code' => 'BR001',
-        //     'branch_name' => 'Main Branch',
-        //     'address' => '123 Main Street, Mumbai, Maharashtra',
-        //     'contact_person' => 'John Doe',
-        //     'phone' => '+91-9876543210',
-        //     'email' => 'main@asiaenterprise.com',
-        //     'is_main_branch' => true,
-        //     'created_at' => now(),
-        //     'updated_at' => now(),
-        // ]);
+        // Insert admin user ONLY if doesn't exist
+        $adminExists = DB::table('users')->where('email', 'admin@asiaenterprise.com')->exists();
 
-        // Insert users
-        DB::table('users')->insert([
-            [
-                'name' => 'System Administrator',
-                'email' => 'admin@asiaenterprise.com',
-                'password' => Hash::make('admin@123'),
-                'avatar' => 'default_avatar.png',
-                'company_id' => $companyId,
-                // 'branch_id' => $branchId,
-                'role' => 'admin',
-                'phone' => '+8801733172007',
-                'language_preference' => 'en',
-                'is_active' => true,
-                'email_verified_at' => now(),
-                'last_login_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        ]);
+        if (!$adminExists) {
+            DB::table('users')->insert([
+                [
+                    'name' => 'System Administrator',
+                    'email' => 'admin@asiaenterprise.com',
+                    'password' => Hash::make('admin@123'),
+                    'avatar' => 'default_avatar.png',
+                    'company_id' => $companyId,
+                    'role' => 'admin',
+                    'phone' => '+8801733172007',
+                    'language_preference' => 'en',
+                    'is_active' => true,
+                    'email_verified_at' => now(),
+                    'last_login_at' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            ]);
+        }
 
         // Insert categories
         $electronicsId = DB::table('categories')->insertGetId([
@@ -137,9 +142,10 @@ class DatabaseSeeder extends Seeder
             ],
         ]);
 
+        // Run the PermissionsSeeder
+        $this->call(PermissionsSeeder::class);
+
         $this->command->info('Database seeded successfully!');
-        $this->command->info('Login credentials:');
-        $this->command->info('Admin: admin / admin@123');
-        $this->command->info('Staff: staff / staff@123');
+        $this->command->info('Admin login: admin@asiaenterprise.com / admin@123');
     }
 }

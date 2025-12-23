@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Purchase\SupplierController;
 
 /*
@@ -30,19 +31,54 @@ use App\Http\Controllers\Purchase\SupplierController;
 //public Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Authentication Routes
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+// Auth routes
+Route::middleware('guest')->group(function () {
+    // Login
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+
+    // Registration (can be disabled via config)
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
+});
+
+
+// Authenticated routes
+Route::middleware(['auth'])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Admin routes
+    Route::middleware(['can:view users'])->prefix('admin')->name('admin.')->group(function () {
+        // Users
+        Route::resource('users', UserController::class);
+
+        // Additional user routes
+        Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
+            ->name('users.toggle-status');
+        Route::post('users/{user}/verify-email', [UserController::class, 'verifyEmail'])
+            ->name('users.verify-email');
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])
+            ->name('users.reset-password');
+        Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])
+            ->name('users.login-as');
+        Route::get('users/export', [UserController::class, 'export'])
+            ->name('users.export');
+        Route::post('users/bulk-action', [UserController::class, 'bulkAction'])
+            ->name('users.bulk-action');
+    });
+});
+
+
+// Logout
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [RegisterController::class, 'register']);
 
 // Protected Routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'role:admin|super_admin|user'])->group(function () {
     // Admin User Management
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class);
@@ -59,6 +95,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('profile', [UserController::class, 'editProfile'])->name('users.profile.edit');
         Route::put('profile', [UserController::class, 'updateProfile'])->name('users.profile.update');
 
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Route::resource('organizations', OrganizationController::class)->except(['index', 'create']);
         Route::get('organizations/{type?}', [OrganizationController::class, 'index'])->name('organizations.index');
@@ -71,19 +108,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('organizations/export', [OrganizationController::class, 'export'])->name('organizations.export');
         Route::get('organizations/{type?}/import', [OrganizationController::class, 'import'])->name('organizations.import');
         Route::post('organizations/{organization}/toggle-status', [OrganizationController::class, 'toggleStatus'])->name('organizations.toggle-status');
-
-        Route::resource('branches', BranchController::class);
-        Route::prefix('branches')->name('branches.')->group(function () {
-            Route::post('/{branch}/toggle-status', [BranchController::class, 'toggleStatus'])->name('toggle-status');
-            Route::post('/{branch}/set-head-office', [BranchController::class, 'setHeadOffice'])->name('set-head-office');
-            Route::get('/company/{companyId}', [BranchController::class, 'getByCompany'])->name('by-company');
-            Route::get('/export', [BranchController::class, 'export'])->name('export');
-        });
-        Route::resource('departments', DepartmentController::class);
     });
 
     // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Inventory Management
     Route::prefix('inventory')->name('inventory.')->group(function () {
@@ -144,3 +171,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/placeholder', [ReportController::class, 'placeholder'])->name('placeholder');
     });
 });
+
+
+// Auth routes (if using Laravel Breeze/Jetstream)
+require __DIR__ . '/auth.php';
