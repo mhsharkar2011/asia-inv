@@ -7,7 +7,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\Admin\User;
 
-class PermissionsSeeder extends Seeder
+class RolePermissionSeeder extends Seeder
 {
     public function run()
     {
