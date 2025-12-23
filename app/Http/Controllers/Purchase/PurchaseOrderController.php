@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Purchase;
 
 use App\Http\Controllers\Controller;
 use App\Models\Purchase\PurchaseOrder;
-use App\Models\Inventory\Company;
 use App\Models\Purchase\Supplier;
 use App\Models\Inventory\Warehouse;
 use App\Http\Requests\PurchaseOrderRequest;

@@ -46,7 +46,7 @@ class PurchaseOrder extends Model
 
     public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Organization::class,'supplier_id');
+        return $this->belongsTo(Company::class,'supplier_id');
     }
 
     public function warehouse(): BelongsTo
