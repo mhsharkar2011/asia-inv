@@ -33,10 +33,8 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Auth routes
 Route::middleware('guest')->group(function () {
-    // Login
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-
     // Registration (can be disabled via config)
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
@@ -53,7 +51,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // Admin routes
-    Route::middleware(['can:view users'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['auth','roles:admin'])->prefix('admin')->name('admin.')->group(function () {
         // Users
         Route::resource('users', UserController::class);
 

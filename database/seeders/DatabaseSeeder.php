@@ -16,9 +16,6 @@ class DatabaseSeeder extends Seeder
         // Clear tables but NOT users table (to preserve existing users)
         DB::table('categories')->truncate();
 
-        // Only truncate users if empty or you want fresh start
-        // DB::table('users')->truncate();
-
         // If you have Spatie tables, clear them too
         if (DB::getSchemaBuilder()->hasTable('permissions')) {
             DB::table('permissions')->truncate();
@@ -67,13 +64,18 @@ class DatabaseSeeder extends Seeder
                 'is_active' => true,
                 'email_verified_at' => now(),
                 'last_login_at' => now(),
-                'created_by' => 1, // Self-created
+                'created_by' => 1,
                 'updated_by' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         } else {
             $adminId = DB::table('users')->where('email', 'admin@asiaenterprise.com')->value('id');
+
+            // Update the user to ensure they have company_id
+            DB::table('users')
+                ->where('id', $adminId)
+                ->update(['company_id' => $companyId]);
         }
 
         // Insert categories
@@ -118,10 +120,15 @@ class DatabaseSeeder extends Seeder
             ],
         ]);
 
-        // Run the PermissionsSeeder
+        // Run the PermissionsSeeder (the better one)
         $this->call(PermissionsSeeder::class);
+
+        // If you have other seeders, call them here
+        // $this->call(ProductsSeeder::class);
+        // $this->call(CustomersSeeder::class);
 
         $this->command->info('Database seeded successfully!');
         $this->command->info('Admin login: admin@asiaenterprise.com / admin@123');
+        $this->command->info('Password: admin@123');
     }
 }
