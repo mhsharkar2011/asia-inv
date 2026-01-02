@@ -92,7 +92,7 @@ class UserController extends Controller
             ));
         } catch (\Exception $e) {
             Log::error('UserController index error: ' . $e->getMessage());
-            return redirect()->route('admin.dashboard')
+            return redirect()->route('dashboard')
                 ->with('error', 'Error loading users. Please try again.');
         }
     }
