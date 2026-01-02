@@ -24,19 +24,19 @@
                     </x-nav-link>
                     @endhasanyrole
 
-                    <!-- Example with specific permission -->
+                    {{-- <!-- Example with specific permission -->
                     @permission('manage posts')
                     <x-nav-link :href="route('posts.index')" :active="request()->routeIs('posts.*')">
                         {{ __('Posts') }}
                     </x-nav-link>
-                    @endpermission
+                    @endpermission --}}
 
-                    <!-- Example with multiple permissions -->
+                    {{-- <!-- Example with multiple permissions -->
                     @hasanypermission('view reports|manage analytics')
                     <x-nav-link :href="route('analytics')" :active="request()->routeIs('analytics')">
                         {{ __('Analytics') }}
                     </x-nav-link>
-                    @endhasanypermission
+                    @endhasanypermission --}}
                 </div>
             </div>
 
@@ -72,7 +72,7 @@
                         </x-dropdown-link>
 
                         @hasanyrole('admin|super-admin')
-                        <x-dropdown-link :href="route('admin.dashboard')">
+                        <x-dropdown-link :href="route('dashboard')">
                             {{ __('Admin Panel') }}
                         </x-dropdown-link>
                         @endhasanyrole
@@ -134,7 +134,7 @@
                 </x-responsive-nav-link>
 
                 @hasanyrole('admin|super-admin')
-                <x-responsive-nav-link :href="route('admin.dashboard')">
+                <x-responsive-nav-link :href="route('dashboard')">
                     {{ __('Admin Panel') }}
                 </x-responsive-nav-link>
                 @endhasanyrole
