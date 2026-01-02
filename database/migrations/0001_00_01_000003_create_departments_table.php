@@ -10,11 +10,11 @@ return new class extends Migration
     {
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            $table->foreignId('parent_id')->nullable()->constrained('departments')->onDelete('set null');
             $table->string('code')->unique()->comment('Department code e.g., DEPT001');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('parent_id')->nullable()->constrained('departments')->onDelete('set null');
             $table->integer('staff_count')->default(0);
             $table->decimal('budget', 15, 2)->nullable();
             $table->boolean('is_active')->default(true);

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Organization Management')
+@section('title', 'Company Management')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
@@ -21,7 +21,7 @@
                                 @if ($type)
                                     {{ ucfirst($type) }} Management
                                 @else
-                                    Organization Hub
+                                    Company Hub
                                 @endif
                             </h1>
                             <p class="mt-2 text-lg text-gray-600">
@@ -39,7 +39,7 @@
                         </svg>
                         Import
                     </button>
-                    <a href="{{ route('admin.organizations.export', request()->query()) }}"
+                    <a href="{{ route('admin.companies.export', request()->query()) }}"
                        class="group relative inline-flex items-center px-5 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 transform hover:-translate-y-0.5">
                         <svg class="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -56,7 +56,7 @@
             <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-500">Total Organizations</p>
+                        <p class="text-sm font-medium text-gray-500">Total companies</p>
                         <p class="text-3xl font-bold text-gray-900 mt-2">{{ $stats['companies'] + $stats['customers'] + $stats['suppliers'] }}</p>
                     </div>
                     <div class="p-3 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200">
@@ -128,7 +128,7 @@
                     <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
                         <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Create</h3>
                         <div class="space-y-3">
-                            <a href="{{ route('admin.organizations.create', ['type' => 'company']) }}"
+                            <a href="{{ route('admin.companies.create', ['type' => 'company']) }}"
                                class="group flex items-center justify-between p-4 rounded-xl border border-blue-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 transition-all duration-200 hover:scale-[1.02]">
                                 <div class="flex items-center">
                                     <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 mr-3 group-hover:rotate-12 transition-transform">
@@ -142,7 +142,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </a>
-                            <a href="{{ route('admin.organizations.create', ['type' => 'customer']) }}"
+                            <a href="{{ route('admin.companies.create', ['type' => 'customer']) }}"
                                class="group flex items-center justify-between p-4 rounded-xl border border-green-200 hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 transition-all duration-200 hover:scale-[1.02]">
                                 <div class="flex items-center">
                                     <div class="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600 mr-3 group-hover:rotate-12 transition-transform">
@@ -156,7 +156,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </a>
-                            <a href="{{ route('admin.organizations.create', ['type' => 'supplier']) }}"
+                            <a href="{{ route('admin.companies.create', ['type' => 'supplier']) }}"
                                class="group flex items-center justify-between p-4 rounded-xl border border-amber-200 hover:bg-gradient-to-r hover:from-amber-50 hover:to-amber-100 transition-all duration-200 hover:scale-[1.02]">
                                 <div class="flex items-center">
                                     <div class="p-2 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 mr-3 group-hover:rotate-12 transition-transform">
@@ -181,28 +181,28 @@
                         <div class="mb-6">
                             <h4 class="text-sm font-medium text-gray-500 mb-3">Type</h4>
                             <div class="space-y-2">
-                                <a href="{{ route('admin.organizations.index') }}"
+                                <a href="{{ route('admin.companies.index') }}"
                                    class="flex items-center justify-between px-4 py-3 rounded-xl {{ !$type ? 'bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 text-blue-700' : 'bg-gray-50 hover:bg-gray-100 text-gray-700' }} transition-all duration-200 hover:scale-[1.02]">
                                     <span>All Types</span>
                                     <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500 text-white">
                                         {{ $stats['companies'] + $stats['customers'] + $stats['suppliers'] }}
                                     </span>
                                 </a>
-                                <a href="{{ route('admin.organizations.index', ['type' => 'company']) }}"
+                                <a href="{{ route('admin.companies.index', ['type' => 'company']) }}"
                                    class="flex items-center justify-between px-4 py-3 rounded-xl {{ $type == 'company' ? 'bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 text-blue-700' : 'bg-gray-50 hover:bg-gray-100 text-gray-700' }} transition-all duration-200 hover:scale-[1.02]">
                                     <span>Companies</span>
                                     <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500 text-white">
                                         {{ $stats['companies'] }}
                                     </span>
                                 </a>
-                                <a href="{{ route('admin.organizations.index', ['type' => 'customer']) }}"
+                                <a href="{{ route('admin.companies.index', ['type' => 'customer']) }}"
                                    class="flex items-center justify-between px-4 py-3 rounded-xl {{ $type == 'customer' ? 'bg-gradient-to-r from-green-50 to-green-100 border border-green-200 text-green-700' : 'bg-gray-50 hover:bg-gray-100 text-gray-700' }} transition-all duration-200 hover:scale-[1.02]">
                                     <span>Customers</span>
                                     <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-500 text-white">
                                         {{ $stats['customers'] }}
                                     </span>
                                 </a>
-                                <a href="{{ route('admin.organizations.index', ['type' => 'supplier']) }}"
+                                <a href="{{ route('admin.companies.index', ['type' => 'supplier']) }}"
                                    class="flex items-center justify-between px-4 py-3 rounded-xl {{ $type == 'supplier' ? 'bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-200 text-amber-700' : 'bg-gray-50 hover:bg-gray-100 text-gray-700' }} transition-all duration-200 hover:scale-[1.02]">
                                     <span>Suppliers</span>
                                     <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white">
@@ -249,7 +249,7 @@
                                 </div>
                                 <input type="text" name="search" id="searchInput"
                                        class="pl-12 w-full px-5 py-3 border-0 bg-gray-50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all duration-200"
-                                       placeholder="Search organizations by name, code, email, or phone..."
+                                       placeholder="Search companies by name, code, email, or phone..."
                                        value="{{ $search }}">
                             </div>
                         </div>
@@ -259,7 +259,7 @@
                                 Search
                             </button>
                             @if ($search)
-                                <a href="{{ route('admin.organizations.index', ['type' => $type]) }}"
+                                <a href="{{ route('admin.companies.index', ['type' => $type]) }}"
                                    class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
                                     Clear
                                 </a>
@@ -271,7 +271,7 @@
                     @endif
                 </div>
 
-                <!-- Organizations Grid -->
+                <!-- companies Grid -->
                 <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                     <!-- Table Header -->
                     <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
@@ -281,31 +281,31 @@
                                        class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200">
                                 <h3 class="text-lg font-bold text-gray-900">
                                     @if ($type)
-                                        {{ ucfirst($type) }}s ({{ $organizations->total() }})
+                                        {{ ucfirst($type) }}s ({{ $companies->total() }})
                                     @else
-                                        All Organizations ({{ $organizations->total() }})
+                                        All companies ({{ $companies->total() }})
                                     @endif
                                 </h3>
                             </div>
                             <div class="text-sm text-gray-500">
-                                Showing {{ $organizations->firstItem() ?? 0 }}-{{ $organizations->lastItem() ?? 0 }} of {{ $organizations->total() }}
+                                Showing {{ $companies->firstItem() ?? 0 }}-{{ $companies->lastItem() ?? 0 }} of {{ $companies->total() }}
                             </div>
                         </div>
                     </div>
 
-                    <!-- Organizations List -->
+                    <!-- companies List -->
                     <div class="divide-y divide-gray-100">
-                        @forelse($organizations as $org)
+                        @forelse($companies as $org)
                             <div class="group p-6 hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 transition-all duration-200">
                                 <div class="flex items-start space-x-4">
                                     <!-- Checkbox -->
                                     <div class="pt-1">
                                         <input type="checkbox"
-                                               class="organization-checkbox h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
+                                               class="Company-checkbox h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
                                                value="{{ $org->id }}">
                                     </div>
 
-                                    <!-- Organization Avatar -->
+                                    <!-- Company Avatar -->
                                     <div class="flex-shrink-0">
                                         <div class="relative">
                                             <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg
@@ -335,7 +335,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Organization Info -->
+                                    <!-- Company Info -->
                                     <div class="flex-grow">
                                         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                                             <div>
@@ -478,7 +478,7 @@
                                     <!-- Actions -->
                                     <div class="flex-shrink-0">
                                         <div class="flex space-x-2">
-                                            <a href="{{ route('admin.organizations.show', $org) }}"
+                                            <a href="{{ route('admin.companies.show', $org) }}"
                                                class="p-2 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 hover:from-blue-100 hover:to-blue-200 hover:shadow transition-all duration-200"
                                                title="View">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -488,7 +488,7 @@
                                                           d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
                                             </a>
-                                            <a href="{{ route('admin.organizations.edit', $org) }}"
+                                            <a href="{{ route('admin.companies.edit', $org) }}"
                                                class="p-2 rounded-lg bg-gradient-to-r from-amber-50 to-amber-100 text-amber-600 hover:from-amber-100 hover:to-amber-200 hover:shadow transition-all duration-200"
                                                title="Edit">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -508,7 +508,7 @@
                                                 <div class="hidden absolute right-0 mt-2 w-56 rounded-xl shadow-2xl bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
                                                      id="menu-{{ $org->id }}">
                                                     <div class="py-2">
-                                                        <a href="{{ route('admin.organizations.show', $org) }}"
+                                                        <a href="{{ route('admin.companies.show', $org) }}"
                                                            class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                                                             <svg class="w-4 h-4 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -526,7 +526,7 @@
                                                         </a>
                                                         <div class="border-t border-gray-100 my-1"></div>
                                                         @if($org->is_active)
-                                                            <form action="{{ route('admin.organizations.toggle-status', $org) }}" method="POST">
+                                                            <form action="{{ route('admin.companies.toggle-status', $org) }}" method="POST">
                                                                 @csrf
                                                                 <button type="submit"
                                                                         class="w-full flex items-center px-4 py-3 text-sm text-amber-700 hover:bg-amber-50 transition-colors duration-200">
@@ -538,7 +538,7 @@
                                                                 </button>
                                                             </form>
                                                         @else
-                                                            <form action="{{ route('admin.organizations.toggle-status', $org) }}" method="POST">
+                                                            <form action="{{ route('admin.companies.toggle-status', $org) }}" method="POST">
                                                                 @csrf
                                                                 <button type="submit"
                                                                         class="w-full flex items-center px-4 py-3 text-sm text-green-700 hover:bg-green-50 transition-colors duration-200">
@@ -553,8 +553,8 @@
                                                             </form>
                                                         @endif
                                                         <div class="border-t border-gray-100 my-1"></div>
-                                                        <form action="{{ route('admin.organizations.destroy', $org) }}" method="POST"
-                                                              onsubmit="return confirm('Delete this organization? This action cannot be undone.')">
+                                                        <form action="{{ route('admin.companies.destroy', $org) }}" method="POST"
+                                                              onsubmit="return confirm('Delete this Company? This action cannot be undone.')">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit"
@@ -563,7 +563,7 @@
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                                           d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                                 </svg>
-                                                                Delete Organization
+                                                                Delete Company
                                                             </button>
                                                         </form>
                                                     </div>
@@ -581,16 +581,16 @@
                                               d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                     </svg>
                                 </div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-3">No organizations found</h3>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">No companies found</h3>
                                 <p class="text-lg text-gray-600 mb-8 max-w-md mx-auto">
                                     @if ($type)
                                         Get started by creating your first {{ $type }}.
                                     @else
-                                        Start by creating your first organization - companies, customers, or suppliers.
+                                        Start by creating your first Company - companies, customers, or suppliers.
                                     @endif
                                 </p>
                                 <div class="flex flex-wrap justify-center gap-4">
-                                    <a href="{{ route('admin.organizations.create', ['type' => 'company']) }}"
+                                    <a href="{{ route('admin.companies.create', ['type' => 'company']) }}"
                                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:-translate-y-0.5">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -598,7 +598,7 @@
                                         </svg>
                                         Create Company
                                     </a>
-                                    <a href="{{ route('admin.organizations.create', ['type' => 'customer']) }}"
+                                    <a href="{{ route('admin.companies.create', ['type' => 'customer']) }}"
                                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl hover:shadow-lg hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 transform hover:-translate-y-0.5">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -606,7 +606,7 @@
                                         </svg>
                                         Create Customer
                                     </a>
-                                    <a href="{{ route('admin.organizations.create', ['type' => 'supplier']) }}"
+                                    <a href="{{ route('admin.companies.create', ['type' => 'supplier']) }}"
                                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-700 text-white font-semibold rounded-xl hover:shadow-lg hover:from-amber-700 hover:to-amber-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200 transform hover:-translate-y-0.5">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -620,16 +620,16 @@
                     </div>
 
                     <!-- Pagination -->
-                    @if ($organizations->hasPages())
+                    @if ($companies->hasPages())
                         <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                 <div class="text-sm text-gray-700 mb-4 sm:mb-0">
-                                    Showing <span class="font-bold">{{ $organizations->firstItem() }}</span> to
-                                    <span class="font-bold">{{ $organizations->lastItem() }}</span> of
-                                    <span class="font-bold">{{ $organizations->total() }}</span> results
+                                    Showing <span class="font-bold">{{ $companies->firstItem() }}</span> to
+                                    <span class="font-bold">{{ $companies->lastItem() }}</span> of
+                                    <span class="font-bold">{{ $companies->total() }}</span> results
                                 </div>
                                 <div class="flex space-x-2">
-                                    {{ $organizations->links('pagination::tailwind') }}
+                                    {{ $companies->links('pagination::tailwind') }}
                                 </div>
                             </div>
                         </div>
@@ -643,7 +643,7 @@
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                 <div class="mb-4 sm:mb-0">
                                     <span class="font-bold text-blue-800" id="selectedCount">0 selected</span>
-                                    <p class="text-sm text-blue-600 mt-1">Perform actions on selected organizations</p>
+                                    <p class="text-sm text-blue-600 mt-1">Perform actions on selected companies</p>
                                 </div>
                                 <div class="flex flex-wrap gap-3">
                                     <button type="button" id="bulkActivate"
@@ -686,11 +686,11 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-xl p-6">
-                <h5 class="modal-title text-xl font-bold">Import Organizations</h5>
+                <h5 class="modal-title text-xl font-bold">Import companies</h5>
                 <button type="button" class="btn-close text-white opacity-80 hover:opacity-100" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-6">
-                <form action="{{ route('admin.organizations.import') }}" method="POST" enctype="multipart/form-data" id="importForm">
+                <form action="{{ route('admin.companies.import') }}" method="POST" enctype="multipart/form-data" id="importForm">
                     @csrf
                     <div class="space-y-6">
                         <!-- File Upload -->
@@ -718,7 +718,7 @@
                         <!-- Import Options -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Organization Type</label>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Company Type</label>
                                 <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                                         name="type">
                                     <option value="">Auto Detect</option>
@@ -749,7 +749,7 @@
                                     <p class="text-sm font-bold text-blue-800">Need help with formatting?</p>
                                     <p class="text-sm text-blue-700 mt-1">
                                         Download our
-                                        <a href="{{ asset('templates/organization-template.csv') }}"
+                                        <a href="{{ asset('templates/Company-template.csv') }}"
                                            class="font-bold underline hover:text-blue-900 transition-colors duration-200">
                                             template file
                                         </a>
@@ -772,7 +772,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                           d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                 </svg>
-                                Import Organizations
+                                Import companies
                             </button>
                         </div>
                     </div>
@@ -874,7 +874,7 @@
 
         // Bulk selection
         const selectAll = document.getElementById('selectAll');
-        const checkboxes = document.querySelectorAll('.organization-checkbox');
+        const checkboxes = document.querySelectorAll('.Company-checkbox');
         const bulkActions = document.getElementById('bulkActions');
         const selectedCount = document.getElementById('selectedCount');
 
@@ -900,7 +900,7 @@
 
                 if (count > 0) {
                     bulkActions.classList.remove('hidden');
-                    selectedCount.textContent = `${count} organization${count > 1 ? 's' : ''} selected`;
+                    selectedCount.textContent = `${count} Company${count > 1 ? 's' : ''} selected`;
                     selectAll.indeterminate = count > 0 && count < checkboxes.length;
                     selectAll.checked = count === checkboxes.length;
                 } else {
@@ -919,8 +919,8 @@
             if (bulkActivateBtn) {
                 bulkActivateBtn.addEventListener('click', () => {
                     const ids = getSelectedIds();
-                    if (ids.length > 0 && confirm(`Activate ${ids.length} selected organization${ids.length > 1 ? 's' : ''}?`)) {
-                        bulkAction('/admin/organizations/bulk-activate', ids);
+                    if (ids.length > 0 && confirm(`Activate ${ids.length} selected Company${ids.length > 1 ? 's' : ''}?`)) {
+                        bulkAction('/admin/companies/bulk-activate', ids);
                     }
                 });
             }
@@ -928,8 +928,8 @@
             if (bulkDeactivateBtn) {
                 bulkDeactivateBtn.addEventListener('click', () => {
                     const ids = getSelectedIds();
-                    if (ids.length > 0 && confirm(`Deactivate ${ids.length} selected organization${ids.length > 1 ? 's' : ''}?`)) {
-                        bulkAction('/admin/organizations/bulk-deactivate', ids);
+                    if (ids.length > 0 && confirm(`Deactivate ${ids.length} selected Company${ids.length > 1 ? 's' : ''}?`)) {
+                        bulkAction('/admin/companies/bulk-deactivate', ids);
                     }
                 });
             }
@@ -937,8 +937,8 @@
             if (bulkDeleteBtn) {
                 bulkDeleteBtn.addEventListener('click', () => {
                     const ids = getSelectedIds();
-                    if (ids.length > 0 && confirm(`Delete ${ids.length} selected organization${ids.length > 1 ? 's' : ''}? This action cannot be undone.`)) {
-                        bulkAction('/admin/organizations/bulk-delete', ids);
+                    if (ids.length > 0 && confirm(`Delete ${ids.length} selected Company${ids.length > 1 ? 's' : ''}? This action cannot be undone.`)) {
+                        bulkAction('/admin/companies/bulk-delete', ids);
                     }
                 });
             }

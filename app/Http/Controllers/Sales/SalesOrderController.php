@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Sales;
 
 use App\Http\Controllers\Controller;
 use App\Models\Inventory\Product;
-use App\Models\Admin\Organization;
+use App\Models\Admin\Company;
 use App\Models\Sales\SalesOrder;
 use App\Models\Sales\SalesOrderItem;
 use Illuminate\Http\Request;
@@ -55,7 +55,7 @@ class SalesOrderController extends Controller
         }
 
         $salesOrders = $query->paginate(20);
-        $customers = Organization::where('type', 'customer')->orderBy('name')->get();
+        $customers = Company::where('type', 'customer')->orderBy('name')->get();
         $statuses = ['draft', 'pending', 'confirmed', 'processing', 'completed', 'cancelled'];
 
         return view('sales.sales-orders.index', compact('salesOrders', 'customers', 'statuses'));
@@ -68,7 +68,7 @@ class SalesOrderController extends Controller
     {
         try {
             $order_number = 'SO-' . date('YmdHis');
-            $customers = Organization::where('type', 'customer')->orderBy('name')->get();
+            $customers = Company::where('type', 'customer')->orderBy('name')->get();
             $products = Product::where('is_active', true)->orderBy('product_name')->get();
 
             return view('sales.sales-orders.create', compact('order_number', 'customers', 'products'));
@@ -88,7 +88,7 @@ class SalesOrderController extends Controller
 
         // Validate the request
         $validator = Validator::make($request->all(), [
-            'customer_id' => 'required|exists:organizations,id',
+            'customer_id' => 'required|exists:companies,id',
             'order_date' => 'required|date',
             'delivery_date' => 'required|date|after_or_equal:order_date',
             'items' => 'required|array|min:1',
@@ -282,7 +282,7 @@ class SalesOrderController extends Controller
 
         $salesOrder->load(['customer', 'items.product']);
         $products = Product::where('is_active', true)->orderBy('product_name')->get();
-        $customers = Organization::where('type', 'customer')->orderBy('name')->get();
+        $customers = Company::where('type', 'customer')->orderBy('name')->get();
 
         return view('sales.sales-orders.edit', compact('salesOrder', 'products', 'customers'));
     }
@@ -577,7 +577,7 @@ class SalesOrderController extends Controller
     public function print(SalesOrder $salesOrder)
     {
         $salesOrder->load(['customer', 'items.product', 'createdBy']);
-        $company = Organization::where('type', 'company')->first(); // Adjust based on your company model
+        $company = Company::where('type', 'company')->first(); // Adjust based on your company model
 
         return view('sales.sales-orders.print', compact('salesOrder', 'company'));
     }

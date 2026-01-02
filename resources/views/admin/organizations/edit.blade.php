@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Organization')
+@section('title', 'Edit Company')
 
 @section('content')
     <div class="min-h-screen bg-gray-50 py-8">
@@ -10,17 +10,17 @@
                 <div class="mb-8">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center">
-                            <a href="{{ route('admin.organizations.show', $organization) }}"
+                            <a href="{{ route('admin.companies.show', $Company) }}"
                                 class="text-gray-500 hover:text-gray-700 mr-4">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                 </svg>
                             </a>
-                            <h1 class="text-2xl font-bold text-gray-900">Edit Organization</h1>
+                            <h1 class="text-2xl font-bold text-gray-900">Edit Company</h1>
                         </div>
                     </div>
-                    <p class="text-gray-600">Update the details for {{ $organization->name }}</p>
+                    <p class="text-gray-600">Update the details for {{ $Company->name }}</p>
                 </div>
 
                 <!-- Form Card -->
@@ -34,18 +34,18 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
-                                <h2 class="text-xl font-semibold text-white">{{ $organization->name }}</h2>
+                                <h2 class="text-xl font-semibold text-white">{{ $Company->name }}</h2>
                             </div>
                             <span class="px-3 py-1 text-xs font-medium bg-blue-500 text-white rounded-full">
-                                {{ ucfirst($organization->code) }}
+                                {{ ucfirst($Company->code) }}
                             </span>
                         </div>
                     </div>
 
                     <!-- Form Content -->
                     <div class="p-6">
-                        <form action="{{ route('admin.organizations.update', $organization) }}" method="POST"
-                            enctype="multipart/form-data" id="editOrganizationForm">
+                        <form action="{{ route('admin.companies.update', $Company) }}" method="POST"
+                            enctype="multipart/form-data" id="editCompanyForm">
                             @csrf
                             @method('PUT')
 
@@ -61,31 +61,31 @@
                                 </h3>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <!-- Organization Name -->
+                                    <!-- Company Name -->
                                     <div>
                                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
-                                            Organization Name <span class="text-red-500">*</span>
+                                            Company Name <span class="text-red-500">*</span>
                                         </label>
                                         <input type="text" id="name" name="name"
-                                            value="{{ old('name', $organization->name) }}"
+                                            value="{{ old('name', $Company->name) }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-500 @enderror"
-                                            placeholder="Enter organization name" required>
+                                            placeholder="Enter Company name" required>
                                         @error('name')
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
 
-                                    <!-- Organization Type -->
+                                    <!-- Company Type -->
                                     <div>
                                         <label for="type" class="block text-sm font-medium text-gray-700 mb-1">
-                                            Organization Type
+                                            Company Type
                                         </label>
                                         <select id="type" name="type"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('type') border-red-500 @enderror">
                                             <option value="">Select Type</option>
                                             @foreach ($types as $value)
                                                 <option value="{{ $value }}"
-                                                    {{ old('type', $organization->type) == $value ? 'selected' : '' }}>
+                                                    {{ old('type', $Company->type) == $value ? 'selected' : '' }}>
                                                     {{ ucwords(str_replace(['-', '_'], ' ', $value)) }}
                                                 </option>
                                             @endforeach
@@ -101,9 +101,9 @@
                                             Email Address
                                         </label>
                                         <input type="email" id="email" name="email"
-                                            value="{{ old('email', $organization->email) }}"
+                                            value="{{ old('email', $Company->email) }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('email') border-red-500 @enderror"
-                                            placeholder="organization@example.com">
+                                            placeholder="Company@example.com">
                                         @error('email')
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
@@ -115,7 +115,7 @@
                                             Phone Number
                                         </label>
                                         <input type="tel" id="phone" name="phone"
-                                            value="{{ old('phone', $organization->phone) }}"
+                                            value="{{ old('phone', $Company->phone) }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('phone') border-red-500 @enderror"
                                             placeholder="+1 (555) 123-4567">
                                         @error('phone')
@@ -134,7 +134,7 @@
                                                 https://
                                             </span>
                                             <input type="url" id="website" name="website"
-                                                value="{{ old('website', $organization->website) }}"
+                                                value="{{ old('website', $Company->website) }}"
                                                 class="flex-1 min-w-0 block w-full px-4 py-2 rounded-none rounded-r-md border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('website') border-red-500 @enderror"
                                                 placeholder="www.example.com">
                                         </div>
@@ -149,7 +149,7 @@
                                             Industry
                                         </label>
                                         <input type="text" id="industry" name="industry"
-                                            value="{{ old('industry', $organization->industry) }}"
+                                            value="{{ old('industry', $Company->industry) }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('industry') border-red-500 @enderror"
                                             placeholder="e.g., Technology, Healthcare, Education">
                                         @error('industry')
@@ -177,7 +177,7 @@
                                             Founded Year
                                         </label>
                                         <input type="number" id="founded_year" name="founded_year"
-                                            value="{{ old('founded_year', $organization->founded_year) }}" min="1800"
+                                            value="{{ old('founded_year', $Company->founded_year) }}" min="1800"
                                             max="{{ date('Y') }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('founded_year') border-red-500 @enderror"
                                             placeholder="1990">
@@ -195,27 +195,27 @@
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('employee_count') border-red-500 @enderror">
                                             <option value="">Select Range</option>
                                             <option value="1-10"
-                                                {{ old('employee_count', $organization->employee_count) == '1-10' ? 'selected' : '' }}>
+                                                {{ old('employee_count', $Company->employee_count) == '1-10' ? 'selected' : '' }}>
                                                 1-10 Employees
                                             </option>
                                             <option value="11-50"
-                                                {{ old('employee_count', $organization->employee_count) == '11-50' ? 'selected' : '' }}>
+                                                {{ old('employee_count', $Company->employee_count) == '11-50' ? 'selected' : '' }}>
                                                 11-50 Employees
                                             </option>
                                             <option value="51-200"
-                                                {{ old('employee_count', $organization->employee_count) == '51-200' ? 'selected' : '' }}>
+                                                {{ old('employee_count', $Company->employee_count) == '51-200' ? 'selected' : '' }}>
                                                 51-200 Employees
                                             </option>
                                             <option value="201-500"
-                                                {{ old('employee_count', $organization->employee_count) == '201-500' ? 'selected' : '' }}>
+                                                {{ old('employee_count', $Company->employee_count) == '201-500' ? 'selected' : '' }}>
                                                 201-500 Employees
                                             </option>
                                             <option value="501-1000"
-                                                {{ old('employee_count', $organization->employee_count) == '501-1000' ? 'selected' : '' }}>
+                                                {{ old('employee_count', $Company->employee_count) == '501-1000' ? 'selected' : '' }}>
                                                 501-1000 Employees
                                             </option>
                                             <option value="1000+"
-                                                {{ old('employee_count', $organization->employee_count) == '1000+' ? 'selected' : '' }}>
+                                                {{ old('employee_count', $Company->employee_count) == '1000+' ? 'selected' : '' }}>
                                                 1000+ Employees
                                             </option>
                                         </select>
@@ -246,7 +246,7 @@
                                             Street Address
                                         </label>
                                         <input type="text" id="address" name="address"
-                                            value="{{ old('address', $organization->address) }}"
+                                            value="{{ old('address', $Company->address) }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('address') border-red-500 @enderror"
                                             placeholder="123 Main Street">
                                         @error('address')
@@ -260,7 +260,7 @@
                                             City
                                         </label>
                                         <input type="text" id="city" name="city"
-                                            value="{{ old('city', $organization->city) }}"
+                                            value="{{ old('city', $Company->city) }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('city') border-red-500 @enderror"
                                             placeholder="New York">
                                         @error('city')
@@ -274,7 +274,7 @@
                                             State/Province
                                         </label>
                                         <input type="text" id="state" name="state"
-                                            value="{{ old('state', $organization->state) }}"
+                                            value="{{ old('state', $Company->state) }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('state') border-red-500 @enderror"
                                             placeholder="NY">
                                         @error('state')
@@ -288,7 +288,7 @@
                                             Zip/Postal Code
                                         </label>
                                         <input type="text" id="zip_code" name="zip_code"
-                                            value="{{ old('zip_code', $organization->zip_code) }}"
+                                            value="{{ old('zip_code', $Company->zip_code) }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('zip_code') border-red-500 @enderror"
                                             placeholder="10001">
                                         @error('zip_code')
@@ -305,19 +305,19 @@
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('country') border-red-500 @enderror">
                                             <option value="">Select Country</option>
                                             <option value="US"
-                                                {{ old('country', $organization->country) == 'US' ? 'selected' : '' }}>
+                                                {{ old('country', $Company->country) == 'US' ? 'selected' : '' }}>
                                                 United States</option>
                                             <option value="CA"
-                                                {{ old('country', $organization->country) == 'CA' ? 'selected' : '' }}>
+                                                {{ old('country', $Company->country) == 'CA' ? 'selected' : '' }}>
                                                 Canada</option>
                                             <option value="UK"
-                                                {{ old('country', $organization->country) == 'UK' ? 'selected' : '' }}>
+                                                {{ old('country', $Company->country) == 'UK' ? 'selected' : '' }}>
                                                 United Kingdom</option>
                                             <option value="AU"
-                                                {{ old('country', $organization->country) == 'AU' ? 'selected' : '' }}>
+                                                {{ old('country', $Company->country) == 'AU' ? 'selected' : '' }}>
                                                 Australia</option>
                                             <option value="Other"
-                                                {{ old('country', $organization->country) == 'Other' ? 'selected' : '' }}>
+                                                {{ old('country', $Company->country) == 'Other' ? 'selected' : '' }}>
                                                 Other</option>
                                         </select>
                                         @error('country')
@@ -334,7 +334,7 @@
                                 </label>
                                 <textarea id="description" name="description" rows="4"
                                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('description') border-red-500 @enderror"
-                                    placeholder="Brief description of the organization">{{ old('description', $organization->description) }}</textarea>
+                                    placeholder="Brief description of the Company">{{ old('description', $Company->description) }}</textarea>
                                 @error('description')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -347,11 +347,11 @@
                                 </label>
                                 <div
                                     class="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
-                                    @if ($organization->logo)
+                                    @if ($Company->logo)
                                         <div class="flex-shrink-0">
                                             <div class="relative group">
-                                                <img src="{{ Storage::url($organization->logo) }}"
-                                                    alt="{{ $organization->name }} Logo"
+                                                <img src="{{ Storage::url($Company->logo) }}"
+                                                    alt="{{ $Company->name }} Logo"
                                                     class="w-32 h-32 rounded-lg object-cover border-2 border-gray-200 group-hover:border-blue-500 transition-colors">
                                                 <div
                                                     class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all rounded-lg">
@@ -415,7 +415,7 @@
                                             </span>
                                         </label>
                                         <input type="url" name="facebook_url"
-                                            value="{{ old('facebook_url', $organization->facebook_url) }}"
+                                            value="{{ old('facebook_url', $Company->facebook_url) }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('facebook_url') border-red-500 @enderror"
                                             placeholder="https://facebook.com/username">
                                         @error('facebook_url')
@@ -436,7 +436,7 @@
                                             </span>
                                         </label>
                                         <input type="url" name="twitter_url"
-                                            value="{{ old('twitter_url', $organization->twitter_url) }}"
+                                            value="{{ old('twitter_url', $Company->twitter_url) }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('twitter_url') border-red-500 @enderror"
                                             placeholder="https://twitter.com/username">
                                         @error('twitter_url')
@@ -457,7 +457,7 @@
                                             </span>
                                         </label>
                                         <input type="url" name="linkedin_url"
-                                            value="{{ old('linkedin_url', $organization->linkedin_url) }}"
+                                            value="{{ old('linkedin_url', $Company->linkedin_url) }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('linkedin_url') border-red-500 @enderror"
                                             placeholder="https://linkedin.com/company/username">
                                         @error('linkedin_url')
@@ -478,7 +478,7 @@
                                             </span>
                                         </label>
                                         <input type="url" name="instagram_url"
-                                            value="{{ old('instagram_url', $organization->instagram_url) }}"
+                                            value="{{ old('instagram_url', $Company->instagram_url) }}"
                                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('instagram_url') border-red-500 @enderror"
                                             placeholder="https://instagram.com/username">
                                         @error('instagram_url')
@@ -496,7 +496,7 @@
                                 <div class="flex space-x-6">
                                     <label class="inline-flex items-center cursor-pointer">
                                         <input type="radio" name="status" value="active"
-                                            {{ old('status', $organization->status) == 'active' ? 'checked' : '' }}
+                                            {{ old('status', $Company->status) == 'active' ? 'checked' : '' }}
                                             class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300">
                                         <span class="ml-2 text-gray-700">
                                             <span
@@ -513,7 +513,7 @@
 
                                     <label class="inline-flex items-center cursor-pointer">
                                         <input type="radio" name="status" value="inactive"
-                                            {{ old('status', $organization->status) == 'inactive' ? 'checked' : '' }}
+                                            {{ old('status', $Company->status) == 'inactive' ? 'checked' : '' }}
                                             class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300">
                                         <span class="ml-2 text-gray-700">
                                             <span
@@ -537,7 +537,7 @@
                             <div class="pt-8 border-t border-gray-200">
                                 <div class="flex flex-col sm:flex-row justify-between space-y-4 sm:space-y-0 sm:space-x-4">
                                     <div class="flex space-x-3">
-                                        <a href="{{ route('admin.organizations.index') }}"
+                                        <a href="{{ route('admin.companies.index') }}"
                                             class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -565,7 +565,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                                         </svg>
-                                        Update Organization
+                                        Update Company
                                     </button>
                                 </div>
                             </div>
@@ -592,7 +592,7 @@
 
             <div class="p-6">
                 <p class="text-gray-700 mb-4">Are you sure you want to delete <strong
-                        class="text-gray-900">{{ $organization->name }}</strong>?</p>
+                        class="text-gray-900">{{ $Company->name }}</strong>?</p>
                 <p class="text-sm text-red-600 mb-6">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -607,13 +607,13 @@
                         Cancel
                     </button>
 
-                    <form action="{{ route('admin.organizations.destroy', $organization) }}" method="POST"
+                    <form action="{{ route('admin.companies.destroy', $Company) }}" method="POST"
                         class="inline">
                         @csrf
                         @method('DELETE')
                         <button type="submit"
                             class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
-                            Delete Organization
+                            Delete Company
                         </button>
                     </form>
                 </div>
@@ -727,7 +727,7 @@
             }
 
             // Form validation
-            const form = document.getElementById('editOrganizationForm');
+            const form = document.getElementById('editCompanyForm');
             form.addEventListener('submit', function(e) {
                 const nameInput = document.getElementById('name');
                 if (!nameInput.value.trim()) {

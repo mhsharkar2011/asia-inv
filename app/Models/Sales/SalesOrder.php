@@ -2,7 +2,7 @@
 
 namespace App\Models\Sales;
 
-use App\Models\Admin\Organization;
+use App\Models\Admin\Company;
 use App\Models\Admin\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -63,7 +63,7 @@ class SalesOrder extends Model
      */
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Organization::class,'customer_id')->where('type', 'customer');
+        return $this->belongsTo(Company::class,'customer_id')->where('type', 'customer');
     }
 
     /**

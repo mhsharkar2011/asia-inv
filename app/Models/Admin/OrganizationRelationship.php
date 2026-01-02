@@ -5,7 +5,7 @@ namespace App\Models\Admin;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class OrganizationRelationship extends Model
+class CompanyRelationship extends Model
 {
     protected $fillable = [
         'company_id',
@@ -20,11 +20,11 @@ class OrganizationRelationship extends Model
 
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Organization::class, 'company_id');
+        return $this->belongsTo(Company::class, 'company_id');
     }
 
-    public function relatedOrganization(): BelongsTo
+    public function relatedCompany(): BelongsTo
     {
-        return $this->belongsTo(Organization::class, 'related_id');
+        return $this->belongsTo(Company::class, 'related_id');
     }
 }

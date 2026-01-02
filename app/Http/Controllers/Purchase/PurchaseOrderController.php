@@ -4,11 +4,10 @@ namespace App\Http\Controllers\Purchase;
 
 use App\Http\Controllers\Controller;
 use App\Models\Purchase\PurchaseOrder;
-use App\Models\Inventory\Company;
 use App\Models\Purchase\Supplier;
 use App\Models\Inventory\Warehouse;
 use App\Http\Requests\PurchaseOrderRequest;
-use App\Models\Admin\Organization;
+use App\Models\Admin\Company;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -56,8 +55,8 @@ class PurchaseOrderController extends Controller
 
     public function create()
     {
-        $companies = Organization::all();
-        $suppliers = Organization::where('type', 'supplier')->get();
+        $companies = Company::all();
+        $suppliers = Company::where('type', 'supplier')->get();
         $warehouses = Warehouse::all();
         $statuses = ['draft', 'pending', 'partial', 'completed', 'cancelled'];
 
@@ -90,8 +89,8 @@ class PurchaseOrderController extends Controller
 
     public function edit(PurchaseOrder $purchaseOrder)
     {
-        $companies = Organization::all();
-        $suppliers = Organization::where('type', 'supplier')->get();
+        $companies = Company::all();
+        $suppliers = Company::where('type', 'supplier')->get();
         $warehouses = Warehouse::all();
         $statuses = ['draft', 'pending', 'partial', 'completed', 'cancelled'];
 

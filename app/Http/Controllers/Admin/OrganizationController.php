@@ -3,19 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\Organization;
+use App\Models\Admin\Company;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\SalesOrder;
 use Illuminate\Http\Request;
 
-class OrganizationController extends Controller
+class CompanyController extends Controller
 {
     public function index(Request $request, $type = null)
     {
         $search = $request->input('search');
         $status = $request->input('status');
 
-        $query = Organization::query();
+        $query = Company::query();
 
         if ($type) {
             $query->where('type', $type);
@@ -29,17 +29,17 @@ class OrganizationController extends Controller
             });
         }
 
-        $organizations = $query->orderBy('name')->paginate(20);
+        $companies = $query->orderBy('name')->paginate(20);
 
         $stats = [
-            'companies' => Organization::where('type', 'company')->count(),
-            'customers' => Organization::where('type', 'customer')->count(),
-            'suppliers' => Organization::where('type', 'supplier')->count(),
-            'active' => Organization::where('is_active', true)->count(),
+            'companies' => Company::where('type', 'company')->count(),
+            'customers' => Company::where('type', 'customer')->count(),
+            'suppliers' => Company::where('type', 'supplier')->count(),
+            'active' => Company::where('is_active', true)->count(),
         ];
 
-        return view('admin.organizations.index', compact(
-            'organizations',
+        return view('admin.companies.index', compact(
+            'companies',
             'stats',
             'type',
             'search',
@@ -49,10 +49,10 @@ class OrganizationController extends Controller
 
     public function create($type = 'company')
     {
-        // Define sub-types based on organization type
+        // Define sub-types based on Company type
         $subTypes = $this->getSubTypes($type);
 
-        return view('admin.organizations.create', compact('type', 'subTypes'));
+        return view('admin.companies.create', compact('type', 'subTypes'));
     }
 
     public function store(Request $request)
@@ -61,7 +61,7 @@ class OrganizationController extends Controller
             'name' => 'required|string|max:255',
             'type' => 'required|in:company,customer,supplier',
             'sub_type' => 'nullable|string|max:50',
-            'email' => 'nullable|email|unique:organizations,email',
+            'email' => 'nullable|email|unique:companies,email',
             'phone' => 'nullable|string|max:20',
             'tin' => 'nullable|string|max:50',
             'bin' => 'nullable|string|max:50',
@@ -82,34 +82,34 @@ class OrganizationController extends Controller
             $validated['is_active'] = true;
         }
 
-        Organization::create($validated);
+        Company::create($validated);
 
-        return redirect()->route('admin.organizations.index', ['type' => $request->type])
+        return redirect()->route('admin.companies.index', ['type' => $request->type])
             ->with('success', ucfirst($request->type) . ' created successfully.');
     }
 
-    public function show(Organization $organization)
+    public function show(Company $Company)
     {
-        $totalInvoice = Invoice::where('customer_id', $organization->id)->count();
-        $totalValue = SalesOrder::where('customer_id', $organization->id)->sum('total_amount');
+        $totalInvoice = Invoice::where('customer_id', $Company->id)->count();
+        $totalValue = SalesOrder::where('customer_id', $Company->id)->sum('total_amount');
         $order = SalesOrder::count();
-        return view('admin.organizations.show', compact('organization', 'totalInvoice', 'totalValue', 'order'));
+        return view('admin.companies.show', compact('Company', 'totalInvoice', 'totalValue', 'order'));
     }
 
-    public function edit(Organization $organization)
+    public function edit(Company $Company)
     {
-        $types = Organization::select('type')->distinct()->pluck('type')->toArray();
+        $types = Company::select('type')->distinct()->pluck('type')->toArray();
 
-        return view('admin.organizations.edit', compact('types', 'organization'));
+        return view('admin.companies.edit', compact('types', 'Company'));
     }
 
-    public function update(Request $request, Organization $organization)
+    public function update(Request $request, Company $Company)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|in:company,customer,supplier',
             'sub_type' => 'nullable|string|max:50',
-            'email' => 'nullable|email|unique:organizations,email,' . $organization->id,
+            'email' => 'nullable|email|unique:companies,email,' . $Company->id,
             'phone' => 'nullable|string|max:20',
             'tin' => 'nullable|string|max:50',
             'bin' => 'nullable|string|max:50',
@@ -120,23 +120,23 @@ class OrganizationController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $organization->update($validated);
+        $Company->update($validated);
 
-        return redirect()->route('admin.organizations.index', ['type' => $organization->type])
-            ->with('success', 'Organization updated successfully.');
+        return redirect()->route('admin.companies.index', ['type' => $Company->type])
+            ->with('success', 'Company updated successfully.');
     }
 
-    public function destroy(Organization $organization)
+    public function destroy(Company $Company)
     {
-        $type = $organization->type;
-        $organization->delete();
+        $type = $Company->type;
+        $Company->delete();
 
-        return redirect()->route('admin.organizations.index', ['type' => $type])
-            ->with('success', 'Organization deleted successfully.');
+        return redirect()->route('admin.companies.index', ['type' => $type])
+            ->with('success', 'Company deleted successfully.');
     }
 
     /**
-     * Get sub-types based on organization type
+     * Get sub-types based on Company type
      */
     private function getSubTypes($type)
     {
@@ -152,14 +152,14 @@ class OrganizationController extends Controller
     }
 
     /**
-     * Generate unique organization code
+     * Generate unique Company code
      */
     private function generateCode($type)
     {
         $prefix = strtoupper(substr($type, 0, 4));
 
         // Find the latest code with this prefix
-        $latest = Organization::where('code', 'like', $prefix . '%')
+        $latest = Company::where('code', 'like', $prefix . '%')
             ->orderBy('code', 'desc')
             ->first();
 
@@ -173,12 +173,12 @@ class OrganizationController extends Controller
     }
 
     /**
-     * Toggle organization status
+     * Toggle Company status
      */
-    public function toggleStatus(Organization $organization)
+    public function toggleStatus(Company $Company)
     {
-        $organization->update([
-            'is_active' => !$organization->is_active
+        $Company->update([
+            'is_active' => !$Company->is_active
         ]);
 
         return redirect()->back()->with('success', 'Status updated successfully.');

@@ -2,11 +2,11 @@
 
 namespace App\Models\Inventory;
 
+use App\Models\BaseModel;
 use App\Models\Inventory\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Inventory extends Model
+class Inventory extends BaseModel
 {
     use HasFactory;
 

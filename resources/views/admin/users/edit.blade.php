@@ -289,7 +289,7 @@
                             </div>
                         </div>
 
-                        <!-- Organization & Profile Card -->
+                        <!-- Company & Profile Card -->
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                             <div class="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
                                 <div class="flex items-center">
@@ -301,7 +301,7 @@
                                         </svg>
                                     </div>
                                     <div>
-                                        <h2 class="text-xl font-bold text-gray-900">Organization & Profile</h2>
+                                        <h2 class="text-xl font-bold text-gray-900">Company & Profile</h2>
                                         <p class="text-sm text-gray-600 mt-1">Company assignment and profile settings</p>
                                     </div>
                                 </div>
@@ -881,7 +881,7 @@
             console.log('User Edit Form - Initializing...');
 
             // Elements
-            const companySelect = document.getElementById('company_id');
+            const companieselect = document.getElementById('company_id');
             const branchSelect = document.getElementById('branch_id');
             const avatarInput = document.getElementById('avatar');
             const avatarPreview = document.getElementById('avatar-preview');
@@ -889,10 +889,10 @@
             const editUserForm = document.getElementById('editUserForm');
 
             // Initialize branch filtering
-            if (companySelect && branchSelect) {
+            if (companieselect && branchSelect) {
                 filterBranches();
 
-                companySelect.addEventListener('change', function() {
+                companieselect.addEventListener('change', function() {
                     filterBranches();
                 });
             }
@@ -937,7 +937,7 @@
 
             // Functions
             function filterBranches() {
-                const selectedCompany = companySelect.value;
+                const selectedCompany = companieselect.value;
                 const branches = branchSelect.querySelectorAll('option');
 
                 // Enable/disable branch select

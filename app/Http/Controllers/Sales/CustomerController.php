@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Sales;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\Organization;
+use App\Models\Admin\Company;
 use App\Models\Sales\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +25,7 @@ class CustomerController extends Controller
         $type = $request->get('type', 'all');
         $status = $request->get('status', 'all');
 
-        $customers = Organization::where('type', 'customer')
+        $customers = Company::where('type', 'customer')
             ->when($search, function ($query) use ($search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('code', 'like', "%{$search}%")
@@ -91,7 +91,7 @@ class CustomerController extends Controller
         $validated['company_id'] = $companyId;
         $validated['is_active'] = $request->has('is_active');
 
-        Organization::create($validated);
+        Company::create($validated);
 
         return redirect()->route('sales.customers.index')
             ->with('success', 'Customer created successfully!');
@@ -104,7 +104,7 @@ class CustomerController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        $customer = Organization::where('type', 'customer')
+        $customer = Company::where('type', 'customer')
             ->findOrFail($id);
 
         return view('sales.customers.show', compact('customer'));
@@ -117,7 +117,7 @@ class CustomerController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        $customer = Organization::where('type', 'customer')
+        $customer = Company::where('type', 'customer')
             ->findOrFail($id);
 
         return view('sales.customers.edit', compact('customer'));
@@ -130,7 +130,7 @@ class CustomerController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        $customer = Organization::where('type', 'customer')
+        $customer = Company::where('type', 'customer')
             ->findOrFail($id);
 
         $validated = $request->validate([
@@ -167,7 +167,7 @@ class CustomerController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        $customer = Organization::where('type', 'customer')
+        $customer = Company::where('type', 'customer')
             ->findOrFail($id);
 
         // Check if customer has sales orders
@@ -190,7 +190,7 @@ class CustomerController extends Controller
         $companyId = Auth::user()->company_id;
         $search = $request->get('search');
 
-        $customers = Organization::where('type', 'customer')
+        $customers = Company::where('type', 'customer')
             ->where('is_active', true)
             ->when($search, function ($query) use ($search) {
                 return $query->where('customer_name', 'like', "%{$search}%")
@@ -210,7 +210,7 @@ class CustomerController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        $customer = Organization::where('type', 'customer')
+        $customer = Company::where('type', 'customer')
             ->findOrFail($id);
 
         $customer->update(['is_active' => !$customer->is_active]);
