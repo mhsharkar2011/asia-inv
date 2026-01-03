@@ -95,7 +95,7 @@ Route::middleware(['auth', 'role:admin|super_admin'])->group(function () {
 });
 
 // Routes for users with inventory permissions (using permissions instead of roles)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','role:admin|super_admin'])->group(function () {
     // Inventory Management - Check permissions
     Route::prefix('inventory')->name('inventory.')->middleware('permission:view inventory')->group(function () {
         Route::resource('categories', CategoryController::class)->middleware('permission:manage categories');
