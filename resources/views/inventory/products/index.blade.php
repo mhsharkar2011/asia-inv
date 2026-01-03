@@ -13,6 +13,7 @@
             <p class="text-gray-600 mt-1">Manage your inventory products</p>
         </div>
         <div>
+            @can('create', App\Models\Product::class)
             <a href="{{ route('inventory.products.create') }}"
                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,10 +21,12 @@
                 </svg>
                 New Product
             </a>
+            @endcan
         </div>
     </div>
 
     <!-- Filters Card -->
+    @can('viewAny', App\Models\Product::class)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
         <div class="p-6">
             <form action="{{ route('inventory.products.index') }}" method="GET">
@@ -82,9 +85,11 @@
             </form>
         </div>
     </div>
+    @endcan
 
     <!-- Products Table Card -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        @can('viewAny', App\Models\Product::class)
         <div class="overflow-x-auto">
             @if ($products->count() > 0)
                 <table class="min-w-full divide-y divide-gray-200">
@@ -234,6 +239,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex items-center space-x-2">
                                         <!-- View Button -->
+                                        @can('view', $product)
                                         <a href="{{ route('inventory.products.show', $product->id) }}"
                                            class="inline-flex items-center p-1.5 text-gray-400 hover:text-cyan-600 transition-colors"
                                            title="View">
@@ -242,8 +248,10 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </a>
+                                        @endcan
 
                                         <!-- Edit Button -->
+                                        @can('update', $product)
                                         <a href="{{ route('inventory.products.edit', $product->id) }}"
                                            class="inline-flex items-center p-1.5 text-gray-400 hover:text-blue-600 transition-colors"
                                            title="Edit">
@@ -251,8 +259,10 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </a>
+                                        @endcan
 
                                         <!-- Delete Button -->
+                                        @can('delete', $product)
                                         <form action="{{ route('inventory.products.destroy', $product->id) }}"
                                               method="POST"
                                               class="inline">
@@ -267,6 +277,7 @@
                                                 </svg>
                                             </button>
                                         </form>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>
@@ -305,6 +316,7 @@
                         @endif
                     </p>
                     <div class="space-x-3">
+                        @can('create', App\Models\Product::class)
                         <a href="{{ route('inventory.products.create') }}"
                            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -312,6 +324,7 @@
                             </svg>
                             Add Product
                         </a>
+                        @endcan
 
                         @if(request()->hasAny(['search', 'category', 'status']))
                             <a href="{{ route('inventory.products.index') }}"
@@ -323,6 +336,24 @@
                 </div>
             @endif
         </div>
+        @else
+        <!-- No Permission State -->
+        <div class="text-center py-12">
+            <div class="mx-auto w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                <svg class="w-12 h-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
+            <p class="text-gray-500 mb-6 max-w-md mx-auto">
+                You don't have permission to view products. Please contact your administrator if you believe this is an error.
+            </p>
+            <a href="{{ route('dashboard') }}"
+               class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                Return to Dashboard
+            </a>
+        </div>
+        @endcan
     </div>
 </div>
 @endsection

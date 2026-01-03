@@ -121,7 +121,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Run the PermissionsSeeder (the better one)
-        $this->call(PermissionsSeeder::class);
+        $this->call(RolePermissionSeeder::class);
 
         // If you have other seeders, call them here
         // $this->call(ProductsSeeder::class);

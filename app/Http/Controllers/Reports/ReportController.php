@@ -137,4 +137,11 @@ class ReportController extends Controller
 
         return response()->json(['message' => 'Excel export feature coming soon']);
     }
+
+    public function inventory(){
+        //
+    }
+    public function purchases(){
+        //
+    }
 }

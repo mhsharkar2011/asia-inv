@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Purchase\SupplierController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,31 +28,15 @@ use App\Http\Controllers\Purchase\SupplierController;
 
 // Public Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
+// User profile routes
+Route::get('profile', [UserController::class, 'editProfile'])->name('profile.edit');
+Route::put('profile', [UserController::class, 'updateProfile'])->name('users.profile.update');
 
-// Auth routes
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
-
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
-});
-
-// Logout
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
-
-// Authenticated Routes
-Route::middleware(['auth'])->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-});
+require __DIR__ . '/auth.php';
 
 // Routes that require specific roles (using Spatie Permission)
-Route::middleware(['auth', 'role:admin|super_admin'])->group(function () {
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // Admin Management
     Route::prefix('admin')->name('admin.')->group(function () {
         // Users Management
@@ -75,10 +60,6 @@ Route::middleware(['auth', 'role:admin|super_admin'])->group(function () {
         Route::get('users-ajax', [UserController::class, 'getUsers'])
             ->name('users.ajax');
 
-        // User profile routes
-        Route::get('profile', [UserController::class, 'editProfile'])->name('users.profile.edit');
-        Route::put('profile', [UserController::class, 'updateProfile'])->name('users.profile.update');
-
         // Company Management
         Route::get('companies/{type?}', [CompanyController::class, 'index'])->name('companies.index');
         Route::get('companies/{type?}/create', [CompanyController::class, 'create'])->name('companies.create');
@@ -95,7 +76,7 @@ Route::middleware(['auth', 'role:admin|super_admin'])->group(function () {
 });
 
 // Routes for users with inventory permissions (using permissions instead of roles)
-Route::middleware(['auth','role:admin|super_admin'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Inventory Management - Check permissions
     Route::prefix('inventory')->name('inventory.')->middleware('permission:view inventory')->group(function () {
         Route::resource('categories', CategoryController::class)->middleware('permission:manage categories');
@@ -175,13 +156,7 @@ Route::middleware(['auth','role:admin|super_admin'])->group(function () {
         Route::post('/export/pdf', [ReportController::class, 'exportPdf'])->name('export.pdf')->middleware('permission:export reports');
         Route::post('/export/excel', [ReportController::class, 'exportExcel'])->name('export.excel')->middleware('permission:export reports');
         Route::get('/placeholder', [ReportController::class, 'placeholder'])->name('placeholder');
+        Route::get('inventory', [ReportController::class, 'inventory'])->name('inventory');
+        Route::get('purchases', [ReportController::class, 'purchases'])->name('purchases');
     });
 });
-
-// Alternative approach: Using role-based access if you prefer roles over permissions
-// Route::middleware(['auth', 'role:admin|super_admin|manager|staff'])->group(function () {
-//     // Your routes here...
-// });
-
-// Auth routes (if using Laravel Breeze/Jetstream)
-require __DIR__ . '/auth.php';
