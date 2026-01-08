@@ -5,246 +5,144 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use App\Models\Admin\User;
 
 class RolePermissionSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        // Reset cached roles and permissions
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
-        // ==============================================
-        // CREATE ALL PERMISSIONS FIRST
-        // ==============================================
+        // Create permissions
         $permissions = [
-            // Dashboard
-            'view dashboard',
-            'access admin panel',
+            // User Management
+            'view users',
+            'create users',
+            'edit users',
+            'delete users',
 
-            // Users
-            'manage users', 'view users', 'create users', 'edit users', 'delete users',
-            'export users', 'import users', 'impersonate users',
-            'change user status', 'verify user email', 'reset user password', 'login as other users',
+            // Role Management
+            'view roles',
+            'create roles',
+            'edit roles',
+            'delete roles',
 
-            // Roles & Permissions
-            'manage roles', 'view roles', 'create roles', 'edit roles', 'delete roles',
-            'manage permissions', 'view permissions', 'create permissions', 'edit permissions', 'delete permissions',
+            // Permission Management
+            'view permissions',
+            'assign permissions',
 
-            // Companies
-            'manage companies', 'view companies', 'create companies', 'edit companies', 'delete companies',
-            'export companies', 'import companies',
+            // Company Management
+            'view companies',
+            'create companies',
+            'edit companies',
+            'delete companies',
 
-            // System
-            'view audit logs',
-            'view settings', 'edit settings',
+            // Branch Management
+            'view branches',
+            'create branches',
+            'edit branches',
+            'delete branches',
 
-            // Inventory Permissions
-            // Categories
-            'manage categories', 'view categories', 'create categories', 'edit categories', 'delete categories',
+            // Department Management
+            'view departments',
+            'create departments',
+            'edit departments',
+            'delete departments',
 
-            // Products
-            'manage products', 'view products', 'create products', 'edit products', 'delete products',
+            // Category Management
+            'view categories',
+            'create categories',
+            'edit categories',
+            'delete categories',
 
-            // Stock
-            'manage stock', 'view stock', 'create stock', 'edit stock', 'delete stock',
+            // Product Management
+            'view products',
+            'create products',
+            'edit products',
+            'delete products',
 
-            // Warehouses
-            'manage warehouses', 'view warehouses', 'create warehouses', 'edit warehouses', 'delete warehouses',
+            // Customer Management
+            'view customers',
+            'create customers',
+            'edit customers',
+            'delete customers',
 
-            // Purchase Permissions
-            // Suppliers
-            'manage suppliers', 'view suppliers', 'create suppliers', 'edit suppliers', 'delete suppliers',
+            // Order Management
+            'view orders',
+            'create orders',
+            'edit orders',
+            'delete orders',
 
-            // Purchase Orders
-            'manage purchase orders', 'view purchase orders', 'create purchase orders',
-            'edit purchase orders', 'delete purchase orders',
+            // Invoice Management
+            'view invoices',
+            'create invoices',
+            'edit invoices',
+            'delete invoices',
 
-            // Sales Permissions
-            // Customers
-            'manage customers', 'view customers', 'create customers', 'edit customers', 'delete customers',
-
-            // Sales Orders
-            'manage sales orders', 'view sales orders', 'create sales orders', 'edit sales orders',
-            'delete sales orders', 'export sales',
-
-            // Invoices
-            'manage invoices', 'view invoices', 'create invoices', 'edit invoices', 'delete invoices',
-
-            // Reports Permissions
+            // Report Management
             'view reports',
-            'view sales reports', 'view customer reports', 'view product reports',
-            'view inventory reports', 'view purchase reports', 'view tax reports',
-            'view financial reports',
-            'export reports'
+            'generate reports',
+            'export reports',
+
+            // System Settings
+            'view settings',
+            'edit settings',
+            'manage system',
         ];
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate([
-                'name' => $permission,
-                'guard_name' => 'web'
-            ]);
+            Permission::create(['name' => $permission, 'guard_name' => 'web']);
         }
 
-        // ==============================================
-        // CREATE ROLES
-        // ==============================================
-        $superAdmin = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
-        $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-        $inventoryManager = Role::firstOrCreate(['name' => 'inventory_manager', 'guard_name' => 'web']);
-        $salesManager = Role::firstOrCreate(['name' => 'sales_manager', 'guard_name' => 'web']);
-        $purchaseManager = Role::firstOrCreate(['name' => 'purchase_manager', 'guard_name' => 'web']);
-        $accountant = Role::firstOrCreate(['name' => 'accountant', 'guard_name' => 'web']);
-        $manager = Role::firstOrCreate(['name' => 'manager', 'guard_name' => 'web']);
-        $staff = Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
-        $viewer = Role::firstOrCreate(['name' => 'viewer', 'guard_name' => 'web']);
-        $customer = Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
+        // Create roles and assign permissions
+        $superAdminRole = Role::create(['name' => 'Super Admin', 'guard_name' => 'web']);
+        $superAdminRole->givePermissionTo(Permission::all());
 
-        // ==============================================
-        // GET PERMISSION OBJECTS FOR ASSIGNMENT
-        // ==============================================
-        // Get all permissions as objects to avoid string lookups
-        $permissionObjects = [];
-        foreach ($permissions as $permissionName) {
-            $permissionObjects[$permissionName] = Permission::where('name', $permissionName)->first();
-        }
-
-        // ==============================================
-        // ASSIGN PERMISSIONS TO ROLES
-        // ==============================================
-
-        // 1. SUPER ADMIN - Has ALL permissions
-        $superAdmin->syncPermissions($permissionObjects);
-
-        // 2. ADMIN
+        $adminRole = Role::create(['name' => 'Admin', 'guard_name' => 'web']);
         $adminPermissions = [
-            'view dashboard', 'access admin panel',
-            'manage users', 'view users', 'create users', 'edit users', 'export users',
-            'change user status',
+            'view users', 'create users', 'edit users',
             'view roles', 'view permissions',
-            'manage companies', 'view companies', 'create companies', 'edit companies',
-            'export companies', 'import companies',
-            'view audit logs', 'view settings', 'edit settings',
-            'manage categories', 'view categories', 'create categories', 'edit categories',
-            'manage products', 'view products', 'create products', 'edit products',
-            'manage stock', 'view stock', 'create stock', 'edit stock',
-            'manage warehouses', 'view warehouses', 'create warehouses', 'edit warehouses',
-            'manage suppliers', 'view suppliers', 'create suppliers', 'edit suppliers',
-            'manage purchase orders', 'view purchase orders', 'create purchase orders', 'edit purchase orders',
-            'manage customers', 'view customers', 'create customers', 'edit customers',
-            'manage sales orders', 'view sales orders', 'create sales orders', 'edit sales orders', 'export sales',
-            'manage invoices', 'view invoices', 'create invoices', 'edit invoices',
-            'view reports',
-            'view sales reports', 'view customer reports', 'view product reports',
-            'view inventory reports', 'view purchase reports', 'view tax reports',
-            'view financial reports',
-            'export reports'
+            'view companies', 'edit companies',
+            'view branches', 'create branches', 'edit branches',
+            'view departments', 'create departments', 'edit departments',
+            'view categories', 'create categories', 'edit categories', 'delete categories',
+            'view products', 'create products', 'edit products', 'delete products',
+            'view customers', 'create customers', 'edit customers', 'delete customers',
+            'view orders', 'create orders', 'edit orders', 'delete orders',
+            'view invoices', 'create invoices', 'edit invoices',
+            'view reports', 'generate reports', 'export reports',
+            'view settings', 'edit settings',
         ];
+        $adminRole->givePermissionTo($adminPermissions);
 
-        $admin->syncPermissions(array_intersect_key($permissionObjects, array_flip($adminPermissions)));
-
-        // 3. INVENTORY MANAGER
-        $inventoryManagerPermissions = [
-            'view dashboard',
-            'manage categories', 'view categories', 'create categories', 'edit categories',
-            'manage products', 'view products', 'create products', 'edit products',
-            'manage stock', 'view stock', 'create stock', 'edit stock',
-            'manage warehouses', 'view warehouses', 'create warehouses', 'edit warehouses',
-            'view suppliers', 'create suppliers', 'edit suppliers',
-            'view purchase orders', 'create purchase orders', 'edit purchase orders',
-            'view reports',
-            'view inventory reports', 'view product reports', 'view purchase reports',
-        ];
-        $inventoryManager->syncPermissions(array_intersect_key($permissionObjects, array_flip($inventoryManagerPermissions)));
-
-        // 4. SALES MANAGER
-        $salesManagerPermissions = [
-            'view dashboard',
-            'view categories', 'view products', 'view stock',
-            'manage customers', 'view customers', 'create customers', 'edit customers',
-            'manage sales orders', 'view sales orders', 'create sales orders', 'edit sales orders',
-            'manage invoices', 'view invoices', 'create invoices', 'edit invoices',
-            'view reports',
-            'view sales reports', 'view customer reports',
-            'export sales',
-        ];
-        $salesManager->syncPermissions(array_intersect_key($permissionObjects, array_flip($salesManagerPermissions)));
-
-        // 5. PURCHASE MANAGER
-        $purchaseManagerPermissions = [
-            'view dashboard',
-            'view categories', 'view products', 'view stock',
-            'manage suppliers', 'view suppliers', 'create suppliers', 'edit suppliers',
-            'manage purchase orders', 'view purchase orders', 'create purchase orders', 'edit purchase orders',
-            'view reports',
-            'view purchase reports',
-        ];
-        $purchaseManager->syncPermissions(array_intersect_key($permissionObjects, array_flip($purchaseManagerPermissions)));
-
-        // 6. ACCOUNTANT
-        $accountantPermissions = [
-            'view dashboard',
-            'view products', 'view stock',
-            'view customers', 'view sales orders', 'view invoices',
-            'view suppliers', 'view purchase orders',
-            'view reports',
-            'view sales reports', 'view customer reports', 'view purchase reports',
-            'view tax reports', 'view financial reports',
-            'export reports',
-        ];
-        $accountant->syncPermissions(array_intersect_key($permissionObjects, array_flip($accountantPermissions)));
-
-        // 7. MANAGER (General Manager)
+        $managerRole = Role::create(['name' => 'Manager', 'guard_name' => 'web']);
         $managerPermissions = [
-            'view dashboard',
-            'view users',
-            'view categories', 'view products', 'view stock', 'view warehouses',
-            'view suppliers', 'view purchase orders',
-            'view customers', 'view sales orders', 'view invoices',
-            'view reports',
-            'view sales reports', 'view customer reports', 'view product reports',
-            'view inventory reports', 'view purchase reports', 'view financial reports',
+            'view categories', 'edit categories',
+            'view products', 'create products', 'edit products',
+            'view customers', 'create customers', 'edit customers',
+            'view orders', 'create orders', 'edit orders',
+            'view invoices', 'create invoices', 'edit invoices',
+            'view reports', 'generate reports',
+            'view settings',
         ];
-        $manager->syncPermissions(array_intersect_key($permissionObjects, array_flip($managerPermissions)));
+        $managerRole->givePermissionTo($managerPermissions);
 
-        // 8. STAFF (Regular Staff)
+        $staffRole = Role::create(['name' => 'Staff', 'guard_name' => 'web']);
         $staffPermissions = [
-            'view dashboard',
-            'view products', 'view stock',
+            'view products',
             'view customers',
-            'view sales orders', 'create sales orders', 'edit sales orders',
+            'view orders', 'create orders',
+            'view invoices',
         ];
-        $staff->syncPermissions(array_intersect_key($permissionObjects, array_flip($staffPermissions)));
+        $staffRole->givePermissionTo($staffPermissions);
 
-        // 9. VIEWER (Read-only access)
+        $viewerRole = Role::create(['name' => 'Viewer', 'guard_name' => 'web']);
         $viewerPermissions = [
-            'view dashboard',
-            'view categories', 'view products', 'view stock',
-            'view customers', 'view sales orders', 'view invoices',
+            'view products',
+            'view customers',
+            'view orders',
+            'view invoices',
             'view reports',
         ];
-        $viewer->syncPermissions(array_intersect_key($permissionObjects, array_flip($viewerPermissions)));
-
-        // 10. CUSTOMER (External customer access)
-        $customerPermissions = [
-            'view dashboard',
-            'view products',
-        ];
-        $customer->syncPermissions(array_intersect_key($permissionObjects, array_flip($customerPermissions)));
-
-        // ==============================================
-        // ASSIGN SUPER_ADMIN ROLE TO FIRST USER
-        // ==============================================
-        if (User::count() > 0) {
-            $firstUser = User::first();
-            if (!$firstUser->hasRole('super_admin')) {
-                $firstUser->assignRole('super_admin');
-                $this->command->info("Assigned super_admin role to user: {$firstUser->email}");
-            }
-        }
+        $viewerRole->givePermissionTo($viewerPermissions);
 
         $this->command->info('Roles and permissions seeded successfully!');
-        $this->command->info('Total Permissions: ' . Permission::count());
-        $this->command->info('Total Roles: ' . Role::count());
     }
 }
