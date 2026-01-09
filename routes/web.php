@@ -72,6 +72,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('companies/{type?}/import', [CompanyController::class, 'import'])->name('companies.import');
         Route::post('companies/{company}/toggle-status', [CompanyController::class, 'toggleStatus'])
             ->name('companies.toggle-status');
+        Route::post('/companies/{company}/send-email', [CompanyController::class, 'sendEmail'])->name('companies.send-email');
     });
 });
 
