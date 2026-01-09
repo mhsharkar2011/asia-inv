@@ -2,480 +2,351 @@
 
 namespace Database\Seeders;
 
-use App\Models\Inventory\Product;
-use App\Models\Admin\Company;
-use App\Models\Inventory\Category;
-use App\Models\Admin\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use App\Models\Inventory\Product;
+use App\Models\Admin\Company;
+use App\Models\Admin\Brand;
+use App\Models\Inventory\Category;
+use App\Models\Admin\Unit;
+use App\Models\Admin\Tax;
+use App\Models\Admin\User;
+use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Clear existing products
+        // Disable foreign key checks
+        Schema::disableForeignKeyConstraints();
         DB::table('products')->truncate();
+        Schema::enableForeignKeyConstraints();
 
+        // Seed products
+        $this->seedProducts();
+    }
+
+    private function seedProducts()
+    {
         $companies = Company::all();
+
+        if ($companies->isEmpty()) {
+            $this->command->error('No companies found. Please seed companies first.');
+            return;
+        }
+
         $superAdmin = User::where('email', 'like', 'superadmin@%')->first();
-        $admin = User::where('email', 'like', 'admin@%')->first();
+        $createdById = $superAdmin ? $superAdmin->id : 1;
+
+        $totalProducts = 0;
 
         foreach ($companies as $company) {
-            // Get categories for this company
+            $this->command->info("Creating products for Company: {$company->product_name}");
+
+            // Get company-specific data
+            $brands = Brand::where('company_id', $company->id)->get();
             $categories = Category::where('company_id', $company->id)->get();
+            $units = Unit::where('company_id', $company->id)->get();
+            $taxes = Tax::where('company_id', $company->id)->get();
+
+            // Check if we have the minimum required data
+            if ($brands->isEmpty()) {
+                $this->command->warn("No brands found for company {$company->product_name}. Creating default brand...");
+                $brands = $this->createDefaultBrand($company, $createdById);
+            }
 
             if ($categories->isEmpty()) {
-                $this->command->warn("No categories found for company: {$company->name}. Creating default categories first.");
+                $this->command->warn("No categories found for company {$company->product_name}. Creating default category...");
+                $categories = $this->createDefaultCategory($company, $createdById);
+            }
 
-                // Create default categories
-                $electronics = Category::create([
+            if ($units->isEmpty()) {
+                $this->command->warn("No units found for company {$company->product_name}. Creating default unit...");
+                $units = $this->createDefaultUnit($company, $createdById);
+            }
+
+            // Get default IDs with null-safe operators
+            $defaultUnit = $units->firstWhere('unit_code', 'like', '%PCS%') ?? $units->first();
+            $defaultCategory = $categories->firstWhere('category_name', 'like', '%Smartphone%') ??
+                               $categories->firstWhere('category_name', 'like', '%Electronics%') ??
+                               $categories->first();
+            $defaultBrand = $brands->firstWhere('product_name', 'like', '%Apple%') ??
+                            $brands->firstWhere('product_name', 'like', '%Samsung%') ??
+                            $brands->first();
+            $defaultTax = $taxes->first();
+
+            // Validate we have required IDs
+            if (!$defaultUnit || !$defaultCategory || !$defaultBrand) {
+                $this->command->error("Missing required data for company {$company->product_name}. Skipping...");
+                continue;
+            }
+
+            // Sample products data
+            $products = [
+                [
+                    'product_name' => 'iPhone 15 Pro',
+                    'sku' => $this->generateSku($company->id, 'PHN'),
+                    'description' => 'Latest Apple smartphone with A17 Pro chip',
+                    'product_type' => 'physical',
+                    'unit_id' => $defaultUnit->id,
+                    'category_id' => $defaultCategory->id,
+                    'brand_id' => $defaultBrand->id,
+                    'tax_id' => $defaultTax->id ?? null,
+                    'cost_price' => 90000,
+                    'selling_price' => 120000,
+                    'wholesale_price' => 110000,
+                    'minimum_price' => 100000,
+                    'stock_quantity' => 50,
+                    'alert_quantity' => 10,
+                    'barcode' => $this->generateBarcode(),
+                    'weight' => 0.187,
+                    'dimensions' => '146.6 x 70.6 x 8.25 mm',
+                    'is_active' => true,
+                    'is_featured' => true,
+                    'has_variants' => false,
+                    'created_by' => $createdById,
+                    'updated_by' => $createdById,
+                ],
+                [
+                    'product_name' => 'Samsung Galaxy S24 Ultra',
+                    'sku' => $this->generateSku($company->id, 'PHN'),
+                    'description' => 'Flagship Samsung phone with S Pen',
+                    'product_type' => 'physical',
+                    'unit_id' => $defaultUnit->id,
+                    'category_id' => $defaultCategory->id,
+                    'brand_id' => $defaultBrand->id,
+                    'tax_id' => $defaultTax->id ?? null,
+                    'cost_price' => 85000,
+                    'selling_price' => 115000,
+                    'wholesale_price' => 105000,
+                    'minimum_price' => 95000,
+                    'stock_quantity' => 75,
+                    'alert_quantity' => 15,
+                    'barcode' => $this->generateBarcode(),
+                    'weight' => 0.232,
+                    'dimensions' => '162.3 x 79 x 8.6 mm',
+                    'is_active' => true,
+                    'is_featured' => true,
+                    'has_variants' => true,
+                    'created_by' => $createdById,
+                    'updated_by' => $createdById,
+                ],
+            ];
+
+            // Create initial products
+            foreach ($products as $productData) {
+                Product::create($productData);
+                $totalProducts++;
+                $this->command->info("  ✓ Created: {$productData['product_name']}");
+            }
+
+            // Create additional electronics products
+            $electronicsProducts = [
+                ['product_name' => 'Dell XPS 15 Laptop', 'category' => 'Laptop', 'brand' => 'Dell', 'cost' => 120000, 'price' => 150000],
+                ['product_name' => 'HP LaserJet Pro Printer', 'category' => 'Printer', 'brand' => 'HP', 'cost' => 25000, 'price' => 35000],
+                ['product_name' => 'Sony WH-1000XM5 Headphones', 'category' => 'Audio', 'brand' => 'Sony', 'cost' => 25000, 'price' => 35000],
+                ['product_name' => 'LG 55" 4K Smart TV', 'category' => 'Television', 'brand' => 'LG', 'cost' => 55000, 'price' => 75000],
+                ['product_name' => 'Canon EOS R5 Camera', 'category' => 'Camera', 'brand' => 'Canon', 'cost' => 350000, 'price' => 450000],
+            ];
+
+            foreach ($electronicsProducts as $productData) {
+                // Find or use default category
+                $category = $categories->firstWhere('category_name', 'like', "%{$productData['category']}%") ?? $defaultCategory;
+                $brand = $brands->firstWhere('product_name', 'like', "%{$productData['brand']}%") ?? $defaultBrand;
+
+                Product::create([
                     'company_id' => $company->id,
-                    'category_code' => 'ELEC',
-                    'category_name' => 'Electronics',
-                    'parent_category_id' => null,
-                    'description' => 'Electronic items and gadgets',
-                    'tax_rate_applicable' => 18.00,
-                    'created_by' => $superAdmin->id,
-                    'updated_by' => $superAdmin->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'product_name' => $productData['product_name'],
+                    'sku' => $this->generateSku($company->id, substr($productData['category'], 0, 3)),
+                    'description' => $productData['product_name'] . ' - High quality product',
+                    'product_type' => 'physical',
+                    'unit_id' => $defaultUnit->id,
+                    'category_id' => $category->id,
+                    'brand_id' => $brand->id,
+                    'tax_id' => $defaultTax->id ?? null,
+                    'cost_price' => $productData['cost'],
+                    'selling_price' => $productData['price'],
+                    'wholesale_price' => $productData['price'] * 0.9,
+                    'minimum_price' => $productData['price'] * 0.8,
+                    'stock_quantity' => rand(10, 100),
+                    'alert_quantity' => 5,
+                    'barcode' => $this->generateBarcode(),
+                    'weight' => rand(0.5, 10.0),
+                    'dimensions' => null,
+                    'is_active' => true,
+                    'is_featured' => rand(0, 1),
+                    'has_variants' => false,
+                    'created_by' => $createdById,
+                    'updated_by' => $createdById,
                 ]);
-
-                $categories = [$electronics];
+                $totalProducts++;
+                $this->command->info("  ✓ Created: {$productData['product_name']}");
             }
 
-            // Create products for each category
-            foreach ($categories as $category) {
-                $this->createProductsForCategory($company, $category, $superAdmin);
+            // Create fashion products if company has fashion categories
+            $fashionCategory = $categories->firstWhere('category_name', 'like', '%Fashion%');
+            if ($fashionCategory) {
+                $fashionProducts = [
+                    ['product_name' => "Men's Casual Shirt", 'cost' => 800, 'price' => 1500],
+                    ['product_name' => "Women's Dress", 'cost' => 1200, 'price' => 2500],
+                    ['product_name' => "Kids T-Shirt", 'cost' => 300, 'price' => 600],
+                    ['product_name' => 'Sports Shoes', 'cost' => 1500, 'price' => 3000],
+                    ['product_name' => 'Leather Belt', 'cost' => 400, 'price' => 800],
+                ];
+
+                foreach ($fashionProducts as $productData) {
+                    Product::create([
+                        'company_id' => $company->id,
+                        'product_name' => $productData['product_name'],
+                        'sku' => $this->generateSku($company->id, 'FSH'),
+                        'description' => $productData['product_name'] . ' - Comfortable and stylish',
+                        'product_type' => 'physical',
+                        'unit_id' => $defaultUnit->id,
+                        'category_id' => $fashionCategory->id,
+                        'brand_id' => $defaultBrand->id,
+                        'tax_id' => $defaultTax->id ?? null,
+                        'cost_price' => $productData['cost'],
+                        'selling_price' => $productData['price'],
+                        'wholesale_price' => $productData['price'] * 0.85,
+                        'minimum_price' => $productData['price'] * 0.7,
+                        'stock_quantity' => rand(50, 200),
+                        'alert_quantity' => 20,
+                        'barcode' => $this->generateBarcode(),
+                        'weight' => rand(0.1, 1.0),
+                        'dimensions' => null,
+                        'is_active' => true,
+                        'is_featured' => rand(0, 1),
+                        'has_variants' => true,
+                        'created_by' => $createdById,
+                        'updated_by' => $createdById,
+                    ]);
+                    $totalProducts++;
+                    $this->command->info("  ✓ Created: {$productData['product_name']}");
+                }
+            }
+
+            // Create grocery products if company has grocery categories
+            $groceryCategory = $categories->firstWhere('category_name', 'like', '%Grocery%');
+            if ($groceryCategory) {
+                $groceryProducts = [
+                    ['product_name' => 'Basmati Rice 5kg', 'cost' => 600, 'price' => 800],
+                    ['product_name' => 'Pure Mustard Oil 1L', 'cost' => 250, 'price' => 350],
+                    ['product_name' => 'Aromatic Tea 250g', 'cost' => 150, 'price' => 250],
+                    ['product_name' => 'Fresh Milk 1L', 'cost' => 80, 'price' => 100],
+                    ['product_name' => 'Farm Eggs (12 pcs)', 'cost' => 120, 'price' => 150],
+                ];
+
+                foreach ($groceryProducts as $productData) {
+                    Product::create([
+                        'company_id' => $company->id,
+                        'product_name' => $productData['product_name'],
+                        'sku' => $this->generateSku($company->id, 'GRC'),
+                        'description' => $productData['product_name'] . ' - Fresh and high quality',
+                        'product_type' => 'physical',
+                        'unit_id' => $units->firstWhere('unit_code', 'like', '%KG%')->id ?? $defaultUnit->id,
+                        'category_id' => $groceryCategory->id,
+                        'brand_id' => $defaultBrand->id,
+                        'tax_id' => $taxes->firstWhere('tax_rate', 5.00)->id ?? $defaultTax->id ?? null,
+                        'cost_price' => $productData['cost'],
+                        'selling_price' => $productData['price'],
+                        'wholesale_price' => $productData['price'] * 0.9,
+                        'minimum_price' => $productData['price'] * 0.8,
+                        'stock_quantity' => rand(100, 500),
+                        'alert_quantity' => 50,
+                        'barcode' => $this->generateBarcode(),
+                        'weight' => rand(0.5, 5.0),
+                        'dimensions' => null,
+                        'is_active' => true,
+                        'is_featured' => false,
+                        'has_variants' => false,
+                        'created_by' => $createdById,
+                        'updated_by' => $createdById,
+                    ]);
+                    $totalProducts++;
+                    $this->command->info("  ✓ Created: {$productData['product_name']}");
+                }
             }
         }
 
-        $this->command->info('Products seeded successfully!');
-        $this->command->info('Total products created: ' . Product::count());
+        $this->command->info("✅ Successfully seeded {$totalProducts} products!");
     }
 
     /**
-     * Create products for a specific category
+     * Create default brand if none exists
      */
-    private function createProductsForCategory($company, $category, $superAdmin): void
+    private function createDefaultBrand($company, $createdById)
     {
-        $products = [];
+        $brand = Brand::create([
+            'company_id' => $company->id,
+            'code' => 'BRAND' . str_pad($company->id, 2, '0', STR_PAD_LEFT) . '001',
+            'product_name' => 'Default Brand',
+            'description' => 'Default brand for ' . $company->product_name,
+            'country_of_origin' => 'Bangladesh',
+            'is_active' => true,
+            'created_by' => $createdById,
+            'updated_by' => $createdById,
+        ]);
 
-        switch ($category->category_code) {
-            case 'ELEC':
-                $products = $this->getElectronicsProducts();
-                break;
-            case 'PRNT':
-                $products = $this->getPrinterProducts();
-                break;
-            case 'LAP':
-                $products = $this->getLaptopProducts();
-                break;
-            case 'PHN':
-                $products = $this->getSmartphoneProducts();
-                break;
-            default:
-                $products = $this->getGenericProducts();
-                break;
-        }
-
-        foreach ($products as $productData) {
-            $product = Product::create([
-                'company_id' => $company->id,
-                'category_id' => $category->id,
-                'product_code' => Product::generateProductCode(),
-                'product_name' => $productData['name'],
-                'description' => $productData['description'],
-                'short_description' => substr($productData['description'], 0, 100) . '...',
-                'unit_of_measure' => $productData['unit'],
-                'brand' => $productData['brand'],
-                'model' => $productData['model'],
-                'weight' => $productData['weight'],
-                'dimensions' => $productData['dimensions'],
-                'color' => $productData['color'],
-                'material' => $productData['material'],
-                'cost_price' => $productData['cost_price'],
-                'purchase_price' => $productData['cost_price'] * 1.1, // 10% markup
-                'selling_price' => $productData['selling_price'],
-                'wholesale_price' => $productData['wholesale_price'],
-                'mrp' => $productData['selling_price'] * 1.2, // 20% above selling price
-                'tax_rate' => $category->tax_rate_applicable,
-                'discount_percentage' => $productData['discount'],
-                'stock_quantity' => $productData['stock'],
-                'available_quantity' => $productData['stock'],
-                'min_stock' => $productData['min_stock'],
-                'max_stock' => $productData['max_stock'],
-                'reorder_level' => $productData['reorder'],
-                'hsn_sac_code' => $this->generateHSNCode(),
-                'hs_code' => '8543.70' . rand(10, 99),
-                'ait_rate' => 5.00,
-                'manufacturer' => $productData['manufacturer'],
-                'country_of_origin' => $productData['origin'],
-                'warranty_period' => $productData['warranty'],
-                'expiry_date' => $productData['expiry_date'] ? now()->addYears(2) : null,
-                'track_batch' => $productData['has_variants'],
-                'track_expiry' => !empty($productData['expiry_date']),
-                'is_active' => true,
-                'is_featured' => $productData['featured'],
-                'has_variants' => $productData['has_variants'],
-                'rating' => $productData['rating'],
-                'created_by' => $superAdmin->id,
-                'updated_by' => $superAdmin->id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            // Generate barcode and SKU if not auto-generated
-            if (empty($product->sku)) {
-                $product->sku = 'SKU-' . strtoupper(substr(md5($product->id), 0, 8));
-            }
-            if (empty($product->barcode)) {
-                $product->barcode = '8' . str_pad($product->id + 10000000000, 12, '0', STR_PAD_LEFT);
-            }
-            $product->save();
-        }
+        return collect([$brand]);
     }
 
     /**
-     * Generate HSN/SAC code
+     * Create default category if none exists
      */
-    private function generateHSNCode(): string
+    private function createDefaultCategory($company, $createdById)
     {
-        $codes = ['9964', '9965', '9966', '9967', '9968', '9969'];
-        return $codes[array_rand($codes)] . str_pad(rand(1, 99), 2, '0', STR_PAD_LEFT);
+        $category = Category::create([
+            'company_id' => $company->id,
+            'category_code' => 'CAT' . str_pad($company->id, 2, '0', STR_PAD_LEFT) . '001',
+            'category_name' => 'Electronics',
+            'parent_category_id' => null,
+            'description' => 'Default electronics category',
+            'tax_rate_applicable' => 15.00,
+            'created_by' => $createdById,
+            'updated_by' => $createdById,
+        ]);
+
+        return collect([$category]);
     }
 
     /**
-     * Electronics products
+     * Create default unit if none exists
      */
-    private function getElectronicsProducts(): array
+    private function createDefaultUnit($company, $createdById)
     {
-        return [
-            [
-                'name' => 'Smart LED TV 55" 4K UHD',
-                'description' => '55-inch 4K Ultra HD Smart LED TV with HDR, Android TV, and built-in Google Assistant',
-                'unit' => 'Piece',
-                'brand' => 'Samsung',
-                'model' => 'UN55NU7100FXZA',
-                'weight' => 18.5,
-                'dimensions' => '124.7 x 71.9 x 8.9 cm',
-                'color' => 'Black',
-                'material' => 'Plastic, Metal',
-                'cost_price' => 45000.00,
-                'selling_price' => 59999.00,
-                'wholesale_price' => 52000.00,
-                'discount' => 10.00,
-                'stock' => 25,
-                'min_stock' => 5,
-                'max_stock' => 50,
-                'reorder' => 10,
-                'manufacturer' => 'Samsung Electronics',
-                'origin' => 'South Korea',
-                'warranty' => '2 Years',
-                'expiry_date' => null,
-                'featured' => true,
-                'has_variants' => false,
-                'rating' => 4.5,
-            ],
-            [
-                'name' => 'Soundbar Home Theater System',
-                'description' => '5.1 Channel Soundbar with Wireless Subwoofer, Dolby Audio, and Bluetooth connectivity',
-                'unit' => 'Piece',
-                'brand' => 'Sony',
-                'model' => 'HT-S20R',
-                'weight' => 8.2,
-                'dimensions' => '90 x 6.4 x 8.9 cm',
-                'color' => 'Black',
-                'material' => 'Metal, Plastic',
-                'cost_price' => 12000.00,
-                'selling_price' => 18999.00,
-                'wholesale_price' => 15000.00,
-                'discount' => 15.00,
-                'stock' => 40,
-                'min_stock' => 10,
-                'max_stock' => 100,
-                'reorder' => 20,
-                'manufacturer' => 'Sony Corporation',
-                'origin' => 'Japan',
-                'warranty' => '1 Year',
-                'expiry_date' => null,
-                'featured' => true,
-                'has_variants' => false,
-                'rating' => 4.3,
-            ],
-        ];
+        $unit = Unit::create([
+            'company_id' => $company->id,
+            'unit_code' => 'PCS' . str_pad($company->id, 2, '0', STR_PAD_LEFT),
+            'unit_product_name' => 'Pieces',
+            'unit_type' => 'standard',
+            'description' => 'Default unit - pieces',
+            'is_fraction_allowed' => false,
+            'decimal_places' => 0,
+            'sort_order' => 1,
+            'is_active' => true,
+            'created_by' => $createdById,
+            'updated_by' => $createdById,
+        ]);
+
+        return collect([$unit]);
     }
 
     /**
-     * Printer products
+     * Generate unique SKU
      */
-    private function getPrinterProducts(): array
+    private function generateSku($companyId, $prefix): string
     {
-        return [
-            [
-                'name' => 'Wireless All-in-One Inkjet Printer',
-                'description' => 'Color Inkjet Wireless All-in-One Printer with Scanner, Copier, and Fax functionality',
-                'unit' => 'Piece',
-                'brand' => 'HP',
-                'model' => 'DeskJet 2723',
-                'weight' => 3.5,
-                'dimensions' => '44 x 35 x 18 cm',
-                'color' => 'White',
-                'material' => 'Plastic',
-                'cost_price' => 6500.00,
-                'selling_price' => 8999.00,
-                'wholesale_price' => 7500.00,
-                'discount' => 8.00,
-                'stock' => 60,
-                'min_stock' => 15,
-                'max_stock' => 150,
-                'reorder' => 25,
-                'manufacturer' => 'HP Inc.',
-                'origin' => 'USA',
-                'warranty' => '1 Year',
-                'expiry_date' => null,
-                'featured' => true,
-                'has_variants' => true,
-                'rating' => 4.2,
-            ],
-            [
-                'name' => 'Monochrome Laser Printer',
-                'description' => 'High-speed Monochrome Laser Printer for Office Use with Ethernet connectivity',
-                'unit' => 'Piece',
-                'brand' => 'Canon',
-                'model' => 'LBP2900B',
-                'weight' => 6.8,
-                'dimensions' => '38 x 25 x 24 cm',
-                'color' => 'Black',
-                'material' => 'Plastic, Metal',
-                'cost_price' => 8500.00,
-                'selling_price' => 12499.00,
-                'wholesale_price' => 10000.00,
-                'discount' => 12.00,
-                'stock' => 35,
-                'min_stock' => 8,
-                'max_stock' => 80,
-                'reorder' => 15,
-                'manufacturer' => 'Canon Inc.',
-                'origin' => 'Japan',
-                'warranty' => '2 Years',
-                'expiry_date' => null,
-                'featured' => false,
-                'has_variants' => false,
-                'rating' => 4.4,
-            ],
-        ];
+        return $prefix . str_pad($companyId, 3, '0', STR_PAD_LEFT) .
+               now()->format('md') .
+               strtoupper(Str::random(3));
     }
 
     /**
-     * Laptop products
+     * Generate barcode
      */
-    private function getLaptopProducts(): array
+    private function generateBarcode(): string
     {
-        return [
-            [
-                'name' => 'Gaming Laptop RTX 3050',
-                'description' => '15.6" FHD 144Hz Gaming Laptop with NVIDIA RTX 3050, Intel i7, 16GB RAM, 512GB SSD',
-                'unit' => 'Piece',
-                'brand' => 'ASUS',
-                'model' => 'TUF Gaming F15 FX506',
-                'weight' => 2.3,
-                'dimensions' => '36 x 25.6 x 2.5 cm',
-                'color' => 'Graphite Black',
-                'material' => 'Plastic, Aluminum',
-                'cost_price' => 75000.00,
-                'selling_price' => 94999.00,
-                'wholesale_price' => 82000.00,
-                'discount' => 15.00,
-                'stock' => 15,
-                'min_stock' => 3,
-                'max_stock' => 30,
-                'reorder' => 5,
-                'manufacturer' => 'ASUSTeK Computer Inc.',
-                'origin' => 'Taiwan',
-                'warranty' => '2 Years',
-                'expiry_date' => null,
-                'featured' => true,
-                'has_variants' => true,
-                'rating' => 4.7,
-            ],
-            [
-                'name' => 'Business Laptop i7 16GB',
-                'description' => '14" Full HD Business Laptop with Intel Core i7, 16GB RAM, 1TB SSD, Windows 11 Pro',
-                'unit' => 'Piece',
-                'brand' => 'Dell',
-                'model' => 'Latitude 5420',
-                'weight' => 1.5,
-                'dimensions' => '32.4 x 21.8 x 1.9 cm',
-                'color' => 'Black',
-                'material' => 'Carbon Fiber, Aluminum',
-                'cost_price' => 85000.00,
-                'selling_price' => 109999.00,
-                'wholesale_price' => 92000.00,
-                'discount' => 12.00,
-                'stock' => 20,
-                'min_stock' => 4,
-                'max_stock' => 40,
-                'reorder' => 8,
-                'manufacturer' => 'Dell Technologies',
-                'origin' => 'USA',
-                'warranty' => '3 Years',
-                'expiry_date' => null,
-                'featured' => true,
-                'has_variants' => true,
-                'rating' => 4.6,
-            ],
-            [
-                'name' => 'Student Laptop i3 8GB',
-                'description' => '15.6" HD Laptop with Intel Core i3, 8GB RAM, 256GB SSD, Windows 11 Home',
-                'unit' => 'Piece',
-                'brand' => 'Lenovo',
-                'model' => 'IdeaPad 3 15IAU7',
-                'weight' => 1.7,
-                'dimensions' => '36.3 x 25.2 x 2.0 cm',
-                'color' => 'Platinum Grey',
-                'material' => 'Plastic',
-                'cost_price' => 32000.00,
-                'selling_price' => 44999.00,
-                'wholesale_price' => 38000.00,
-                'discount' => 10.00,
-                'stock' => 30,
-                'min_stock' => 8,
-                'max_stock' => 60,
-                'reorder' => 15,
-                'manufacturer' => 'Lenovo Group',
-                'origin' => 'China',
-                'warranty' => '1 Year',
-                'expiry_date' => null,
-                'featured' => false,
-                'has_variants' => false,
-                'rating' => 4.0,
-            ],
-        ];
-    }
-
-    /**
-     * Smartphone products
-     */
-    private function getSmartphoneProducts(): array
-    {
-        return [
-            [
-                'name' => 'Flagship Smartphone 108MP Camera',
-                'description' => '6.7" AMOLED Display, 108MP Quad Camera, Snapdragon 8 Gen 2, 5000mAh Battery, 256GB Storage',
-                'unit' => 'Piece',
-                'brand' => 'Samsung',
-                'model' => 'Galaxy S23 Ultra',
-                'weight' => 0.234,
-                'dimensions' => '16.3 x 7.8 x 0.9 cm',
-                'color' => 'Phantom Black',
-                'material' => 'Gorilla Glass, Aluminum',
-                'cost_price' => 85000.00,
-                'selling_price' => 124999.00,
-                'wholesale_price' => 95000.00,
-                'discount' => 5.00,
-                'stock' => 25,
-                'min_stock' => 5,
-                'max_stock' => 50,
-                'reorder' => 10,
-                'manufacturer' => 'Samsung Electronics',
-                'origin' => 'South Korea',
-                'warranty' => '1 Year',
-                'expiry_date' => null,
-                'featured' => true,
-                'has_variants' => true,
-                'rating' => 4.8,
-            ],
-            [
-                'name' => 'Mid-Range Smartphone 64MP',
-                'description' => '6.5" AMOLED 120Hz Display, 64MP Triple Camera, MediaTek Dimensity 1080, 6000mAh Battery',
-                'unit' => 'Piece',
-                'brand' => 'Xiaomi',
-                'model' => 'Redmi Note 12 Pro 5G',
-                'weight' => 0.210,
-                'dimensions' => '16.5 x 7.6 x 0.8 cm',
-                'color' => 'Onyx Gray',
-                'material' => 'Gorilla Glass, Plastic',
-                'cost_price' => 22000.00,
-                'selling_price' => 29999.00,
-                'wholesale_price' => 25000.00,
-                'discount' => 8.00,
-                'stock' => 50,
-                'min_stock' => 12,
-                'max_stock' => 100,
-                'reorder' => 25,
-                'manufacturer' => 'Xiaomi Corporation',
-                'origin' => 'China',
-                'warranty' => '1 Year',
-                'expiry_date' => null,
-                'featured' => true,
-                'has_variants' => true,
-                'rating' => 4.4,
-            ],
-        ];
-    }
-
-    /**
-     * Generic products for other categories
-     */
-    private function getGenericProducts(): array
-    {
-        return [
-            [
-                'name' => 'Premium Office Chair',
-                'description' => 'Ergonomic office chair with lumbar support, adjustable height, and breathable mesh',
-                'unit' => 'Piece',
-                'brand' => 'Generic',
-                'model' => 'OC-2023',
-                'weight' => 12.5,
-                'dimensions' => '60 x 60 x 110 cm',
-                'color' => 'Black',
-                'material' => 'Mesh, Nylon, Steel',
-                'cost_price' => 4500.00,
-                'selling_price' => 6999.00,
-                'wholesale_price' => 5500.00,
-                'discount' => 5.00,
-                'stock' => 30,
-                'min_stock' => 5,
-                'max_stock' => 50,
-                'reorder' => 10,
-                'manufacturer' => 'Generic Manufacturer',
-                'origin' => 'Bangladesh',
-                'warranty' => '2 Years',
-                'expiry_date' => null,
-                'featured' => false,
-                'has_variants' => true,
-                'rating' => 4.1,
-            ],
-            [
-                'name' => 'LED Desk Lamp',
-                'description' => 'Adjustable LED desk lamp with touch control, 3 color temperatures, USB charging port',
-                'unit' => 'Piece',
-                'brand' => 'Generic',
-                'model' => 'DL-LED01',
-                'weight' => 0.8,
-                'dimensions' => '35 x 15 x 8 cm',
-                'color' => 'White',
-                'material' => 'Plastic, Aluminum',
-                'cost_price' => 800.00,
-                'selling_price' => 1499.00,
-                'wholesale_price' => 1200.00,
-                'discount' => 10.00,
-                'stock' => 100,
-                'min_stock' => 20,
-                'max_stock' => 200,
-                'reorder' => 40,
-                'manufacturer' => 'Generic Manufacturer',
-                'origin' => 'China',
-                'warranty' => '1 Year',
-                'expiry_date' => now()->addYears(3),
-                'featured' => false,
-                'has_variants' => false,
-                'rating' => 4.0,
-            ],
-        ];
+        return '8' . rand(100000000000, 999999999999);
     }
 }

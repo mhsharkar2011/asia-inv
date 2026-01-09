@@ -135,6 +135,19 @@ class CompanyController extends Controller
             ->with('success', 'Company deleted successfully.');
     }
 
+     private function getTypes($type)
+    {
+        if ($type == 'company') {
+            return ['private', 'public']; // removed 'llc' as it's commented in your template
+        } elseif ($type == 'customer') {
+            return ['retail', 'wholesale', 'corporate'];
+        } elseif ($type == 'supplier') {
+            return ['local', 'international'];
+        }
+
+        return [];
+    }
+
     /**
      * Get sub-types based on Company type
      */

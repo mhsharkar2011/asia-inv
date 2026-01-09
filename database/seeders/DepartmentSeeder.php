@@ -83,7 +83,7 @@ class DepartmentSeeder extends Seeder
                     'name' => 'Sales Team',
                     'description' => 'Direct sales and customer acquisition',
                     'is_active' => true,
-                    'sort_order' => 1,
+                    'sort_order' => 6,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -95,7 +95,7 @@ class DepartmentSeeder extends Seeder
                     'name' => 'Marketing Team',
                     'description' => 'Digital marketing and promotions',
                     'is_active' => true,
-                    'sort_order' => 2,
+                    'sort_order' => 7,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

@@ -128,8 +128,7 @@ return new class extends Migration
             $table->decimal('total_revenue', 15, 2)->default(0);
 
             // Audit
-            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+            
             $table->timestamps();
             $table->softDeletes();
 

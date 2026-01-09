@@ -55,25 +55,25 @@
                                 @endcan
 
                                 @can('view suppliers')
-                                <a href="{{ route('inventory.suppliers.index') }}"
+                                <a href="{{ route('purchase.suppliers.index') }}"
                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 {{ request()->routeIs('inventory.suppliers.*') ? 'bg-gray-50 text-gray-900' : '' }}">
                                     Suppliers
                                 </a>
                                 @endcan
 
-                                @can('view purchases')
-                                <a href="{{ route('purchases.index') }}"
+                                {{-- @can('view purchases')
+                                <a href="{{ route('purchase.index') }}"
                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 {{ request()->routeIs('purchases.*') ? 'bg-gray-50 text-gray-900' : '' }}">
                                     Purchases
                                 </a>
-                                @endcan
+                                @endcan --}}
 
-                                @can('view sales')
+                                {{-- @can('view sales')
                                 <a href="{{ route('sales.index') }}"
                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 {{ request()->routeIs('sales.*') ? 'bg-gray-50 text-gray-900' : '' }}">
                                     Sales
                                 </a>
-                                @endcan
+                                @endcan --}}
                             </div>
                         </div>
                     </div>
@@ -153,12 +153,12 @@
                                 </a>
                                 @endcan
 
-                                @can('view audit logs')
+                                {{-- @can('view audit logs')
                                 <a href="{{ route('admin.audit-logs.index') }}"
                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">
                                     Audit Logs
                                 </a>
-                                @endcan
+                                @endcan --}}
 
                                 @can('view system settings')
                                 <a href="{{ route('admin.settings.index') }}"
@@ -251,7 +251,7 @@
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
-                        <!-- Switch to Admin Panel -->
+                        {{-- <!-- Switch to Admin Panel -->
                         @hasanyrole(['super-admin', 'admin'])
                         <x-dropdown-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,7 +260,7 @@
                             </svg>
                             {{ __('Admin Panel') }}
                         </x-dropdown-link>
-                        @endhasanyrole
+                        @endhasanyrole --}}
 
                         <!-- Divider -->
                         <div class="border-t border-gray-100"></div>
@@ -320,11 +320,11 @@
                     </x-responsive-nav-link>
                     @endcan
 
-                    @can('view suppliers')
+                    {{-- @can('view suppliers')
                     <x-responsive-nav-link :href="route('inventory.suppliers.index')" :active="request()->routeIs('inventory.suppliers.*')">
                         {{ __('Suppliers') }}
                     </x-responsive-nav-link>
-                    @endcan
+                    @endcan --}}
                 </div>
             </div>
             @endcanany
@@ -402,11 +402,11 @@
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
 
-                @hasanyrole(['super-admin', 'admin'])
+                {{-- @hasanyrole(['super-admin', 'admin'])
                 <x-responsive-nav-link :href="route('admin.dashboard')">
                     {{ __('Admin Panel') }}
                 </x-responsive-nav-link>
-                @endhasanyrole
+                @endhasanyrole --}}
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">

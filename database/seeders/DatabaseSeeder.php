@@ -23,14 +23,16 @@ class DatabaseSeeder extends Seeder
 
         // Run seeders in proper order
         $this->call([
+            RolePermissionSeeder::class, // This should create permissions and roles
             CompanySeeder::class,
             BranchSeeder::class,
             DepartmentSeeder::class,
-            RolePermissionSeeder::class, // This should create permissions and roles
+            UnitSeeder::class,      // Add this
+            TaxSeeder::class,
             UserSeeder::class, // This uses roles created above
-            
+            BrandSeeder::class,
             CategorySeeder::class,
-            ProductSeeder::class,
+            // ProductSeeder::class,
             // Add other seeders as needed
         ]);
 

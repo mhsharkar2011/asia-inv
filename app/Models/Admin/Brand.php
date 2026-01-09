@@ -22,8 +22,8 @@ class Brand extends Model implements HasMedia
 
     protected $fillable = [
         'company_id',
-        'brand_code',
-        'brand_name',
+        'code',
+        'name',
         'slug',
         'description',
         'logo',
@@ -64,12 +64,12 @@ class Brand extends Model implements HasMedia
         static::creating(function ($brand) {
             // Generate slug if not provided
             if (empty($brand->slug)) {
-                $brand->slug = Str::slug($brand->brand_name);
+                $brand->slug = Str::slug($brand->name);
             }
 
             // Generate brand code if not provided
-            if (empty($brand->brand_code)) {
-                $brand->brand_code = self::generateBrandCode($brand->brand_name);
+            if (empty($brand->code)) {
+                $brand->code = self::generateBrandCode($brand->name);
             }
 
             // Set created_by if user is authenticated
@@ -80,8 +80,8 @@ class Brand extends Model implements HasMedia
 
         static::updating(function ($brand) {
             // Update slug if brand name changed
-            if ($brand->isDirty('brand_name')) {
-                $brand->slug = \Str::slug($brand->brand_name);
+            if ($brand->isDirty('name')) {
+                $brand->slug = Str::slug($brand->name);
             }
 
             // Set updated_by if user is authenticated
@@ -119,7 +119,7 @@ class Brand extends Model implements HasMedia
         $baseCode = $code;
         $counter = 1;
 
-        while (self::where('brand_code', $code)->exists()) {
+        while (self::where('code', $code)->exists()) {
             $code = $baseCode . str_pad($counter, 3, '0', STR_PAD_LEFT);
             $counter++;
         }
@@ -137,7 +137,7 @@ class Brand extends Model implements HasMedia
 
     public function products()
     {
-        return $this->hasMany(Product::class, 'brand_id');
+        return $this->hasMany(Product::class, 'id');
     }
 
     public function createdBy()
@@ -152,7 +152,7 @@ class Brand extends Model implements HasMedia
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class, 'brand_category')
+        return $this->belongsToMany(Category::class, 'category')
                     ->withTimestamps();
     }
 
@@ -228,8 +228,8 @@ class Brand extends Model implements HasMedia
     public function scopeSearch($query, $searchTerm)
     {
         return $query->where(function ($q) use ($searchTerm) {
-            $q->where('brand_name', 'like', "%{$searchTerm}%")
-              ->orWhere('brand_code', 'like', "%{$searchTerm}%")
+            $q->where('name', 'like', "%{$searchTerm}%")
+              ->orWhere('code', 'like', "%{$searchTerm}%")
               ->orWhere('description', 'like', "%{$searchTerm}%");
         });
     }
@@ -368,19 +368,19 @@ class Brand extends Model implements HasMedia
         foreach ($brands as $brandData) {
             // Check if brand already exists
             $existing = self::where('company_id', $companyId)
-                ->where('brand_code', $brandData['brand_code'] ?? null)
-                ->orWhere('brand_name', $brandData['brand_name'])
+                ->where('code', $brandData['code'] ?? null)
+                ->orWhere('name', $brandData['name'])
                 ->first();
 
             if ($existing) {
-                $skipped[] = $brandData['brand_name'];
+                $skipped[] = $brandData['name'];
                 continue;
             }
 
             $brand = self::create([
                 'company_id' => $companyId,
-                'brand_code' => $brandData['brand_code'] ?? self::generateBrandCode($brandData['brand_name']),
-                'brand_name' => $brandData['brand_name'],
+                'code' => $brandData['code'] ?? self::generateBrandCode($brandData['name']),
+                'name' => $brandData['name'],
                 'description' => $brandData['description'] ?? null,
                 'website' => $brandData['website'] ?? null,
                 'contact_email' => $brandData['contact_email'] ?? null,
@@ -407,8 +407,8 @@ class Brand extends Model implements HasMedia
     public function toExportArray()
     {
         return [
-            'brand_code' => $this->brand_code,
-            'brand_name' => $this->brand_name,
+            'code' => $this->code,
+            'name' => $this->name,
             'description' => $this->description,
             'website' => $this->website,
             'contact_email' => $this->contact_email,

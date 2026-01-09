@@ -129,7 +129,7 @@
                         </svg>
                     </button>
 
-                    <div x-show="open" x-collapse class="ml-8 mt-1 space-y-1">
+                    {{-- <div x-show="open" x-collapse class="ml-8 mt-1 space-y-1">
                         @foreach($adminSection['items'] as $item)
                             @can($item['permission'])
                             <a href="{{ route($item['route']) }}"
@@ -143,7 +143,7 @@
                             </a>
                             @endcan
                         @endforeach
-                    </div>
+                    </div> --}}
                 </li>
             @endhasanyrole
 

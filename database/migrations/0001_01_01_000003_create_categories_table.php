@@ -18,6 +18,8 @@ return new class extends Migration
             $table->decimal('tax_rate_applicable', 5, 2)->nullable();
             $table->timestamps();
 
+            $table->unique(['company_id', 'category_code']);
+
             $table->index(['company_id', 'category_code']);
         });
     }

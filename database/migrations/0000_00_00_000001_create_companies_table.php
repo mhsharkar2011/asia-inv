@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->string('name');
             $table->enum('type', ['company', 'customer', 'supplier'])->default('company');
-            $table->enum('sub_type', ['retail', 'wholesale', 'corporate', 'local', 'international'])->nullable();
+            $table->string('sub_type', 50)->nullable();
 
             // Contact Information
             $table->string('contact_person')->nullable();
