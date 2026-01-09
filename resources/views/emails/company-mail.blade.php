@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $subject }}</title>
+    <title>{{ $emailSubject }}</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -79,7 +79,7 @@
             <h2>Hello {{ $companyName }},</h2>
 
             <div class="message-content">
-                {!! nl2br(e($message)) !!}
+                {!! nl2br(e($emailContent)) !!}
             </div>
 
             <div class="company-info">

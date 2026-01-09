@@ -200,53 +200,34 @@ class CompanyController extends Controller
         return redirect()->back()->with('success', 'Status updated successfully.');
     }
 
-public function sendEmail(Company $company, Request $request)
-{
-    try {
-        // Validate request
-        $validated = $request->validate([
-            'subject' => 'required|string|max:255',
-            'message' => 'required|string',
-            'email_type' => 'nullable|in:notification,welcome,reminder'
-        ]);
+    public function sendEmail(Company $company, Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'subject' => 'required|string|max:255',
+                'message' => 'required|string',
+            ]);
 
-        // Check if company has email
-        if (!$company->email) {
+            // Prepare email data
+            $emailData = [
+                'subject' => $validated['subject'],
+                'message' => $validated['message'], // This will become 'emailBody'
+                'company_name' => $company->name,
+                'company_email' => $company->email,
+            ];
+
+            // Send email
+            Mail::to($company->email)->send(new CompanyMail($emailData));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Email sent successfully to ' . $company->email
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Company does not have an email address'
-            ], 400);
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Prepare data for email
-        $emailData = [
-            'subject' => $validated['subject'],
-            'message' => $validated['message'],
-            'company_name' => $company->name,
-            'company_email' => $company->email,
-        ];
-
-        // Send email
-        Mail::to($company->email)->send(new CompanyMail($emailData));
-
-        // Return success response
-        return response()->json([
-            'success' => true,
-            'message' => 'Email sent successfully to ' . $company->email
-        ]);
-
-    } catch (\Exception $e) {
-        \Log::error('Email sending error:', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-            'company_id' => $company->id,
-            'company_email' => $company->email ?? 'not set'
-        ]);
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to send email: ' . $e->getMessage()
-        ], 500);
     }
-}
 }

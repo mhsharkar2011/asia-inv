@@ -10,28 +10,28 @@ class CompanyMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $subject;
-    public $message;
+    public $emailSubject;
+    public $emailContent;
     public $companyName;
     public $companyEmail;
 
     public function __construct($data)
     {
-        $this->subject = $data['subject'];
-        $this->message = $data['message'];
+        $this->emailSubject = $data['subject'];
+        $this->emailContent = $data['message']; // Renamed from 'message' to 'emailContent'
         $this->companyName = $data['company_name'];
         $this->companyEmail = $data['company_email'];
     }
 
     public function build()
     {
-        return $this->subject($this->subject)
-                    ->view('emails.company-mail') // This matches the view file
-                    ->with([
-                        'subject' => $this->subject,
-                        'message' => $this->message,
-                        'companyName' => $this->companyName,
-                        'companyEmail' => $this->companyEmail,
-                    ]);
+        return $this->subject($this->emailSubject)
+            ->view('emails.company-mail')
+            ->with([
+                'emailSubject' => $this->emailSubject,
+                'emailContent' => $this->emailContent, // Use emailContent
+                'companyName' => $this->companyName,
+                'companyEmail' => $this->companyEmail,
+            ]);
     }
 }
