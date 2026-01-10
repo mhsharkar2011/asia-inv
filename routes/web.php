@@ -104,7 +104,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Purchase Management
-    Route::prefix('purchase')->name('purchase.')->middleware('permission:view purchases')->group(function () {
+    Route::prefix('purchase')->name('purchase.')->group(function () {
         Route::resource('suppliers', SupplierController::class)->middleware('permission:manage suppliers');
         Route::post('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])
             ->name('suppliers.toggle-status')->middleware('permission:manage suppliers');
@@ -157,6 +157,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/export/excel', [ReportController::class, 'exportExcel'])->name('export.excel')->middleware('permission:export reports');
         Route::get('/placeholder', [ReportController::class, 'placeholder'])->name('placeholder');
         Route::get('inventory', [ReportController::class, 'inventory'])->name('inventory');
+        Route::get('financial', [ReportController::class, 'financial'])->name('financial');
         Route::get('purchases', [ReportController::class, 'purchases'])->name('purchases');
     });
 });

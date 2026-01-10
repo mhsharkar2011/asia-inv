@@ -77,7 +77,7 @@ class ReportController extends Controller
             ->where('is_active', '1')
             ->get();
 
-        return view('reports.products', compact('products','customers', 'lowStockProducts'));
+        return view('reports.products', compact('products', 'customers', 'lowStockProducts'));
     }
 
     /**
@@ -138,10 +138,16 @@ class ReportController extends Controller
         return response()->json(['message' => 'Excel export feature coming soon']);
     }
 
-    public function inventory(){
+    public function inventory()
+    {
         //
     }
-    public function purchases(){
+    public function purchases()
+    {
+        //
+    }
+    public function financial()
+    {
         //
     }
 }
