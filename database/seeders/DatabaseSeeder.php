@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,139 +12,54 @@ class DatabaseSeeder extends Seeder
         // Disable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Clear tables but NOT users table (to preserve existing users)
-        DB::table('categories')->truncate();
-
-        // Only truncate users if empty or you want fresh start
-        // DB::table('users')->truncate();
-
-        // If you have Spatie tables, clear them too
-        if (DB::getSchemaBuilder()->hasTable('permissions')) {
-            DB::table('permissions')->truncate();
-        }
-        if (DB::getSchemaBuilder()->hasTable('roles')) {
-            DB::table('roles')->truncate();
-        }
-        if (DB::getSchemaBuilder()->hasTable('model_has_roles')) {
-            DB::table('model_has_roles')->truncate();
-        }
-        if (DB::getSchemaBuilder()->hasTable('role_has_permissions')) {
-            DB::table('role_has_permissions')->truncate();
-        }
-
-        DB::table('organizations')->truncate();
+        // Clear all tables in proper order
+        $this->truncateTables();
 
         // Enable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // Insert company
-        $companyId = DB::table('organizations')->insertGetId([
-            'code' => 'AEL.',
-            'name' => 'Asia Enterprises Ltd.',
-            'tin' => '123456789321',
-            'bin' => '212233444444',
-            'address' => '123 Main Street, Mumbai, Maharashtra',
-            'country' => 'India',
-            'currency' => 'INR',
-            'fiscal_year_start' => '2024-04-01',
-            'created_at' => now(),
-            'updated_at' => now(),
+        // Reset cached roles and permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Run seeders in proper order
+        $this->call([
+            RolePermissionSeeder::class, // This should create permissions and roles
+            CompanySeeder::class,
+            BranchSeeder::class,
+            DepartmentSeeder::class,
+            UnitSeeder::class,      // Add this
+            TaxSeeder::class,
+            UserSeeder::class, // This uses roles created above
+            BrandSeeder::class,
+            CategorySeeder::class,
+            // ProductSeeder::class,
+            // Add other seeders as needed
         ]);
-
-        // Insert admin user ONLY if doesn't exist
-        $adminExists = DB::table('users')->where('email', 'admin@asiaenterprise.com')->exists();
-
-        if (!$adminExists) {
-            DB::table('users')->insert([
-                [
-                    'name' => 'System Administrator',
-                    'email' => 'admin@asiaenterprise.com',
-                    'password' => Hash::make('admin@123'),
-                    'avatar' => 'default_avatar.png',
-                    'company_id' => $companyId,
-                    'role' => 'admin',
-                    'phone' => '+8801733172007',
-                    'language_preference' => 'en',
-                    'is_active' => true,
-                    'email_verified_at' => now(),
-                    'last_login_at' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            ]);
-        }
-
-        // Insert categories
-        $electronicsId = DB::table('categories')->insertGetId([
-            'company_id' => $companyId,
-            'category_code' => 'ELEC',
-            'category_name' => 'Electronics',
-            'parent_category_id' => null,
-            'description' => 'Electronic items and gadgets',
-            'tax_rate_applicable' => 18.00,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        $clothingId = DB::table('categories')->insertGetId([
-            'company_id' => $companyId,
-            'category_code' => 'CLOTH',
-            'category_name' => 'Clothing',
-            'parent_category_id' => null,
-            'description' => 'Apparel and clothing items',
-            'tax_rate_applicable' => 12.00,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        // Insert subcategories
-        DB::table('categories')->insert([
-            [
-                'company_id' => $companyId,
-                'category_code' => 'MOB',
-                'category_name' => 'Mobile Phones',
-                'parent_category_id' => $electronicsId,
-                'description' => 'Smartphones and mobile phones',
-                'tax_rate_applicable' => 18.00,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'company_id' => $companyId,
-                'category_code' => 'LAP',
-                'category_name' => 'Laptops',
-                'parent_category_id' => $electronicsId,
-                'description' => 'Laptops and notebooks',
-                'tax_rate_applicable' => 18.00,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'company_id' => $companyId,
-                'category_code' => 'MEN',
-                'category_name' => "Men's Wear",
-                'parent_category_id' => $clothingId,
-                'description' => 'Clothing for men',
-                'tax_rate_applicable' => 12.00,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'company_id' => $companyId,
-                'category_code' => 'WOMEN',
-                'category_name' => "Women's Wear",
-                'parent_category_id' => $clothingId,
-                'description' => 'Clothing for women',
-                'tax_rate_applicable' => 12.00,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
-
-        // Run the PermissionsSeeder
-        $this->call(PermissionsSeeder::class);
 
         $this->command->info('Database seeded successfully!');
-        $this->command->info('Admin login: admin@asiaenterprise.com / admin@123');
+    }
+
+    private function truncateTables(): void
+    {
+        // Clear tables in proper order to avoid foreign key constraints
+        $tables = [
+            'categories',
+            'model_has_permissions',
+            'model_has_roles',
+            'role_has_permissions',
+            'permissions',
+            'roles',
+            'branches',
+            'departments',
+            'companies',
+            'products'
+            // Don't truncate users table to preserve existing users
+        ];
+
+        foreach ($tables as $table) {
+            if (DB::getSchemaBuilder()->hasTable($table)) {
+                DB::table($table)->truncate();
+            }
+        }
     }
 }

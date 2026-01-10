@@ -10,17 +10,19 @@ return new class extends Migration
     {
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique()->comment('Department code e.g., DEPT001');
+            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            $table->foreignId('parent_id')->nullable()->constrained('departments')->onDelete('set null');
+            $table->string('code')->comment('Department code e.g., DEPT001');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('parent_id')->nullable()->constrained('departments')->onDelete('set null');
             $table->integer('staff_count')->default(0);
             $table->decimal('budget', 15, 2)->nullable();
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['company_id', 'code']);
 
             // Indexes
             $table->index(['is_active', 'sort_order']);

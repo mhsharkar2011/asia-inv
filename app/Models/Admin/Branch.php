@@ -15,9 +15,9 @@ class Branch extends Model
 
     protected $fillable = [
         'company_id',
-        'branch_code',
-        'branch_name',
-        'branch_type',
+        'code',
+        'name',
+        'type',
         'contact_person',
         'email',
         'phone',
@@ -64,7 +64,7 @@ class Branch extends Model
     // Relationships
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Organization::class,'company_id');
+        return $this->belongsTo(Company::class,'company_id');
     }
 
     public function users(): HasMany
@@ -146,8 +146,8 @@ class Branch extends Model
             'service' => 'bg-danger',
         ];
 
-        $color = $badges[$this->branch_type] ?? 'bg-dark';
-        $label = ucfirst($this->branch_type);
+        $color = $badges[$this->type] ?? 'bg-dark';
+        $label = ucfirst($this->type);
 
         return "<span class='badge {$color}'>{$label}</span>";
     }
@@ -175,7 +175,7 @@ class Branch extends Model
 
     public function scopeByType($query, $type)
     {
-        return $query->where('branch_type', $type);
+        return $query->where('type', $type);
     }
 
     public function scopeByCity($query, $city)
@@ -185,8 +185,8 @@ class Branch extends Model
 
     public function scopeSearch($query, $search)
     {
-        return $query->where('branch_name', 'like', "%{$search}%")
-                    ->orWhere('branch_code', 'like', "%{$search}%")
+        return $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%")
                     ->orWhere('city', 'like', "%{$search}%")
                     ->orWhere('contact_person', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%");
@@ -214,10 +214,10 @@ class Branch extends Model
         parent::boot();
 
         static::creating(function ($branch) {
-            if (empty($branch->branch_code)) {
-                $prefix = strtoupper(substr($branch->branch_name, 0, 3));
+            if (empty($branch->code)) {
+                $prefix = strtoupper(substr($branch->name, 0, 3));
                 $count = self::where('company_id', $branch->company_id)->count() + 1;
-                $branch->branch_code = $prefix . str_pad($count, 3, '0', STR_PAD_LEFT);
+                $branch->code = $prefix . str_pad($count, 3, '0', STR_PAD_LEFT);
             }
         });
 

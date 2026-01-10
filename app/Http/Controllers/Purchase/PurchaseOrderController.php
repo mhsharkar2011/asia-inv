@@ -4,11 +4,10 @@ namespace App\Http\Controllers\Purchase;
 
 use App\Http\Controllers\Controller;
 use App\Models\Purchase\PurchaseOrder;
-use App\Models\Inventory\Company;
 use App\Models\Purchase\Supplier;
 use App\Models\Inventory\Warehouse;
 use App\Http\Requests\PurchaseOrderRequest;
-use App\Models\Admin\Organization;
+use App\Models\Admin\Company;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -57,8 +56,13 @@ class PurchaseOrderController extends Controller
 
     public function create()
     {
+<<<<<<< HEAD
         $companies = Organization::where('type', 'company')->get();
         $suppliers = Organization::where('type', 'supplier')->get();
+=======
+        $companies = Company::all();
+        $suppliers = Company::where('type', 'supplier')->get();
+>>>>>>> cfb74bc42ab06d896d69ef6c6fae3601342ecda1
         $warehouses = Warehouse::all();
         $statuses = ['draft', 'pending', 'partial', 'completed', 'cancelled'];
 
@@ -91,9 +95,14 @@ class PurchaseOrderController extends Controller
 
     public function edit(PurchaseOrder $purchaseOrder)
     {
+<<<<<<< HEAD
         $poNumber = $this->generatePONumber();
         $companies = Organization::where('type', 'company')->get();
         $suppliers = Organization::where('type', 'supplier')->get();
+=======
+        $companies = Company::all();
+        $suppliers = Company::where('type', 'supplier')->get();
+>>>>>>> cfb74bc42ab06d896d69ef6c6fae3601342ecda1
         $warehouses = Warehouse::all();
         $statuses = ['draft', 'pending', 'partial', 'completed', 'cancelled'];
 

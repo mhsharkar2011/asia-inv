@@ -10,15 +10,15 @@ return new class extends Migration
     {
         Schema::create('branches', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->constrained('organizations')->onDelete('cascade');
-            $table->string('branch_code')->unique()->comment('Branch identifier e.g., BRN001');
-            $table->string('branch_name');
-            $table->string('branch_type')->default('retail')->comment('retail, warehouse, office, factory, etc.');
+            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            $table->string('code')->unique()->comment('Branch identifier e.g., BRN001');
+            $table->string('name');
+            $table->string('type')->default('retail')->comment('retail, warehouse, office, factory, etc.');
             $table->string('contact_person')->nullable();
-            $table->string('branch_email')->nullable();
-            $table->string('branch_phone')->nullable()->comment('Primary phone number');
-            $table->string('branch_mobile_phone')->nullable()->comment('Mobile phone number');
-            $table->string('branch_address')->nullable()->default('Dhaka, Bangladesh');
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable()->comment('Primary phone number');
+            $table->string('mobile_phone')->nullable()->comment('Mobile phone number');
+            $table->string('address')->nullable()->default('Dhaka, Bangladesh');
             $table->string('postal_area')->nullable()->default('Dhaka');
             $table->string('postal_code')->nullable()->default('1000');
             $table->string('city')->nullable()->default('Dhaka');
@@ -42,9 +42,9 @@ return new class extends Migration
 
             // Indexes for performance
             // $table->index(['company_id', 'is_active']);
-            $table->index('branch_code');
+            $table->index('code');
             $table->index('city');
-            $table->index('branch_type');
+            $table->index('type');
             $table->index('is_head_office');
         });
     }

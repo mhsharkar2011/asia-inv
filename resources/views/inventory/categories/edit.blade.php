@@ -368,7 +368,7 @@
                                         <li>All products in this category</li>
                                         <li>Product tax calculations</li>
                                         <li>Reporting and analytics</li>
-                                        <li>Inventory organization</li>
+                                        <li>Inventory Company</li>
                                     </ul>
                                 </div>
                             </div>
