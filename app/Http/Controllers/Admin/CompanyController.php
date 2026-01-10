@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Mail\CompanyMail;
 use App\Models\Admin\Company;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\SalesOrder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class CompanyController extends Controller
 {
@@ -91,12 +88,12 @@ class CompanyController extends Controller
             ->with('success', ucfirst($request->type) . ' created successfully.');
     }
 
-    public function show(Company $company)
+    public function show(Company $Company)
     {
-        $totalInvoice = Invoice::where('customer_id', $company->id)->count();
-        $totalValue = SalesOrder::where('customer_id', $company->id)->sum('total_amount');
+        $totalInvoice = Invoice::where('customer_id', $Company->id)->count();
+        $totalValue = SalesOrder::where('customer_id', $Company->id)->sum('total_amount');
         $order = SalesOrder::count();
-        return view('admin.companies.show', compact('company', 'totalInvoice', 'totalValue', 'order'));
+        return view('admin.companies.show', compact('Company', 'totalInvoice', 'totalValue', 'order'));
     }
 
     public function edit(Company $Company)
@@ -136,19 +133,6 @@ class CompanyController extends Controller
 
         return redirect()->route('admin.companies.index', ['type' => $type])
             ->with('success', 'Company deleted successfully.');
-    }
-
-    private function getTypes($type)
-    {
-        if ($type == 'company') {
-            return ['private', 'public']; // removed 'llc' as it's commented in your template
-        } elseif ($type == 'customer') {
-            return ['retail', 'wholesale', 'corporate'];
-        } elseif ($type == 'supplier') {
-            return ['local', 'international'];
-        }
-
-        return [];
     }
 
     /**
@@ -198,36 +182,5 @@ class CompanyController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Status updated successfully.');
-    }
-
-    public function sendEmail(Company $company, Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'subject' => 'required|string|max:255',
-                'message' => 'required|string',
-            ]);
-
-            // Prepare email data
-            $emailData = [
-                'subject' => $validated['subject'],
-                'message' => $validated['message'], // This will become 'emailBody'
-                'company_name' => $company->name,
-                'company_email' => $company->email,
-            ];
-
-            // Send email
-            Mail::to($company->email)->send(new CompanyMail($emailData));
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Email sent successfully to ' . $company->email
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 500);
-        }
     }
 }

@@ -13,17 +13,14 @@ return new class extends Migration
     {
         // List of tables to add audit columns to
         $tables = [
-            'companies',
-            'branches',
-            'departments',
-            'categories',
-            'brands',
             'users',
+            'categories',
+            'companies',
             'products',
             'invoices',
             'orders',
-            // 'customers',
-            // 'suppliers',
+            'customers',
+            'suppliers',
             'transactions',
             // Add other tables as needed
         ];
@@ -45,17 +42,14 @@ return new class extends Migration
     public function down(): void
     {
         $tables = [
-            'companies',
-            'branches',
-            'departments',
-            'categories',
-            'brands',
             'users',
+            'categories',
+            'companies',
             'products',
             'invoices',
             'orders',
-            // 'customers',
-            // 'suppliers',
+            'customers',
+            'suppliers',
             'transactions',
             // Add other tables as needed
         ];

@@ -43,6 +43,17 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" class="form-control @error('username') is-invalid @enderror"
+                                        id="username" name="username" value="{{ old('username') }}">
+                                    @error('username')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
                                     <label for="phone" class="form-label">Phone Number</label>
                                     <input type="text" class="form-control @error('phone') is-invalid @enderror"
                                         id="phone" name="phone" value="{{ old('phone') }}">
@@ -115,7 +126,24 @@
                         </div>
 
                         <div class="row">
-
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="branch_id" class="form-label">Branch</label>
+                                    <select name="branch_id" id="branch_id"
+                                        class="form-control @error('branch_id') is-invalid @enderror">
+                                        <option value="">Select Branch</option>
+                                        @foreach ($branches as $branch)
+                                            <option value="{{ $branch->id }}"
+                                                {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
+                                                {{ $branch->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('branch_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
 
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -124,8 +152,14 @@
                                         <option value="en"
                                             {{ old('language_preference', 'en') == 'en' ? 'selected' : '' }}>English
                                         </option>
-                                        <option value="bl" {{ old('language_preference') == 'bl' ? 'selected' : '' }}>
-                                            Bangla</option>
+                                        <option value="es" {{ old('language_preference') == 'es' ? 'selected' : '' }}>
+                                            Spanish</option>
+                                        <option value="fr" {{ old('language_preference') == 'fr' ? 'selected' : '' }}>
+                                            French</option>
+                                        <option value="de" {{ old('language_preference') == 'de' ? 'selected' : '' }}>
+                                            German</option>
+                                        <option value="zh" {{ old('language_preference') == 'zh' ? 'selected' : '' }}>
+                                            Chinese</option>
                                     </select>
                                 </div>
                             </div>
@@ -207,6 +241,12 @@
             // Initialize Select2 for company
             $('#company_id').select2({
                 placeholder: 'Select company',
+                allowClear: true
+            });
+
+            // Initialize Select2 for branch
+            $('#branch_id').select2({
+                placeholder: 'Select branch',
                 allowClear: true
             });
         });

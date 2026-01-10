@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', $company->name)
+@section('title', $Company->name)
 
 @section('content')
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
@@ -12,15 +12,15 @@
                         <div class="flex items-start space-x-4">
                             <div
                                 class="p-4 rounded-2xl bg-gradient-to-br
-                            @if ($company->type == 'company') from-blue-500 to-blue-600
-                            @elseif($company->type == 'customer') from-green-500 to-green-600
+                            @if ($Company->type == 'company') from-blue-500 to-blue-600
+                            @elseif($Company->type == 'customer') from-green-500 to-green-600
                             @else from-amber-500 to-amber-600 @endif shadow-lg">
-                                @if ($company->type == 'company')
+                                @if ($Company->type == 'company')
                                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                     </svg>
-                                @elseif($company->type == 'customer')
+                                @elseif($Company->type == 'customer')
                                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -36,15 +36,15 @@
                             </div>
                             <div>
                                 <div class="flex items-center flex-wrap gap-2 mb-2">
-                                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">{{ $company->name }}</h1>
+                                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">{{ $Company->name }}</h1>
                                     <span
                                         class="px-3 py-1 text-sm font-bold rounded-full
-                                    @if ($company->type == 'company') bg-blue-100 text-blue-800
-                                    @elseif($company->type == 'customer') bg-green-100 text-green-800
+                                    @if ($Company->type == 'company') bg-blue-100 text-blue-800
+                                    @elseif($Company->type == 'customer') bg-green-100 text-green-800
                                     @else bg-amber-100 text-amber-800 @endif">
-                                        {{ ucfirst($company->type) }}
+                                        {{ ucfirst($Company->type) }}
                                     </span>
-                                    @if ($company->is_active)
+                                    @if ($Company->is_active)
                                         <span
                                             class="px-3 py-1 text-sm font-bold rounded-full bg-gradient-to-r from-green-100 to-green-200 text-green-800">
                                             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
@@ -73,16 +73,16 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                                         </svg>
-                                        <span class="font-medium">Code: {{ $company->code }}</span>
+                                        <span class="font-medium">Code: {{ $Company->code }}</span>
                                     </div>
-                                    @if ($company->sub_type)
+                                    @if ($Company->sub_type)
                                         <div class="flex items-center">
                                             <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                                             </svg>
-                                            <span>{{ ucfirst($company->sub_type) }}</span>
+                                            <span>{{ ucfirst($Company->sub_type) }}</span>
                                         </div>
                                     @endif
                                 </div>
@@ -90,7 +90,7 @@
                         </div>
                     </div>
                     <div class="flex space-x-3">
-                        <a href="{{ route('admin.companies.edit', $company) }}"
+                        <a href="{{ route('admin.companies.edit', $Company) }}"
                             class="group inline-flex items-center px-5 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-amber-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200 transform hover:-translate-y-0.5">
                             <svg class="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
@@ -99,7 +99,7 @@
                             </svg>
                             Edit Company
                         </a>
-                        <a href="{{ route('admin.companies.index', ['type' => $company->type]) }}"
+                        <a href="{{ route('admin.companies.index', ['type' => $Company->type]) }}"
                             class="inline-flex items-center px-5 py-3 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 font-semibold rounded-xl shadow-lg hover:shadow hover:from-gray-300 hover:to-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -134,11 +134,11 @@
                                 <div class="space-y-4">
                                     <div>
                                         <p class="text-sm font-medium text-gray-500 mb-1">Contact Person</p>
-                                        <p class="font-semibold text-gray-900">{{ $company->contact_person ?? 'N/A' }}
+                                        <p class="font-semibold text-gray-900">{{ $Company->contact_person ?? 'N/A' }}
                                         </p>
                                     </div>
 
-                                    @if ($company->email)
+                                    @if ($Company->email)
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0">
                                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
@@ -149,15 +149,15 @@
                                             </div>
                                             <div class="ml-3">
                                                 <p class="text-sm font-medium text-gray-500">Email</p>
-                                                <a href="mailto:{{ $company->email }}"
+                                                <a href="mailto:{{ $Company->email }}"
                                                     class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
-                                                    {{ $company->email }}
+                                                    {{ $Company->email }}
                                                 </a>
                                             </div>
                                         </div>
                                     @endif
 
-                                    @if ($company->phone)
+                                    @if ($Company->phone)
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0">
                                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
@@ -168,15 +168,15 @@
                                             </div>
                                             <div class="ml-3">
                                                 <p class="text-sm font-medium text-gray-500">Phone</p>
-                                                <a href="tel:{{ $company->phone }}"
+                                                <a href="tel:{{ $Company->phone }}"
                                                     class="text-gray-900 font-medium hover:text-blue-600 transition-colors duration-200">
-                                                    {{ $company->phone }}
+                                                    {{ $Company->phone }}
                                                 </a>
                                             </div>
                                         </div>
                                     @endif
 
-                                    @if ($company->mobile)
+                                    @if ($Company->mobile)
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0">
                                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
@@ -187,15 +187,15 @@
                                             </div>
                                             <div class="ml-3">
                                                 <p class="text-sm font-medium text-gray-500">Mobile</p>
-                                                <a href="tel:{{ $company->mobile }}"
+                                                <a href="tel:{{ $Company->mobile }}"
                                                     class="text-gray-900 font-medium hover:text-blue-600 transition-colors duration-200">
-                                                    {{ $company->mobile }}
+                                                    {{ $Company->mobile }}
                                                 </a>
                                             </div>
                                         </div>
                                     @endif
 
-                                    @if ($company->website)
+                                    @if ($Company->website)
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0">
                                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
@@ -206,9 +206,9 @@
                                             </div>
                                             <div class="ml-3">
                                                 <p class="text-sm font-medium text-gray-500">Website</p>
-                                                <a href="{{ $company->website }}" target="_blank"
+                                                <a href="{{ $Company->website }}" target="_blank"
                                                     class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
-                                                    {{ $company->website }}
+                                                    {{ $Company->website }}
                                                 </a>
                                             </div>
                                         </div>
@@ -235,47 +235,47 @@
                             </div>
                             <div class="p-6">
                                 <div class="space-y-4">
-                                    @if ($company->address)
+                                    @if ($Company->address)
                                         <div>
                                             <p class="text-sm font-medium text-gray-500 mb-1">Address</p>
-                                            <p class="font-semibold text-gray-900">{{ $company->address }}</p>
+                                            <p class="font-semibold text-gray-900">{{ $Company->address }}</p>
                                         </div>
                                     @endif
 
                                     <div class="grid grid-cols-2 gap-4">
-                                        @if ($company->city)
+                                        @if ($Company->city)
                                             <div>
                                                 <p class="text-sm font-medium text-gray-500 mb-1">City</p>
-                                                <p class="font-semibold text-gray-900">{{ $company->city }}</p>
+                                                <p class="font-semibold text-gray-900">{{ $Company->city }}</p>
                                             </div>
                                         @endif
 
-                                        @if ($company->district)
+                                        @if ($Company->district)
                                             <div>
                                                 <p class="text-sm font-medium text-gray-500 mb-1">District</p>
-                                                <p class="font-semibold text-gray-900">{{ $company->district }}</p>
+                                                <p class="font-semibold text-gray-900">{{ $Company->district }}</p>
                                             </div>
                                         @endif
 
-                                        @if ($company->country)
+                                        @if ($Company->country)
                                             <div>
                                                 <p class="text-sm font-medium text-gray-500 mb-1">Country</p>
-                                                <p class="font-semibold text-gray-900">{{ $company->country }}</p>
+                                                <p class="font-semibold text-gray-900">{{ $Company->country }}</p>
                                             </div>
                                         @endif
 
-                                        @if ($company->postal_code)
+                                        @if ($Company->postal_code)
                                             <div>
                                                 <p class="text-sm font-medium text-gray-500 mb-1">Postal Code</p>
-                                                <p class="font-semibold text-gray-900">{{ $company->postal_code }}
+                                                <p class="font-semibold text-gray-900">{{ $Company->postal_code }}
                                                 </p>
                                             </div>
                                         @endif
                                     </div>
 
-                                    @if ($company->latitude && $company->longitude)
+                                    @if ($Company->latitude && $Company->longitude)
                                         <div class="pt-4">
-                                            <a href="https://maps.google.com/?q={{ $company->latitude }},{{ $company->longitude }}"
+                                            <a href="https://maps.google.com/?q={{ $Company->latitude }},{{ $Company->longitude }}"
                                                 target="_blank"
                                                 class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 font-medium rounded-lg hover:from-blue-100 hover:to-blue-200 transition-all duration-200">
                                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
@@ -311,46 +311,46 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                                 <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4">
                                     <p class="text-sm font-medium text-gray-500 mb-2">TIN Number</p>
-                                    <p class="text-lg font-bold text-gray-900">{{ $company->tin ?? 'N/A' }}</p>
+                                    <p class="text-lg font-bold text-gray-900">{{ $Company->tin ?? 'N/A' }}</p>
                                 </div>
                                 <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4">
                                     <p class="text-sm font-medium text-gray-500 mb-2">BIN Number</p>
-                                    <p class="text-lg font-bold text-gray-900">{{ $company->bin ?? 'N/A' }}</p>
+                                    <p class="text-lg font-bold text-gray-900">{{ $Company->bin ?? 'N/A' }}</p>
                                 </div>
                                 <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4">
                                     <p class="text-sm font-medium text-gray-500 mb-2">Trade License</p>
-                                    <p class="text-lg font-bold text-gray-900">{{ $company->trade_license ?? 'N/A' }}
+                                    <p class="text-lg font-bold text-gray-900">{{ $Company->trade_license ?? 'N/A' }}
                                     </p>
                                 </div>
                             </div>
 
                             <!-- Type-specific Financial Info -->
-                            @if ($company->type == 'customer')
+                            @if ($Company->type == 'customer')
                                 <div class="border-t border-gray-200 pt-6">
                                     <h4 class="text-md font-bold text-gray-900 mb-4">Credit Information</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5">
                                             <p class="text-sm font-medium text-gray-500 mb-2">Credit Limit</p>
                                             <p class="text-2xl font-bold text-blue-600">
-                                                ৳{{ number_format($company->credit_limit, 2) }}
+                                                ৳{{ number_format($Company->credit_limit, 2) }}
                                             </p>
                                         </div>
                                         <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-5">
                                             <p class="text-sm font-medium text-gray-500 mb-2">Outstanding Balance</p>
                                             <p
-                                                class="text-2xl font-bold {{ $company->outstanding_balance > 0 ? 'text-red-600' : 'text-green-600' }}">
-                                                ৳{{ number_format($company->outstanding_balance, 2) }}
+                                                class="text-2xl font-bold {{ $Company->outstanding_balance > 0 ? 'text-red-600' : 'text-green-600' }}">
+                                                ৳{{ number_format($Company->outstanding_balance, 2) }}
                                             </p>
                                         </div>
                                     </div>
                                 </div>
                             @endif
 
-                            @if ($company->type == 'supplier' && $company->payment_terms)
+                            @if ($Company->type == 'supplier' && $Company->payment_terms)
                                 <div class="border-t border-gray-200 pt-6">
                                     <h4 class="text-md font-bold text-gray-900 mb-4">Payment Terms</h4>
                                     <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-5">
-                                        <p class="text-lg font-bold text-amber-700">{{ $company->payment_terms }}</p>
+                                        <p class="text-lg font-bold text-amber-700">{{ $Company->payment_terms }}</p>
                                     </div>
                                 </div>
                             @endif
@@ -358,7 +358,7 @@
                     </div>
 
                     <!-- Additional Information -->
-                    @if ($company->description || $company->notes)
+                    @if ($Company->description || $Company->notes)
                         <div class="bg-white rounded-2xl shadow-xl border border-gray-100">
                             <div class="px-6 py-5 border-b border-gray-100">
                                 <div class="flex items-center">
@@ -373,20 +373,20 @@
                                 </div>
                             </div>
                             <div class="p-6">
-                                @if ($company->description)
+                                @if ($Company->description)
                                     <div class="mb-6">
                                         <p class="text-sm font-medium text-gray-500 mb-3">Description</p>
                                         <div class="bg-gray-50 rounded-xl p-4">
-                                            <p class="text-gray-700 leading-relaxed">{{ $company->description }}</p>
+                                            <p class="text-gray-700 leading-relaxed">{{ $Company->description }}</p>
                                         </div>
                                     </div>
                                 @endif
 
-                                @if ($company->notes)
+                                @if ($Company->notes)
                                     <div>
                                         <p class="text-sm font-medium text-gray-500 mb-3">Notes</p>
                                         <div class="bg-amber-50 rounded-xl p-4">
-                                            <p class="text-amber-800 leading-relaxed">{{ $company->notes }}</p>
+                                            <p class="text-amber-800 leading-relaxed">{{ $Company->notes }}</p>
                                         </div>
                                     </div>
                                 @endif
@@ -403,8 +403,7 @@
                         <div class="p-3">
                             <div class="grid grid-cols-4 gap-4">
                                 <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
-                                    <p class="text-2xl font-bold text-blue-600 mb-1">{{ $company->transaction ?? '0' }}
-                                    </p>
+                                    <p class="text-2xl font-bold text-blue-600 mb-1">{{ $Company->transaction ?? '0' }}</p>
                                     <p class="text-sm font-medium text-gray-500">Transactions</p>
                                 </div>
                                 <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center">
@@ -435,7 +434,7 @@
                             <div class="space-y-4">
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-500">Status</span>
-                                    @if ($company->is_active)
+                                    @if ($Company->is_active)
                                         <span
                                             class="px-3 py-1 text-sm font-bold rounded-full bg-gradient-to-r from-green-100 to-green-200 text-green-800">
                                             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
@@ -461,30 +460,30 @@
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-500">Created</span>
                                     <span
-                                        class="font-semibold text-gray-900">{{ $company->created_at->format('d M Y, h:i A') }}</span>
+                                        class="font-semibold text-gray-900">{{ $Company->created_at->format('d M Y, h:i A') }}</span>
                                 </div>
 
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-500">Updated</span>
                                     <span
-                                        class="font-semibold text-gray-900">{{ $company->updated_at->format('d M Y, h:i A') }}</span>
+                                        class="font-semibold text-gray-900">{{ $Company->updated_at->format('d M Y, h:i A') }}</span>
                                 </div>
 
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-500">Currency</span>
-                                    <span class="font-semibold text-gray-900">{{ $company->currency }}</span>
+                                    <span class="font-semibold text-gray-900">{{ $Company->currency }}</span>
                                 </div>
 
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-500">Language</span>
                                     <span class="font-semibold text-gray-900">
-                                        {{ $company->language == 'en' ? 'English' : 'Bangla' }}
+                                        {{ $Company->language == 'en' ? 'English' : 'Bangla' }}
                                     </span>
                                 </div>
 
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-500">Timezone</span>
-                                    <span class="font-semibold text-gray-900">{{ $company->timezone }}</span>
+                                    <span class="font-semibold text-gray-900">{{ $Company->timezone }}</span>
                                 </div>
                             </div>
                         </div>
@@ -497,8 +496,9 @@
                         </div>
                         <div class="p-6">
                             <div class="space-y-3">
-                                @if ($company->is_active)
-                                    <form action="{{ route('admin.companies.toggle-status', $company) }}" method="POST">
+                                @if ($Company->is_active)
+                                    <form action="{{ route('admin.companies.toggle-status', $Company) }}"
+                                        method="POST">
                                         @csrf
                                         <button type="submit"
                                             class="group w-full flex items-center justify-between px-4 py-3 bg-gradient-to-r from-amber-50 to-amber-100 text-amber-700 rounded-xl hover:from-amber-100 hover:to-amber-200 hover:shadow transition-all duration-200">
@@ -518,7 +518,8 @@
                                         </button>
                                     </form>
                                 @else
-                                    <form action="{{ route('admin.companies.toggle-status', $company) }}" method="POST">
+                                    <form action="{{ route('admin.companies.toggle-status', $Company) }}"
+                                        method="POST">
                                         @csrf
                                         <button type="submit"
                                             class="group w-full flex items-center justify-between px-4 py-3 bg-gradient-to-r from-green-50 to-green-100 text-green-700 rounded-xl hover:from-green-100 hover:to-green-200 hover:shadow transition-all duration-200">
@@ -593,7 +594,7 @@
                                     </svg>
                                 </button>
 
-                                <form action="{{ route('admin.companies.destroy', $company) }}" method="POST"
+                                <form action="{{ route('admin.companies.destroy', $Company) }}" method="POST"
                                     onsubmit="return confirm('Are you sure you want to delete this Company? This action cannot be undone.')">
                                     @csrf
                                     @method('DELETE')
@@ -627,29 +628,24 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-xl p-6">
-                    <h5 class="modal-title text-xl font-bold">Send Email to {{ $company->name }}</h5>
+                    <h5 class="modal-title text-xl font-bold">Send Email to {{ $Company->name }}</h5>
                     <button type="button" class="btn-close text-white opacity-80 hover:opacity-100"
                         data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-6">
                     <form id="emailForm">
-                        @csrf
-                        <input type="hidden" id="companyId" value="{{ $company->id }}">
-
                         <div class="space-y-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Subject</label>
-                                <input type="text" id="emailSubject" name="subject"
+                                <input type="text"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                                     placeholder="Email subject" required>
-                                <div id="subjectError" class="text-red-600 text-sm mt-1 hidden"></div>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Message</label>
-                                <textarea id="emailMessage" name="message"
+                                <textarea
                                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                                     rows="4" placeholder="Type your message here..." required></textarea>
-                                <div id="messageError" class="text-red-600 text-sm mt-1 hidden"></div>
                             </div>
                             <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4">
                                 <div class="flex">
@@ -661,9 +657,9 @@
                                     <div>
                                         <p class="text-sm font-bold text-blue-800">Email Recipient</p>
                                         <p class="text-sm text-blue-700 mt-1">
-                                            @if ($company->email)
+                                            @if ($Company->email)
                                                 Email will be sent to: <span
-                                                    class="font-bold">{{ $company->email }}</span>
+                                                    class="font-bold">{{ $Company->email }}</span>
                                             @else
                                                 <span class="text-red-600 font-bold">No email address available for this
                                                     Company.</span>
@@ -672,53 +668,20 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Loading indicator -->
-                            <div id="emailLoading" class="hidden">
-                                <div class="flex items-center justify-center space-x-3">
-                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                                    <span class="text-gray-700 font-medium">Sending email...</span>
-                                </div>
-                            </div>
-
-                            <!-- Success message -->
-                            <div id="emailSuccess" class="hidden bg-green-50 border border-green-200 rounded-xl p-4">
-                                <div class="flex items-center">
-                                    <svg class="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    <div>
-                                        <p class="text-sm font-bold text-green-800">Email Sent Successfully!</p>
-                                        <p class="text-sm text-green-700 mt-1" id="successMessage"></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Error message -->
-                            <div id="emailError" class="hidden bg-red-50 border border-red-200 rounded-xl p-4">
-                                <div class="flex items-center">
-                                    <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <div>
-                                        <p class="text-sm font-bold text-red-800">Failed to Send Email</p>
-                                        <p class="text-sm text-red-700 mt-1" id="errorMessage"></p>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="flex justify-end space-x-4 pt-4">
                                 <button type="button"
                                     class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200"
                                     data-bs-dismiss="modal">
                                     Cancel
                                 </button>
-                                <button type="button" id="sendEmailBtn"
-                                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                <button type="submit"
+                                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:-translate-y-0.5"
+                                    @if (!$Company->email) disabled @endif>
+                                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
                                     Send Email
                                 </button>
                             </div>
@@ -728,142 +691,47 @@
             </div>
         </div>
     </div>
-
 @endsection
 
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Email form submission
-            const sendEmailBtn = document.getElementById('sendEmailBtn');
-
-            if (sendEmailBtn) {
-                sendEmailBtn.addEventListener('click', async function(e) {
+            const emailForm = document.getElementById('emailForm');
+            if (emailForm) {
+                emailForm.addEventListener('submit', function(e) {
                     e.preventDefault();
 
-                    const companyId = document.getElementById('companyId').value;
-                    const subject = document.getElementById('emailSubject').value;
-                    const message = document.getElementById('emailMessage').value;
-                    const loading = document.getElementById('emailLoading');
-                    const success = document.getElementById('emailSuccess');
-                    const error = document.getElementById('emailError');
-                    const successMessage = document.getElementById('successMessage');
-                    const errorMessage = document.getElementById('errorMessage');
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
 
-                    // Reset states
-                    if (success) success.classList.add('hidden');
-                    if (error) error.classList.add('hidden');
+                    // Show loading state
+                    submitBtn.innerHTML = `
+                    <svg class="w-5 h-5 inline mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Sending...
+                `;
+                    submitBtn.disabled = true;
 
-                    const subjectError = document.getElementById('subjectError');
-                    const messageError = document.getElementById('messageError');
+                    // Simulate API call
+                    setTimeout(() => {
+                        // Show success message
+                        alert('Email sent successfully!');
 
-                    if (subjectError) subjectError.classList.add('hidden');
-                    if (messageError) messageError.classList.add('hidden');
+                        // Reset button
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
 
-                    // Validate
-                    let isValid = true;
-                    if (!subject.trim()) {
-                        if (subjectError) {
-                            subjectError.textContent = 'Subject is required';
-                            subjectError.classList.remove('hidden');
-                        }
-                        isValid = false;
-                    }
+                        // Close modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById(
+                            'sendEmailModal'));
+                        modal.hide();
 
-                    if (!message.trim()) {
-                        if (messageError) {
-                            messageError.textContent = 'Message is required';
-                            messageError.classList.remove('hidden');
-                        }
-                        isValid = false;
-                    }
-
-                    if (!isValid) return;
-
-                    // Show loading
-                    if (loading) loading.classList.remove('hidden');
-                    sendEmailBtn.disabled = true;
-                    sendEmailBtn.innerHTML = `
-                        <div class="inline-flex items-center">
-                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Sending...
-                        </div>
-                    `;
-
-                    try {
-                        // IMPORTANT: Check your route definition
-                        // Option 1: If route is /admin/companies/{company}/send-email
-                        const url = `/admin/companies/${companyId}/send-email`;
-
-                        // Option 2: If route is /companies/{company}/send-email
-                        // const url = `/companies/${companyId}/send-email`;
-
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]')
-                            .getAttribute('content');
-
-                        const response = await fetch(url, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                subject: subject,
-                                message: message,
-                                email_type: 'notification'
-                            })
-                        });
-
-                        const result = await response.json();
-                        console.log('Server Response:', result);
-
-                        if (response.ok && result.success) {
-                            // Show success message
-                            if (success) {
-                                if (successMessage) {
-                                    successMessage.textContent = result.message ||
-                                        'Email sent successfully!';
-                                }
-                                success.classList.remove('hidden');
-                            }
-
-                            // Reset form
-                            document.getElementById('emailSubject').value = '';
-                            document.getElementById('emailMessage').value = '';
-
-                            // Auto-close modal after 2 seconds
-                            setTimeout(() => {
-                                const modal = bootstrap.Modal.getInstance(document
-                                    .getElementById('sendEmailModal'));
-                                if (modal) modal.hide();
-                            }, 2000);
-                        } else {
-                            // Show error message
-                            if (error) {
-                                if (errorMessage) {
-                                    errorMessage.textContent = result.message || 'Failed to send email';
-                                }
-                                error.classList.remove('hidden');
-                            }
-                        }
-
-                    } catch (fetchError) {
-                        console.error('Fetch Error:', fetchError);
-
-                        if (error) {
-                            if (errorMessage) {
-                                errorMessage.textContent = 'Network error: ' + fetchError.message;
-                            }
-                            error.classList.remove('hidden');
-                        }
-
-                    } finally {
-                        // Reset loading state
-                        if (loading) loading.classList.add('hidden');
-                        sendEmailBtn.disabled = false;
-                        sendEmailBtn.innerHTML = 'Send Email';
-                    }
+                        // Reset form
+                        emailForm.reset();
+                    }, 1500);
                 });
             }
 
@@ -907,11 +775,6 @@
         /* Card hover effects */
         .hover\\:shadow-xl:hover {
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        /* Modal backdrop */
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.5);
         }
     </style>
 @endpush

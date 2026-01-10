@@ -18,80 +18,74 @@ use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Purchase\SupplierController;
-use Illuminate\Validation\Rules\Can;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
-//public Routes
 
-// Auth routes
-Route::middleware('guest')->group(function () {
-    // Login
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
-    //Register Can be disable by config
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
-});
+// Public Routes
+Route::get('/', [HomeController::class, 'index'])->name('home');
+// User profile routes
+Route::get('profile', [UserController::class, 'editProfile'])->name('profile.edit');
+Route::put('profile', [UserController::class, 'updateProfile'])->name('users.profile.update');
 
+require __DIR__ . '/auth.php';
 
-// Authenticated routes
+// Routes that require specific roles (using Spatie Permission)
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Admin Management
+    Route::prefix('admin')->name('admin.')->group(function () {
+        // Users Management
+        Route::resource('users', UserController::class);
 
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        // Additional user routes
+        Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
+            ->name('users.toggle-status');
+        Route::post('users/{user}/verify-email', [UserController::class, 'verifyEmail'])
+            ->name('users.verify-email');
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])
+            ->name('users.reset-password');
+        Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])
+            ->name('users.login-as');
+        Route::get('users/export', [UserController::class, 'export'])
+            ->name('users.export');
+        Route::post('users/bulk-action', [UserController::class, 'bulkAction'])
+            ->name('users.bulk-action');
+        Route::get('users/{user}/impersonate', [UserController::class, 'impersonate'])
+            ->name('users.impersonate');
+        Route::get('users-ajax', [UserController::class, 'getUsers'])
+            ->name('users.ajax');
+
+        // Company Management
+        Route::get('companies/{type?}', [CompanyController::class, 'index'])->name('companies.index');
+        Route::get('companies/{type?}/create', [CompanyController::class, 'create'])->name('companies.create');
+        Route::post('companies', [CompanyController::class, 'store'])->name('companies.store');
+        Route::get('companies/{company}/show', [CompanyController::class, 'show'])->name('companies.show');
+        Route::get('companies/{company}/edit', [CompanyController::class, 'edit'])->name('companies.edit');
+        Route::put('companies/{company}', [CompanyController::class, 'update'])->name('companies.update');
+        Route::delete('companies/{company}', [CompanyController::class, 'destroy'])->name('companies.destroy');
+        Route::get('companies/export', [CompanyController::class, 'export'])->name('companies.export');
+        Route::get('companies/{type?}/import', [CompanyController::class, 'import'])->name('companies.import');
+        Route::post('companies/{company}/toggle-status', [CompanyController::class, 'toggleStatus'])
+            ->name('companies.toggle-status');
+    });
 });
 
-
-// Logout
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
-// Protected Routes
+// Routes for users with inventory permissions (using permissions instead of roles)
 Route::middleware(['auth'])->group(function () {
-    // Admin User Management
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::resource('users', UserController::class);
-        Route::patch('users/{user}/activate', [UserController::class, 'activate'])->name('users.activate');
-        Route::patch('users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
-        Route::patch('users/{user}/verify-email', [UserController::class, 'verifyEmail'])->name('users.verify-email');
-        Route::get('users/{user}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
-
-        Route::get('users-ajax', [UserController::class, 'getUsers'])->name('users.ajax');
-        Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
-        Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
-        Route::get('users/export', [UserController::class, 'export'])->name('users.export');
-        // User profile edit
-        Route::get('profile', [UserController::class, 'editProfile'])->name('users.profile.edit');
-        Route::put('profile', [UserController::class, 'updateProfile'])->name('users.profile.update');
-
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-        // Route::resource('organizations', OrganizationController::class)->except(['index', 'create']);
-        Route::get('organizations/{type?}', [OrganizationController::class, 'index'])->name('organizations.index');
-        Route::get('organizations/{type?}/create', [OrganizationController::class, 'create'])->name('organizations.create');
-        Route::post('organizations', [OrganizationController::class, 'store'])->name('organizations.store');
-        Route::get('organizations/{organization}/show', [OrganizationController::class, 'show'])->name('organizations.show');
-        Route::get('organizations/{organization}/edit', [OrganizationController::class, 'edit'])->name('organizations.edit');
-        Route::put('organizations/{organization}', [OrganizationController::class, 'update'])->name('organizations.update');
-        Route::delete('organizations/{organization}', [OrganizationController::class, 'destroy'])->name('organizations.destroy');
-        Route::get('organizations/export', [OrganizationController::class, 'export'])->name('organizations.export');
-        Route::get('organizations/{type?}/import', [OrganizationController::class, 'import'])->name('organizations.import');
-        Route::post('organizations/{organization}/toggle-status', [OrganizationController::class, 'toggleStatus'])->name('organizations.toggle-status');
-    });
-
-    // Dashboard
-
-    // Inventory Management
-    Route::prefix('inventory')->name('inventory.')->group(function () {
-        Route::resource('categories', CategoryController::class);
-        Route::post('categories/{id}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
-        Route::get('categories-ajax', [CategoryController::class, 'getCategories'])->name('categories.ajax');
-        Route::get('categories/{parentId}/subcategories', [CategoryController::class, 'getSubcategories'])->name('categories.subcategories');
+    // Inventory Management - Check permissions
+    Route::prefix('inventory')->name('inventory.')->middleware('permission:view inventory')->group(function () {
+        Route::resource('categories', CategoryController::class)->middleware('permission:manage categories');
+        Route::post('categories/{id}/toggle-status', [CategoryController::class, 'toggleStatus'])
+            ->name('categories.toggle-status')->middleware('permission:manage categories');
+        Route::get('categories-ajax', [CategoryController::class, 'getCategories'])
+            ->name('categories.ajax')->middleware('permission:view categories');
+        Route::get('categories/{parentId}/subcategories', [CategoryController::class, 'getSubcategories'])
+            ->name('categories.subcategories')->middleware('permission:view categories');
 
         Route::resource('products', ProductController::class)->middleware('permission:manage products');
         Route::post('products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])
@@ -110,18 +104,14 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Purchase Management
-    Route::prefix('purchase')->name('purchase.')->group(function () {
-        Route::resource('suppliers', OrganizationController::class);
-        Route::resource('purchase-orders', PurchaseOrderController::class);
-        Route::get('purchase-orders/clone', [PurchaseOrderController::class,'PDF'])->name('purchase-orders.clone');
-        Route::get('purchase-orders/email', [PurchaseOrderController::class,'email'])->name('purchase-orders.email');
-        Route::get('purchase-orders/po-upload', [PurchaseOrderController::class,'poUpload'])->name('purchase-orders.upload');
-        Route::get('purchase-orders/po-cancel', [PurchaseOrderController::class,'poCancel'])->name('purchase-orders.cancel');
-        Route::get('purchase-orders/po-receive', [PurchaseOrderController::class,'poReceive'])->name('purchase-orders.receive');
-        Route::get('purchase-orders/pdf', [PurchaseOrderController::class,'OrderPDF'])->name('purchase-orders.pdf');
-        Route::post('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
-        Route::get('suppliers-ajax', [SupplierController::class, 'getSuppliers'])->name('suppliers.ajax');
-        Route::resource('organizations', OrganizationController::class);
+    Route::prefix('purchase')->name('purchase.')->middleware('permission:view purchases')->group(function () {
+        Route::resource('suppliers', SupplierController::class)->middleware('permission:manage suppliers');
+        Route::post('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])
+            ->name('suppliers.toggle-status')->middleware('permission:manage suppliers');
+        Route::get('suppliers-ajax', [SupplierController::class, 'getSuppliers'])
+            ->name('suppliers.ajax')->middleware('permission:view suppliers');
+
+        Route::resource('purchase-orders', PurchaseOrderController::class)->middleware('permission:manage purchase orders');
     });
 
     // Sales Management
@@ -170,6 +160,3 @@ Route::middleware(['auth'])->group(function () {
         Route::get('purchases', [ReportController::class, 'purchases'])->name('purchases');
     });
 });
-
-
-Route::get('/', [HomeController::class, 'index'])->name('home');
