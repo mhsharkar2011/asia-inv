@@ -500,7 +500,7 @@
                             </a>
 
                             @if(Auth::user()->hasRole('super-admin') || Auth::user()->hasRole('admin'))
-                            <a href="{{ route('admin.dashboard') }}"
+                            <a href="{{ route('dashboard') }}"
                                class="flex items-center space-x-3 px-4 py-3 hover:bg-blue-50 transition-colors group">
                                 <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200">
                                     <i class="fas fa-shield-alt text-blue-600"></i>

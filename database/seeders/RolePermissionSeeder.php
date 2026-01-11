@@ -89,8 +89,8 @@ class RolePermissionSeeder extends Seeder
         // ==============================================
         // CREATE ROLES
         // ==============================================
-        $superAdmin = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        $superAdmin = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $inventoryManager = Role::firstOrCreate(['name' => 'inventory_manager', 'guard_name' => 'web']);
         $salesManager = Role::firstOrCreate(['name' => 'sales_manager', 'guard_name' => 'web']);
         $purchaseManager = Role::firstOrCreate(['name' => 'purchase_manager', 'guard_name' => 'web']);
