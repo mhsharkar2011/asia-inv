@@ -3,19 +3,30 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Activity;
 use App\Models\Admin\User;
+use App\Models\LoginLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rules;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class UserController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('permission:view users|view any users', ['only' => ['index', 'show']]);
+        $this->middleware('permission:create users', ['only' => ['create', 'store']]);
+        $this->middleware('permission:edit users', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:delete users', ['only' => ['destroy']]);
+        $this->middleware('permission:manage permissions', ['only' => ['permissions', 'syncPermissions', 'syncRoles']]);
+        $this->middleware('permission:impersonate users', ['only' => ['loginAs']]);
     }
 
     /**
@@ -24,12 +35,32 @@ class UserController extends Controller
     public function index(Request $request)
     {
         try {
-            // Start query
-            $query = User::query();
+            $query = User::with(['company', 'branch'])
+                ->with('roles')
+                ->latest();
 
-            // Search
-            if ($request->filled('search')) {
-                $search = $request->input('search');
+            // Check if login_logs table exists before adding the count
+            if (Schema::hasTable('login_logs')) {
+                $query->withCount([
+                    'loginLogs as today_logins_count' => function ($query) {
+                        $query->whereDate('logged_in_at', today())
+                            ->where('status', 'success');
+                    }
+                ]);
+            }
+
+            // Check if activities table exists before adding the count
+            if (Schema::hasTable('activities')) {
+                $query->withCount([
+                    'activities as today_activities_count' => function ($query) {
+                        $query->whereDate('created_at', today());
+                    }
+                ]);
+            }
+
+            // Search functionality
+            if ($request->has('search')) {
+                $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
@@ -37,63 +68,66 @@ class UserController extends Controller
                 });
             }
 
-            // Status filter
-            if ($request->filled('status')) {
-                if ($request->status === 'active') {
-                    $query->where('is_active', true);
-                } elseif ($request->status === 'inactive') {
-                    $query->where('is_active', false);
-                }
+            // Filter by status
+            if ($request->has('status')) {
+                $query->where('is_active', $request->status === 'active');
             }
 
-            // Role filter (using simple role column)
-            if ($request->filled('role')) {
-                $query->where('role', $request->role);
+            // Filter by role (using Spatie roles)
+            if ($request->has('role') && $request->role !== 'all') {
+                $query->role($request->role);
             }
 
-            // Paginate results
-            $users = $query->orderBy('created_at', 'desc')->paginate(15);
+            $users = $query->paginate(20)->withQueryString();
 
-            // Simple statistics
+            // Calculate statistics
             $totalUsers = User::count();
             $activeUsers = User::where('is_active', true)->count();
-            $adminUsers = User::where('role', 'admin')->count();
+            $adminUsers = User::role('admin')->count();
+            $unverifiedUsers = User::whereNull('email_verified_at')->count();
 
+            // Get recent activity count
+            $recentActivity = 0;
+            if (Schema::hasTable('activities')) {
+                $recentActivity = Activity::where('created_at', '>=', now()->subDay())->count();
+            }
+
+            // Get today's successful logins
+            $todayLogins = 0;
+            if (Schema::hasTable('login_logs')) {
+                $todayLogins = LoginLog::whereDate('logged_in_at', today())
+                    ->where('status', 'success')
+                    ->count();
+            } else {
+                // Fallback to last_login_at field
+                $todayLogins = User::whereDate('last_login_at', today())->count();
+            }
+
+            // Calculate percentages
             $activeUsersPercentage = $totalUsers > 0 ? round(($activeUsers / $totalUsers) * 100, 1) : 0;
             $adminPercentage = $totalUsers > 0 ? round(($adminUsers / $totalUsers) * 100, 1) : 0;
+            $unverifiedPercentage = $totalUsers > 0 ? round(($unverifiedUsers / $totalUsers) * 100, 1) : 0;
 
-            // Today's logins
-            $todayLogins = User::whereNotNull('last_login_at')
-                ->whereDate('last_login_at', today())
-                ->count();
-
-            // Recent activity (users created or updated in last 7 days)
-            $recentActivity = User::where('created_at', '>=', now()->subDays(7))
-                ->orWhere('updated_at', '>=', now()->subDays(7))
-                ->count();
-
-            // Simple role options for filter
-            $roles = [
-                'admin' => 'Administrator',
-                'manager' => 'Manager',
-                'staff' => 'Staff',
-                'viewer' => 'Viewer Only'
-            ];
+            // Get all roles for filter dropdown
+            $roles = Role::orderBy('name')->pluck('name', 'name')->toArray();
 
             return view('admin.users.index', compact(
                 'users',
                 'totalUsers',
                 'activeUsers',
                 'adminUsers',
+                'unverifiedUsers',
+                'recentActivity',
+                'todayLogins',
                 'activeUsersPercentage',
                 'adminPercentage',
-                'todayActive',
+                'unverifiedPercentage',
                 'roles'
             ));
         } catch (\Exception $e) {
             Log::error('UserController index error: ' . $e->getMessage());
-            return redirect()->route('dashboard')
-                ->with('error', 'Error loading users. Please try again.');
+            return redirect()->route('admin.dashboard')
+                ->with('error', 'Error loading users: ' . $e->getMessage());
         }
     }
 
@@ -102,15 +136,12 @@ class UserController extends Controller
      */
     public function create()
     {
-        // Simple role options
-        $roles = [
-            'admin' => 'Administrator',
-            'manager' => 'Manager',
-            'staff' => 'Staff',
-            'viewer' => 'Viewer Only'
-        ];
+        $roles = Role::orderBy('name')->get();
+        $permissions = Permission::orderBy('name')->get()->groupBy(function ($permission) {
+            return explode('.', $permission->name)[0] ?? 'general';
+        });
 
-        return view('admin.users.create', compact('roles'));
+        return view('admin.users.create', compact('roles', 'permissions'));
     }
 
     /**
@@ -119,15 +150,18 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
-            // Simple validation rules
+            // Validation rules
             $rules = [
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'phone' => 'nullable|string|max:20',
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
-                'role' => 'required|in:admin,manager,staff,viewer',
-                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:1024', // 1MB max
-                'is_active' => 'boolean'
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:1024',
+                'is_active' => 'boolean',
+                'roles' => 'required|array|min:1',
+                'roles.*' => 'exists:roles,name',
+                'permissions' => 'nullable|array',
+                'permissions.*' => 'exists:permissions,name'
             ];
 
             $validated = $request->validate($rules);
@@ -144,12 +178,25 @@ class UserController extends Controller
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
                 'password' => Hash::make($validated['password']),
-                'role' => $validated['role'],
                 'avatar' => $avatarPath,
                 'is_active' => $request->boolean('is_active', true),
-                'email_verified_at' => now(), // Auto-verify for admin-created users
+                'email_verified_at' => now(),
                 'created_by' => Auth::id()
             ]);
+
+            // Assign roles
+            $user->syncRoles($validated['roles']);
+
+            // Assign direct permissions if provided
+            if (!empty($validated['permissions'])) {
+                $user->syncPermissions($validated['permissions']);
+            }
+
+            // Log activity
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($user)
+                ->log('created user');
 
             return redirect()->route('admin.users.index')
                 ->with('success', 'User created successfully!');
@@ -170,7 +217,14 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return view('admin.users.show', compact('user'));
+        $user->load('roles', 'permissions', 'activities', 'loginLogs');
+
+        // Get all permissions grouped by module
+        $allPermissions = Permission::orderBy('name')->get()->groupBy(function ($permission) {
+            return explode('.', $permission->name)[0] ?? 'general';
+        });
+
+        return view('admin.users.show', compact('user', 'allPermissions'));
     }
 
     /**
@@ -178,20 +232,21 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        // Prevent editing super admin by non-super admin
-        if ($user->role === 'super_admin' && Auth::user()->role !== 'super_admin') {
+        // Prevent editing yourself
+        if ($user->id === Auth::id()) {
             return redirect()->route('admin.users.index')
-                ->with('error', 'Only super admin can edit super admin accounts.');
+                ->with('error', 'You cannot edit your own profile from here. Use profile settings.');
         }
 
-        $roles = [
-            'admin' => 'Administrator',
-            'manager' => 'Manager',
-            'staff' => 'Staff',
-            'viewer' => 'Viewer Only'
-        ];
+        $roles = Role::orderBy('name')->get();
+        $user->load('roles', 'permissions');
 
-        return view('admin.users.edit', compact('user', 'roles'));
+        // Get all permissions grouped by module
+        $permissions = Permission::orderBy('name')->get()->groupBy(function ($permission) {
+            return explode('.', $permission->name)[0] ?? 'general';
+        });
+
+        return view('admin.users.edit', compact('user', 'roles', 'permissions'));
     }
 
     /**
@@ -200,10 +255,10 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         try {
-            // Prevent modifying super admin by non-super admin
-            if ($user->role === 'super_admin' && Auth::user()->role !== 'super_admin') {
+            // Prevent editing yourself
+            if ($user->id === Auth::id()) {
                 return redirect()->route('admin.users.index')
-                    ->with('error', 'Only super admin can modify super admin accounts.');
+                    ->with('error', 'You cannot edit your own profile from here. Use profile settings.');
             }
 
             // Validation rules
@@ -211,11 +266,14 @@ class UserController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
                 'phone' => 'nullable|string|max:20',
-                'role' => 'required|in:admin,manager,staff,viewer',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:1024',
                 'remove_avatar' => 'boolean',
                 'password' => 'nullable|min:8|confirmed',
-                'is_active' => 'boolean'
+                'is_active' => 'boolean',
+                'roles' => 'required|array|min:1',
+                'roles.*' => 'exists:roles,name',
+                'permissions' => 'nullable|array',
+                'permissions.*' => 'exists:permissions,name'
             ];
 
             $validated = $request->validate($rules);
@@ -246,6 +304,22 @@ class UserController extends Controller
             // Update user
             $user->update($validated);
 
+            // Assign roles
+            $user->syncRoles($validated['roles']);
+
+            // Assign direct permissions if provided
+            if (!empty($validated['permissions'])) {
+                $user->syncPermissions($validated['permissions']);
+            } else {
+                $user->syncPermissions([]);
+            }
+
+            // Log activity
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($user)
+                ->log('updated user');
+
             return redirect()->route('admin.users.show', $user)
                 ->with('success', 'User updated successfully!');
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -272,16 +346,16 @@ class UserController extends Controller
                     ->with('error', 'You cannot delete your own account.');
             }
 
-            // Prevent deleting super admin
-            if ($user->role === 'super_admin') {
-                return redirect()->route('admin.users.index')
-                    ->with('error', 'Super admin accounts cannot be deleted.');
-            }
-
             // Delete avatar if exists
             if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
                 Storage::disk('public')->delete($user->avatar);
             }
+
+            // Log activity before deletion
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($user)
+                ->log('deleted user');
 
             $user->delete();
 
@@ -308,15 +382,13 @@ class UserController extends Controller
                 ], 403);
             }
 
-            // Prevent toggling super admin
-            if ($user->role === 'super_admin' && Auth::user()->role !== 'super_admin') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Only super admin can change super admin status.'
-                ], 403);
-            }
-
             $user->update(['is_active' => !$user->is_active]);
+
+            // Log activity
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($user)
+                ->log($user->is_active ? 'activated user' : 'deactivated user');
 
             return response()->json([
                 'success' => true,
@@ -348,6 +420,12 @@ class UserController extends Controller
                 'force_password_change' => true,
             ]);
 
+            // Log activity
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($user)
+                ->log('reset user password');
+
             return redirect()->route('admin.users.show', $user)
                 ->with('success', 'Password reset successfully. User must change password on next login.');
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -364,10 +442,19 @@ class UserController extends Controller
     /**
      * Export users to CSV
      */
-    public function export()
+    public function export(Request $request)
     {
         try {
-            $users = User::orderBy('created_at', 'desc')->get();
+            $query = User::with(['roles', 'company', 'branch'])
+                ->latest();
+
+            // Filter by selected users if provided
+            if ($request->has('users')) {
+                $userIds = explode(',', $request->users);
+                $query->whereIn('id', $userIds);
+            }
+
+            $users = $query->get();
             $filename = 'users-export-' . date('Y-m-d-H-i-s') . '.csv';
 
             return response()->streamDownload(function () use ($users) {
@@ -382,7 +469,7 @@ class UserController extends Controller
                     'Name',
                     'Email',
                     'Phone',
-                    'Role',
+                    'Roles',
                     'Status',
                     'Email Verified',
                     'Last Login',
@@ -391,12 +478,14 @@ class UserController extends Controller
 
                 // Data rows
                 foreach ($users as $user) {
+                    $roles = $user->roles->pluck('name')->join(', ');
+
                     fputcsv($handle, [
                         $user->id,
                         $user->name,
                         $user->email,
                         $user->phone ?? '',
-                        ucfirst($user->role),
+                        $roles,
                         $user->is_active ? 'Active' : 'Inactive',
                         $user->email_verified_at ? 'Yes' : 'No',
                         $user->last_login_at ? $user->last_login_at->format('Y-m-d H:i') : 'Never',
@@ -414,69 +503,81 @@ class UserController extends Controller
     }
 
     /**
-     * Simple bulk actions
+     * Bulk actions
      */
     public function bulkAction(Request $request)
     {
         try {
-            $request->validate([
-                'action' => 'required|in:activate,deactivate,delete',
+            $validated = $request->validate([
+                'action' => 'required|in:activate,deactivate,delete,assign_role',
                 'users' => 'required|array',
                 'users.*' => 'exists:users,id',
+                'role' => 'required_if:action,assign_role|exists:roles,name'
             ]);
 
-            $users = User::whereIn('id', $request->users)->get();
-            $currentUserId = Auth::id();
+            $users = User::whereIn('id', $validated['users'])
+                ->where('id', '!=', auth()->id()) // Exclude current user
+                ->get();
 
-            $processed = 0;
-            $skipped = 0;
+            switch ($validated['action']) {
+                case 'activate':
+                    $users->each->update(['is_active' => true]);
 
-            foreach ($users as $user) {
-                // Skip current user
-                if ($user->id === $currentUserId) {
-                    $skipped++;
-                    continue;
-                }
+                    // Log activity
+                    activity()
+                        ->causedBy(Auth::user())
+                        ->withProperties(['count' => count($users)])
+                        ->log('bulk activated users');
 
-                // Skip super admin for non-super admin users
-                if ($user->role === 'super_admin' && Auth::user()->role !== 'super_admin') {
-                    $skipped++;
-                    continue;
-                }
+                    return back()->with('success', count($users) . ' users activated successfully.');
 
-                try {
-                    switch ($request->action) {
-                        case 'activate':
-                            $user->update(['is_active' => true]);
-                            break;
-                        case 'deactivate':
-                            $user->update(['is_active' => false]);
-                            break;
-                        case 'delete':
-                            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                                Storage::disk('public')->delete($user->avatar);
-                            }
-                            $user->delete();
-                            break;
+                case 'deactivate':
+                    $users->each->update(['is_active' => false]);
+
+                    // Log activity
+                    activity()
+                        ->causedBy(Auth::user())
+                        ->withProperties(['count' => count($users)])
+                        ->log('bulk deactivated users');
+
+                    return back()->with('success', count($users) . ' users deactivated successfully.');
+
+                case 'delete':
+                    foreach ($users as $user) {
+                        // Delete avatar if exists
+                        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                            Storage::disk('public')->delete($user->avatar);
+                        }
+                        $user->delete();
                     }
-                    $processed++;
-                } catch (\Exception $e) {
-                    $skipped++;
-                    Log::warning("Bulk action failed for user {$user->id}: " . $e->getMessage());
-                }
+
+                    // Log activity
+                    activity()
+                        ->causedBy(Auth::user())
+                        ->withProperties(['count' => count($users)])
+                        ->log('bulk deleted users');
+
+                    return back()->with('success', count($users) . ' users deleted successfully.');
+
+                case 'assign_role':
+                    $role = Role::where('name', $validated['role'])->first();
+                    foreach ($users as $user) {
+                        $user->syncRoles([$role->name]);
+                    }
+
+                    // Log activity
+                    activity()
+                        ->causedBy(Auth::user())
+                        ->withProperties(['role' => $role->name, 'count' => count($users)])
+                        ->log('bulk assigned role to users');
+
+                    return back()->with('success', count($users) . ' users assigned to ' . $role->name . ' role.');
             }
 
-            $message = "Action completed. {$processed} users processed.";
-            if ($skipped > 0) {
-                $message .= " {$skipped} users skipped.";
-            }
-
-            return redirect()->route('admin.users.index')
-                ->with('success', $message);
+            return back()->with('error', 'Invalid action.');
         } catch (\Exception $e) {
             Log::error('UserController bulkAction error: ' . $e->getMessage());
-            return redirect()->route('admin.users.index')
-                ->with('error', 'Error performing bulk action.');
+            return back()->with('error', 'Error performing bulk action: ' . $e->getMessage());
         }
     }
 
@@ -492,6 +593,12 @@ class UserController extends Controller
                     ->with('error', 'You are already logged in.');
             }
 
+            // Check permission
+            if (!Auth::user()->can('impersonate users')) {
+                return redirect()->route('admin.users.index')
+                    ->with('error', 'You do not have permission to impersonate users.');
+            }
+
             // Store original user info
             session([
                 'original_user_id' => Auth::id(),
@@ -502,14 +609,156 @@ class UserController extends Controller
             // Login as the user
             Auth::login($user);
 
-            Log::info('User ' . session('original_user_id') . ' logged in as user ' . $user->id);
+            // Log activity
+            activity()
+                ->causedBy(session('original_user_id'))
+                ->performedOn($user)
+                ->log('impersonated user');
 
-            return redirect('/dashboard')
+            return redirect()->route('dashboard')
                 ->with('success', 'Now logged in as ' . $user->name . '. Use "Return to Admin" to go back.');
         } catch (\Exception $e) {
             Log::error('UserController loginAs error: ' . $e->getMessage());
             return redirect()->route('admin.users.index')
                 ->with('error', 'Error logging in as user.');
         }
+    }
+
+    /**
+     * Stop impersonation and return to original user
+     */
+    public function stopImpersonate()
+    {
+        if (session()->has('original_user_id')) {
+            $originalUserId = session('original_user_id');
+            session()->forget(['original_user_id', 'original_user_name', 'impersonating']);
+
+            $originalUser = User::find($originalUserId);
+            if ($originalUser) {
+                Auth::login($originalUser);
+
+                return redirect()->route('admin.users.index')
+                    ->with('success', 'Successfully returned to admin panel.');
+            }
+        }
+
+        return redirect()->route('dashboard')
+            ->with('error', 'No impersonation session found.');
+    }
+
+    /**
+     * Show user's permissions
+     */
+    public function permissions(User $user)
+    {
+        if (!Auth::user()->can('manage permissions')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $user->load('roles.permissions', 'permissions');
+        $allPermissions = Permission::orderBy('name')->get()->groupBy(function ($permission) {
+            return explode('.', $permission->name)[0] ?? 'general';
+        });
+
+        return view('admin.users.permissions', compact('user', 'allPermissions'));
+    }
+
+    /**
+     * Sync user's direct permissions
+     */
+    public function syncPermissions(Request $request, User $user)
+    {
+        if (!Auth::user()->can('manage permissions')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $validated = $request->validate([
+                'permissions' => 'nullable|array',
+                'permissions.*' => 'exists:permissions,name'
+            ]);
+
+            $user->syncPermissions($validated['permissions'] ?? []);
+
+            // Log activity
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($user)
+                ->withProperties(['permissions' => $validated['permissions'] ?? []])
+                ->log('updated user permissions');
+
+            return back()->with('success', 'User permissions updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('UserController syncPermissions error: ' . $e->getMessage());
+            return back()->with('error', 'Error updating permissions: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Sync user's roles
+     */
+    public function syncRoles(Request $request, User $user)
+    {
+        if (!Auth::user()->can('manage permissions')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $validated = $request->validate([
+                'roles' => 'required|array|min:1',
+                'roles.*' => 'exists:roles,name'
+            ]);
+
+            $user->syncRoles($validated['roles']);
+
+            // Log activity
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($user)
+                ->withProperties(['roles' => $validated['roles']])
+                ->log('updated user roles');
+
+            return back()->with('success', 'User roles updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('UserController syncRoles error: ' . $e->getMessage());
+            return back()->with('error', 'Error updating roles: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show user activity logs
+     */
+    public function activities(User $user)
+    {
+        if (!Auth::user()->can('view user activities')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $activities = $user->activities()
+            ->with('causer')
+            ->latest()
+            ->paginate(20);
+
+        return view('admin.users.activities', compact('user', 'activities'));
+    }
+
+    /**
+     * Show user login history
+     */
+    public function loginHistory(User $user)
+    {
+        if (!Auth::user()->can('view user activities')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (!Schema::hasTable('login_logs')) {
+            return back()->with('error', 'Login logs feature is not enabled.');
+        }
+
+        $loginLogs = $user->loginLogs()
+            ->latest('logged_in_at')
+            ->paginate(20);
+
+        return view('admin.users.login-history', compact('user', 'loginLogs'));
     }
 }

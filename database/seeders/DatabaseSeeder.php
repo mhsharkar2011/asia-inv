@@ -124,8 +124,9 @@ class DatabaseSeeder extends Seeder
         $this->call(RolePermissionSeeder::class);
 
         // If you have other seeders, call them here
-        // $this->call(ProductsSeeder::class);
+        $this->call(ProductSeeder::class);
         // $this->call(CustomersSeeder::class);
+        $this->call(LoginLogsSeeder::class);
 
         $this->command->info('Database seeded successfully!');
         $this->command->info('Admin login: admin@asiaenterprise.com / admin@123');

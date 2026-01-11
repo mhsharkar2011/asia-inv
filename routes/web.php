@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BranchController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
@@ -41,24 +42,21 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         // Users Management
         Route::resource('users', UserController::class);
-
         // Additional user routes
-        Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
-            ->name('users.toggle-status');
-        Route::post('users/{user}/verify-email', [UserController::class, 'verifyEmail'])
-            ->name('users.verify-email');
-        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])
-            ->name('users.reset-password');
-        Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])
-            ->name('users.login-as');
-        Route::get('users/export', [UserController::class, 'export'])
-            ->name('users.export');
-        Route::post('users/bulk-action', [UserController::class, 'bulkAction'])
-            ->name('users.bulk-action');
-        Route::get('users/{user}/impersonate', [UserController::class, 'impersonate'])
-            ->name('users.impersonate');
-        Route::get('users-ajax', [UserController::class, 'getUsers'])
-            ->name('users.ajax');
+        Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+        Route::post('users/{user}/verify-email', [UserController::class, 'verifyEmail'])->name('users.verify-email');
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+        Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
+        Route::get('users/export', [UserController::class, 'export'])->name('users.export');
+        Route::post('users/bulk-action', [UserController::class, 'bulkAction'])->name('users.bulk-action');
+        Route::get('users/{user}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
+        Route::get('users-ajax', [UserController::class, 'getUsers'])->name('users.ajax');
+        Route::get('users/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
+        Route::get('users/bulk-delete', [UserController::class, 'bulk-delete'])->name('users.bulk-delete');
+        Route::get('users/bulk-activate', [UserController::class, 'bulk-activate'])->name('users.bulk-activate');
+        Route::get('users/bulk-deactivate', [UserController::class, 'bulk-deactivate'])->name('users.bulk-deactivate');
+        Route::get('branches/by-company', [BranchController::class, 'getByCompany'])->name('branches.by-company')
+            ->middleware('auth');
 
         // Company Management
         Route::get('companies/{type?}', [CompanyController::class, 'index'])->name('companies.index');
@@ -70,8 +68,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('companies/{company}', [CompanyController::class, 'destroy'])->name('companies.destroy');
         Route::get('companies/export', [CompanyController::class, 'export'])->name('companies.export');
         Route::get('companies/{type?}/import', [CompanyController::class, 'import'])->name('companies.import');
-        Route::post('companies/{company}/toggle-status', [CompanyController::class, 'toggleStatus'])
-            ->name('companies.toggle-status');
+        Route::post('companies/{company}/toggle-status', [CompanyController::class, 'toggleStatus'])->name('companies.toggle-status');
     });
 });
 
