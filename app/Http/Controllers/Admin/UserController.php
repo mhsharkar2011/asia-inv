@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
+use App\Models\Admin\Branch;
+use App\Models\Admin\Company;
 use App\Models\Admin\User;
 use App\Models\LoginLog;
 use Illuminate\Http\Request;
@@ -227,38 +229,50 @@ class UserController extends Controller
         return view('admin.users.show', compact('user', 'allPermissions'));
     }
 
-    /**
-     * Show the form for editing a user
-     */
     public function edit(User $user)
     {
         // Prevent editing yourself
         if ($user->id === Auth::id()) {
             return redirect()->route('admin.users.index')
-                ->with('error', 'You cannot edit your own profile from here. Use profile settings.');
+                ->with('error', 'You cannot edit your own profile from here.');
         }
 
+        // Get all roles from Spatie
         $roles = Role::orderBy('name')->get();
-        $user->load('roles', 'permissions');
 
         // Get all permissions grouped by module
-        $permissions = Permission::orderBy('name')->get()->groupBy(function ($permission) {
-            return explode('.', $permission->name)[0] ?? 'general';
-        });
+        $permissions = \Spatie\Permission\Models\Permission::orderBy('name')
+            ->get()
+            ->groupBy(function ($permission) {
+                return explode('.', $permission->name)[0] ?? 'general';
+            });
 
-        return view('admin.users.edit', compact('user', 'roles', 'permissions'));
+        // Get user's current roles and permissions
+        $userRoles = $user->roles->pluck('name')->toArray();
+        $userPermissions = $user->permissions->pluck('name')->toArray();
+
+        // Get companies and branches
+        $companies = Company::orderBy('name')->get();
+        $branches = Branch::orderBy('branch_name')->get();
+
+        return view('admin.users.edit', compact(
+            'user',
+            'roles',
+            'permissions',
+            'userRoles',
+            'userPermissions',
+            'companies',
+            'branches'
+        ));
     }
 
-    /**
-     * Update the specified user
-     */
     public function update(Request $request, User $user)
     {
         try {
             // Prevent editing yourself
             if ($user->id === Auth::id()) {
                 return redirect()->route('admin.users.index')
-                    ->with('error', 'You cannot edit your own profile from here. Use profile settings.');
+                    ->with('error', 'You cannot edit your own profile from here.');
             }
 
             // Validation rules
@@ -273,14 +287,15 @@ class UserController extends Controller
                 'roles' => 'required|array|min:1',
                 'roles.*' => 'exists:roles,name',
                 'permissions' => 'nullable|array',
-                'permissions.*' => 'exists:permissions,name'
+                'permissions.*' => 'exists:permissions,name',
+                'company_id' => 'nullable|exists:companies,id',
+                'branch_id' => 'nullable|exists:branches,id',
             ];
 
             $validated = $request->validate($rules);
 
             // Handle avatar
             if ($request->hasFile('avatar')) {
-                // Delete old avatar
                 if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
                     Storage::disk('public')->delete($user->avatar);
                 }
@@ -301,33 +316,25 @@ class UserController extends Controller
                 unset($validated['password']);
             }
 
+            // Handle checkbox
+            $validated['is_active'] = $request->has('is_active') && $request->boolean('is_active');
+
             // Update user
             $user->update($validated);
 
-            // Assign roles
+            // Assign roles using Spatie
             $user->syncRoles($validated['roles']);
 
-            // Assign direct permissions if provided
+            // Assign direct permissions
             if (!empty($validated['permissions'])) {
                 $user->syncPermissions($validated['permissions']);
             } else {
                 $user->syncPermissions([]);
             }
 
-            // Log activity
-            activity()
-                ->causedBy(Auth::user())
-                ->performedOn($user)
-                ->log('updated user');
-
             return redirect()->route('admin.users.show', $user)
                 ->with('success', 'User updated successfully!');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return redirect()->back()
-                ->withErrors($e->errors())
-                ->withInput();
         } catch (\Exception $e) {
-            Log::error('UserController update error: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'Error updating user: ' . $e->getMessage())
                 ->withInput();

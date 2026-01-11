@@ -47,6 +47,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('users/{user}/verify-email', [UserController::class, 'verifyEmail'])->name('users.verify-email');
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
         Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
+        Route::get('/roles', function () {
+            return redirect()->route('dashboard')->with('info', 'Role management coming soon!');})->name('roles.index');
         Route::get('users/export', [UserController::class, 'export'])->name('users.export');
         Route::post('users/bulk-action', [UserController::class, 'bulkAction'])->name('users.bulk-action');
         Route::get('users/{user}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');

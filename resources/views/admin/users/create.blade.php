@@ -111,12 +111,14 @@
                                         @error('password')
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
-                                        <p class="mt-1 text-xs text-gray-500">Minimum 8 characters with letters and numbers</p>
+                                        <p class="mt-1 text-xs text-gray-500">Minimum 8 characters with letters and numbers
+                                        </p>
                                     </div>
 
                                     <!-- Confirm Password -->
                                     <div>
-                                        <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">
+                                        <label for="password_confirmation"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
                                             Confirm Password <span class="text-red-500">*</span>
                                         </label>
                                         <input type="password" id="password_confirmation" name="password_confirmation"
@@ -131,13 +133,11 @@
                                 <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Role & Company</h3>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <!-- Roles -->
-                                    <div>
-                                        <label for="roles" class="block text-sm font-medium text-gray-700 mb-1">
-                                            Roles <span class="text-red-500">*</span>
-                                        </label>
-                                        <select id="roles" name="roles[]" multiple
-                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('roles') border-red-500 @enderror"
+                                    <!-- Roles Field -->
+                                    <div class="mb-3">
+                                        <label for="roles" class="form-label required">Roles</label>
+                                        <select name="roles[]" id="roles"
+                                            class="form-control select2 @error('roles') is-invalid @enderror" multiple
                                             required>
                                             @foreach ($roles as $role)
                                                 <option value="{{ $role->name }}"
@@ -147,9 +147,30 @@
                                             @endforeach
                                         </select>
                                         @error('roles')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                        <p class="mt-1 text-xs text-gray-500">Hold Ctrl/Cmd to select multiple roles</p>
+                                    </div>
+
+                                    <!-- Permissions Field (Optional) -->
+                                    <div class="mb-3">
+                                        <label for="permissions" class="form-label">Direct Permissions</label>
+                                        <select name="permissions[]" id="permissions"
+                                            class="form-control select2 @error('permissions') is-invalid @enderror"
+                                            multiple>
+                                            @foreach ($permissions as $group => $groupPermissions)
+                                                <optgroup label="{{ ucfirst($group) }}">
+                                                    @foreach ($groupPermissions as $permission)
+                                                        <option value="{{ $permission->name }}"
+                                                            {{ in_array($permission->name, old('permissions', [])) ? 'selected' : '' }}>
+                                                            {{ $permission->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </optgroup>
+                                            @endforeach
+                                        </select>
+                                        @error('permissions')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
 
                                     <!-- Company -->
@@ -196,16 +217,23 @@
 
                                     <!-- Language Preference -->
                                     <div>
-                                        <label for="language_preference" class="block text-sm font-medium text-gray-700 mb-1">
+                                        <label for="language_preference"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
                                             Language Preference
                                         </label>
                                         <select id="language_preference" name="language_preference"
                                             class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="en" {{ old('language_preference', 'en') == 'en' ? 'selected' : '' }}>English</option>
-                                            <option value="es" {{ old('language_preference') == 'es' ? 'selected' : '' }}>Spanish</option>
-                                            <option value="fr" {{ old('language_preference') == 'fr' ? 'selected' : '' }}>French</option>
-                                            <option value="de" {{ old('language_preference') == 'de' ? 'selected' : '' }}>German</option>
-                                            <option value="zh" {{ old('language_preference') == 'zh' ? 'selected' : '' }}>Chinese</option>
+                                            <option value="en"
+                                                {{ old('language_preference', 'en') == 'en' ? 'selected' : '' }}>English
+                                            </option>
+                                            <option value="es"
+                                                {{ old('language_preference') == 'es' ? 'selected' : '' }}>Spanish</option>
+                                            <option value="fr"
+                                                {{ old('language_preference') == 'fr' ? 'selected' : '' }}>French</option>
+                                            <option value="de"
+                                                {{ old('language_preference') == 'de' ? 'selected' : '' }}>German</option>
+                                            <option value="zh"
+                                                {{ old('language_preference') == 'zh' ? 'selected' : '' }}>Chinese</option>
                                         </select>
                                     </div>
                                 </div>
@@ -224,25 +252,29 @@
                                         <div class="flex items-center space-x-4">
                                             <div class="relative">
                                                 <input type="file" id="avatar" name="avatar" accept="image/*"
-                                                    class="hidden"
-                                                    onchange="previewImage(this)">
+                                                    class="hidden" onchange="previewImage(this)">
                                                 <label for="avatar"
                                                     class="cursor-pointer inline-flex items-center px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                                    <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    <svg class="w-5 h-5 mr-2 text-gray-400" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
                                                             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                     </svg>
                                                     Choose File
                                                 </label>
                                             </div>
                                             <div id="imagePreview" class="hidden">
-                                                <img id="preview" class="w-16 h-16 rounded-full object-cover border border-gray-200" src="" alt="Preview">
+                                                <img id="preview"
+                                                    class="w-16 h-16 rounded-full object-cover border border-gray-200"
+                                                    src="" alt="Preview">
                                             </div>
                                         </div>
                                         @error('avatar')
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
-                                        <p class="mt-1 text-xs text-gray-500">Max file size: 2MB. Allowed types: JPEG, PNG, JPG, GIF, WebP</p>
+                                        <p class="mt-1 text-xs text-gray-500">Max file size: 2MB. Allowed types: JPEG, PNG,
+                                            JPG, GIF, WebP</p>
                                     </div>
 
                                     <!-- Address -->
@@ -280,10 +312,12 @@
 
                                     <!-- Send Welcome Email -->
                                     <div class="flex items-center space-x-3">
-                                        <input type="checkbox" id="send_welcome_email" name="send_welcome_email" value="1"
+                                        <input type="checkbox" id="send_welcome_email" name="send_welcome_email"
+                                            value="1"
                                             class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                         <div>
-                                            <label for="send_welcome_email" class="block text-sm font-medium text-gray-700">
+                                            <label for="send_welcome_email"
+                                                class="block text-sm font-medium text-gray-700">
                                                 Send Welcome Email
                                             </label>
                                             <p class="text-xs text-gray-500">Send login credentials to user's email</p>
@@ -326,6 +360,7 @@
             padding: 0.25rem;
             min-height: 42px;
         }
+
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
             background-color: #3b82f6;
             border-color: #2563eb;
@@ -334,10 +369,12 @@
             padding: 0.125rem 0.5rem;
             margin: 2px;
         }
+
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
             color: white;
             margin-right: 0.25rem;
         }
+
         .select2-container--default.select2-container--focus .select2-selection--multiple {
             border-color: #3b82f6;
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
@@ -393,32 +430,37 @@
 
                     // AJAX call to load branches
                     $.ajax({
-                        url: '{{ route("admin.branches.by-company") }}',
+                        url: '{{ route('admin.branches.by-company') }}',
                         method: 'GET',
-                        data: { company_id: companyId },
+                        data: {
+                            company_id: companyId
+                        },
                         success: function(response) {
                             branchSelect.empty();
                             branchSelect.append('<option value="">Select Branch</option>');
 
                             if (response.length > 0) {
                                 $.each(response, function(index, branch) {
-                                    branchSelect.append('<option value="' + branch.id + '">' + branch.name + '</option>');
+                                    branchSelect.append('<option value="' + branch.id +
+                                        '">' + branch.name + '</option>');
                                 });
                                 branchSelect.prop('disabled', false);
                             } else {
-                                branchSelect.append('<option value="">No branches available</option>');
+                                branchSelect.append(
+                                    '<option value="">No branches available</option>');
                                 branchSelect.prop('disabled', true);
                             }
 
                             // Restore selected value if exists in old input
-                            var oldBranchId = '{{ old("branch_id") }}';
+                            var oldBranchId = '{{ old('branch_id') }}';
                             if (oldBranchId) {
                                 branchSelect.val(oldBranchId).trigger('change');
                             }
                         },
                         error: function() {
                             branchSelect.empty();
-                            branchSelect.append('<option value="">Error loading branches</option>');
+                            branchSelect.append(
+                                '<option value="">Error loading branches</option>');
                             branchSelect.prop('disabled', true);
                         }
                     });
@@ -428,9 +470,10 @@
                     branchSelect.val('').trigger('change');
 
                     // Load all branches if no company selected
-                    @if(isset($branches) && count($branches) > 0)
-                        @foreach($branches as $branch)
-                            branchSelect.append('<option value="{{ $branch->id }}">{{ $branch->name }}</option>');
+                    @if (isset($branches) && count($branches) > 0)
+                        @foreach ($branches as $branch)
+                            branchSelect.append(
+                                '<option value="{{ $branch->id }}">{{ $branch->name }}</option>');
                         @endforeach
                     @endif
 
@@ -439,7 +482,7 @@
             });
 
             // Trigger company change on page load if company is selected
-            @if(old('company_id'))
+            @if (old('company_id'))
                 $('#company_id').trigger('change');
             @endif
         });
@@ -458,7 +501,9 @@
 
                 // Update file name display
                 var fileName = input.files[0].name;
-                $('label[for="avatar"]').html('<svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>' + fileName);
+                $('label[for="avatar"]').html(
+                    '<svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>' +
+                    fileName);
             }
         }
 

@@ -217,548 +217,488 @@
                                         @enderror
                                     </div>
 
-                                    <!-- Role -->
-                                    <div class="space-y-2">
-                                        <label for="role" class="block text-sm font-semibold text-gray-900">
-                                            Role <span class="text-red-500">*</span>
-                                        </label>
-                                        <div class="relative">
-                                            <div
-                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg class="h-5 w-5 text-gray-400" fill="currentColor"
-                                                    viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd"
-                                                        d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                            <select name="role" id="role"
-                                                class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl
-                                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                                                           transition-all duration-200 hover:border-gray-400 appearance-none"
-                                                required>
-                                                <option value="">Select Role</option>
-                                                @foreach ($roles as $value => $label)
-                                                    <option value="{{ $value }}"
-                                                        {{ old('role', $user->role) == $value ? 'selected' : '' }}>
-                                                        {{ $label }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <div
-                                                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                <svg class="h-5 w-5 text-gray-400" fill="currentColor"
-                                                    viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                        @error('role')
-                                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                    <!-- Roles Field -->
+                                    <div class="mb-3">
+                                        <label for="roles" class="form-label required">Roles</label>
+                                        <select name="roles[]" id="roles"
+                                            class="form-control select2 @error('roles') is-invalid @enderror" multiple
+                                            required>
+                                            @foreach ($roles as $role)
+                                                <option value="{{ $role->name }}"
+                                                    {{ in_array($role->name, old('roles', $userRoles)) ? 'selected' : '' }}>
+                                                    {{ $role->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('roles')
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
 
-                                    <!-- Address -->
-                                    <div class="md:col-span-2 space-y-2">
-                                        <label for="address" class="block text-sm font-semibold text-gray-900">
-                                            Address
-                                        </label>
-                                        <div class="relative">
-                                            <div class="absolute top-3 left-3 pointer-events-none">
-                                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                            </div>
-                                            <textarea name="address" id="address" rows="3"
-                                                class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl
-                                                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                                                             transition-all duration-200 hover:border-gray-400"
-                                                placeholder="Enter full address">{{ old('address', $user->address) }}</textarea>
-                                        </div>
-                                        @error('address')
-                                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                    <!-- Permissions Field (Optional) -->
+                                    <div class="mb-3">
+                                        <label for="permissions" class="form-label">Direct Permissions</label>
+                                        <select name="permissions[]" id="permissions"
+                                            class="form-control select2 @error('permissions') is-invalid @enderror"
+                                            multiple>
+                                            @foreach ($permissions as $group => $groupPermissions)
+                                                <optgroup label="{{ ucfirst($group) }}">
+                                                    @foreach ($groupPermissions as $permission)
+                                                        <option value="{{ $permission->name }}"
+                                                            {{ in_array($permission->name, old('permissions', $userPermissions)) ? 'selected' : '' }}>
+                                                            {{ $permission->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </optgroup>
+                                            @endforeach
+                                        </select>
+                                        @error('permissions')
+                                            <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                    </div>
+                                    </div>ignment and profile settings</p>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Company & Profile Card -->
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
-                                <div class="flex items-center">
-                                    <div class="p-3 bg-white rounded-xl shadow-sm mr-4">
-                                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                        </svg>
+                        <div class="p-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <!-- Company -->
+                                <div class="space-y-2">
+                                    <label for="company_id" class="block text-sm font-semibold text-gray-900">
+                                        Company
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <select name="company_id" id="company_id"
+                                            class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl
+                                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                                           transition-all duration-200 hover:border-gray-400 appearance-none">
+                                            <option value="">Select Company</option>
+                                            @foreach ($companies as $company)
+                                                <option value="{{ $company->id }}"
+                                                    {{ old('company_id', $user->company_id) == $company->id ? 'selected' : '' }}>
+                                                    {{ $company->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h2 class="text-xl font-bold text-gray-900">Company & Profile</h2>
-                                        <p class="text-sm text-gray-600 mt-1">Company assignment and profile settings</p>
-                                    </div>
+                                    @error('company_id')
+                                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
-                            </div>
-                            <div class="p-8">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <!-- Company -->
-                                    <div class="space-y-2">
-                                        <label for="company_id" class="block text-sm font-semibold text-gray-900">
-                                            Company
-                                        </label>
-                                        <div class="relative">
-                                            <div
-                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg class="h-5 w-5 text-gray-400" fill="currentColor"
-                                                    viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd"
-                                                        d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                            <select name="company_id" id="company_id"
-                                                class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl
+
+                                <!-- Branch -->
+                                <div class="space-y-2">
+                                    <label for="branch_id" class="block text-sm font-semibold text-gray-900">
+                                        Branch
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <select name="branch_id" id="branch_id"
+                                            class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl
                                                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                                                            transition-all duration-200 hover:border-gray-400 appearance-none">
-                                                <option value="">Select Company</option>
-                                                @foreach ($companies as $company)
-                                                    <option value="{{ $company->id }}"
-                                                        {{ old('company_id', $user->company_id) == $company->id ? 'selected' : '' }}>
-                                                        {{ $company->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <div
-                                                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                <svg class="h-5 w-5 text-gray-400" fill="currentColor"
-                                                    viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
+                                            <option value="">Select Branch</option>
+                                            @foreach ($branches as $branch)
+                                                <option value="{{ $branch->id }}"
+                                                    data-company="{{ $branch->company_id }}"
+                                                    {{ old('branch_id', $user->branch_id) == $branch->id ? 'selected' : '' }}>
+                                                    {{ $branch->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
                                         </div>
-                                        @error('company_id')
-                                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                        @enderror
                                     </div>
+                                    @error('branch_id')
+                                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
 
-                                    <!-- Branch -->
-                                    <div class="space-y-2">
-                                        <label for="branch_id" class="block text-sm font-semibold text-gray-900">
-                                            Branch
+                                <!-- Avatar Upload -->
+                                <div class="md:col-span-2 space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-900 mb-2">
+                                            Profile Picture
                                         </label>
-                                        <div class="relative">
-                                            <div
-                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg class="h-5 w-5 text-gray-400" fill="currentColor"
-                                                    viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd"
-                                                        d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                            <select name="branch_id" id="branch_id"
-                                                class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl
-                                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                                                           transition-all duration-200 hover:border-gray-400 appearance-none">
-                                                <option value="">Select Branch</option>
-                                                @foreach ($branches as $branch)
-                                                    <option value="{{ $branch->id }}"
-                                                        data-company="{{ $branch->company_id }}"
-                                                        {{ old('branch_id', $user->branch_id) == $branch->id ? 'selected' : '' }}>
-                                                        {{ $branch->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <div
-                                                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                <svg class="h-5 w-5 text-gray-400" fill="currentColor"
-                                                    viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                        @error('branch_id')
-                                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-
-                                    <!-- Avatar Upload -->
-                                    <div class="md:col-span-2 space-y-4">
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-900 mb-2">
-                                                Profile Picture
-                                            </label>
-                                            <div class="flex items-start space-x-6">
-                                                <div class="relative group">
-                                                    @if ($user->avatar)
-                                                        <img id="avatar-preview"
-                                                            src="{{ asset('storage/' . $user->avatar) }}"
-                                                            alt="Avatar preview"
-                                                            class="h-32 w-32 rounded-2xl object-cover ring-4 ring-white shadow-lg">
-                                                    @else
-                                                        <div id="avatar-preview"
-                                                            class="h-32 w-32 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600
+                                        <div class="flex items-start space-x-6">
+                                            <div class="relative group">
+                                                @if ($user->avatar)
+                                                    <img id="avatar-preview"
+                                                        src="{{ asset('storage/' . $user->avatar) }}"
+                                                        alt="Avatar preview"
+                                                        class="h-32 w-32 rounded-2xl object-cover ring-4 ring-white shadow-lg">
+                                                @else
+                                                    <div id="avatar-preview"
+                                                        class="h-32 w-32 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600
                                                                     flex items-center justify-center text-white text-4xl font-bold
                                                                     ring-4 ring-white shadow-lg">
-                                                            {{ strtoupper(substr($user->name, 0, 1)) }}
-                                                        </div>
-                                                    @endif
-                                                    <div id="avatar-remove"
-                                                        class="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-600
+                                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                                    </div>
+                                                @endif
+                                                <div id="avatar-remove"
+                                                    class="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-600
                                                                 text-white rounded-full p-2 cursor-pointer opacity-0 group-hover:opacity-100
                                                                 transition-opacity duration-200 shadow-lg">
-                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                        </svg>
-                                                    </div>
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
                                                 </div>
-                                                <div class="flex-1">
-                                                    <input type="file" name="avatar" id="avatar" accept="image/*"
-                                                        class="hidden" onchange="previewAvatar(this)">
-                                                    <label for="avatar"
-                                                        class="inline-flex items-center px-5 py-3.5 border-2 border-dashed border-gray-300
+                                            </div>
+                                            <div class="flex-1">
+                                                <input type="file" name="avatar" id="avatar" accept="image/*"
+                                                    class="hidden" onchange="previewAvatar(this)">
+                                                <label for="avatar"
+                                                    class="inline-flex items-center px-5 py-3.5 border-2 border-dashed border-gray-300
                                                                   rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50
                                                                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
                                                                   transition-all duration-200 cursor-pointer hover:border-gray-400">
-                                                        <svg class="w-5 h-5 mr-3 text-gray-400" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                        </svg>
-                                                        Upload New Photo
-                                                    </label>
-                                                    <p class="mt-3 text-sm text-gray-500">
-                                                        JPG, PNG or GIF (Max 2MB). Recommended size: 400x400px
+                                                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                    Upload New Photo
+                                                </label>
+                                                <p class="mt-3 text-sm text-gray-500">
+                                                    JPG, PNG or GIF (Max 2MB). Recommended size: 400x400px
+                                                </p>
+                                                @if ($user->avatar)
+                                                    <p class="mt-2 text-xs text-gray-400">
+                                                        Current: {{ basename($user->avatar) }}
                                                     </p>
-                                                    @if ($user->avatar)
-                                                        <p class="mt-2 text-xs text-gray-400">
-                                                            Current: {{ basename($user->avatar) }}
-                                                        </p>
-                                                    @endif
-                                                </div>
+                                                @endif
                                             </div>
-                                            @error('avatar')
-                                                <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
-                                            @enderror
                                         </div>
+                                        @error('avatar')
+                                            <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
+                                        @enderror
+                                    </div>
 
-                                        <!-- Language Preference -->
-                                        <div class="pt-4 border-t border-gray-100">
-                                            <label for="language_preference"
-                                                class="block text-sm font-semibold text-gray-900 mb-2">
-                                                Language Preference
-                                            </label>
-                                            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                                                @foreach (['en' => 'English', 'es' => 'Spanish', 'fr' => 'French', 'de' => 'German', 'zh' => 'Chinese'] as $code => $name)
-                                                    <label class="relative flex cursor-pointer">
-                                                        <input type="radio" name="language_preference"
-                                                            value="{{ $code }}"
-                                                            {{ old('language_preference', $user->language_preference) == $code ? 'checked' : '' }}
-                                                            class="sr-only peer">
-                                                        <div
-                                                            class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl
+                                    <!-- Language Preference -->
+                                    <div class="pt-4 border-t border-gray-100">
+                                        <label for="language_preference"
+                                            class="block text-sm font-semibold text-gray-900 mb-2">
+                                            Language Preference
+                                        </label>
+                                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                                            @foreach (['en' => 'English', 'es' => 'Spanish', 'fr' => 'French', 'de' => 'German', 'zh' => 'Chinese'] as $code => $name)
+                                                <label class="relative flex cursor-pointer">
+                                                    <input type="radio" name="language_preference"
+                                                        value="{{ $code }}"
+                                                        {{ old('language_preference', $user->language_preference) == $code ? 'checked' : '' }}
+                                                        class="sr-only peer">
+                                                    <div
+                                                        class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl
                                                                     text-sm font-medium text-gray-700 text-center
                                                                     peer-checked:border-blue-500 peer-checked:bg-blue-50
                                                                     peer-checked:text-blue-700 hover:bg-gray-50
                                                                     transition-all duration-200">
-                                                            {{ $name }}
-                                                        </div>
-                                                        <div
-                                                            class="absolute -top-2 -right-2 w-5 h-5 bg-blue-500 rounded-full
+                                                        {{ $name }}
+                                                    </div>
+                                                    <div
+                                                        class="absolute -top-2 -right-2 w-5 h-5 bg-blue-500 rounded-full
                                                                     flex items-center justify-center text-white text-xs
                                                                     opacity-0 peer-checked:opacity-100 transition-opacity duration-200">
-                                                            ✓
-                                                        </div>
-                                                    </label>
-                                                @endforeach
-                                            </div>
-                                            @error('language_preference')
-                                                <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column - Status & Actions -->
-                    <div class="lg:col-span-4 mt-8 lg:mt-0 space-y-8">
-                        <!-- Status & Actions Card -->
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
-                                <div class="flex items-center">
-                                    <div class="p-3 bg-white rounded-xl shadow-sm mr-4">
-                                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h2 class="text-xl font-bold text-gray-900">Status & Actions</h2>
-                                        <p class="text-sm text-gray-600 mt-1">Account status and quick actions</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-8">
-                                <div class="space-y-6">
-                                    <!-- Account Status -->
-                                    <div class="space-y-3">
-                                        <label class="block text-sm font-semibold text-gray-900">Account Status</label>
-                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                                            <div class="flex items-center">
-                                                @if ($user->is_active)
-                                                    <div class="h-3 w-3 rounded-full bg-green-500 mr-3 animate-pulse">
+                                                        ✓
                                                     </div>
-                                                    <span class="font-medium text-gray-900">Active</span>
-                                                @else
-                                                    <div class="h-3 w-3 rounded-full bg-red-500 mr-3"></div>
-                                                    <span class="font-medium text-gray-900">Inactive</span>
-                                                @endif
-                                            </div>
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" name="is_active" value="1"
-                                                    class="sr-only peer"
-                                                    {{ old('is_active', $user->is_active) ? 'checked' : '' }}>
-                                                <div
-                                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
-                                                          peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full
-                                                          peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px]
-                                                          after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full
-                                                          after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                                                </div>
-                                            </label>
+                                                </label>
+                                            @endforeach
                                         </div>
-                                        @error('is_active')
-                                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                        @error('language_preference')
+                                            <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
                                         @enderror
-                                    </div>
-
-                                    <!-- Email Verification -->
-                                    <div class="space-y-3">
-                                        <label class="block text-sm font-semibold text-gray-900">Email Verification</label>
-                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                                            <div class="flex items-center">
-                                                @if ($user->email_verified_at)
-                                                    <div class="h-3 w-3 rounded-full bg-green-500 mr-3"></div>
-                                                    <div>
-                                                        <span class="font-medium text-gray-900">Verified</span>
-                                                        <p class="text-xs text-gray-500 mt-1">
-                                                            {{ $user->email_verified_at->format('M d, Y') }}
-                                                        </p>
-                                                    </div>
-                                                @else
-                                                    <div class="h-3 w-3 rounded-full bg-yellow-500 mr-3"></div>
-                                                    <span class="font-medium text-gray-900">Pending Verification</span>
-                                                @endif
-                                            </div>
-                                            @if (!$user->email_verified_at)
-                                                <button type="button" onclick="verifyEmail()"
-                                                    class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-lg
-                                                               text-xs font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                                    Verify Now
-                                                </button>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <!-- Last Login -->
-                                    <div class="pt-6 border-t border-gray-100">
-                                        <h4 class="text-sm font-semibold text-gray-900 mb-4">Activity</h4>
-                                        <div class="space-y-4">
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-sm text-gray-600">Last Login:</span>
-                                                <span class="text-sm font-medium text-gray-900">
-                                                    @if ($user->last_login_at)
-                                                        {{ $user->last_login_at->diffForHumans() }}
-                                                    @else
-                                                        Never
-                                                    @endif
-                                                </span>
-                                            </div>
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-sm text-gray-600">Account Created:</span>
-                                                <span class="text-sm font-medium text-gray-900">
-                                                    {{ $user->created_at->format('M d, Y') }}
-                                                </span>
-                                            </div>
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-sm text-gray-600">Last Updated:</span>
-                                                <span class="text-sm font-medium text-gray-900">
-                                                    {{ $user->updated_at->format('M d, Y') }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Password Update Card -->
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-violet-50">
-                                <div class="flex items-center">
-                                    <div class="p-3 bg-white rounded-xl shadow-sm mr-4">
-                                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h2 class="text-xl font-bold text-gray-900">Password Update</h2>
-                                        <p class="text-sm text-gray-600 mt-1">Change user password (optional)</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-8">
-                                <div class="space-y-6">
-                                    <!-- Password -->
-                                    <div class="space-y-2">
-                                        <label for="password" class="block text-sm font-medium text-gray-900">
-                                            New Password (Optional)
-                                        </label>
-                                        <div class="relative">
-                                            <div
-                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                                </svg>
-                                            </div>
-                                            <input type="password" name="password" id="password"
-                                                class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl
-                                                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                                                          transition-all duration-200 hover:border-gray-400"
-                                                placeholder="Leave blank to keep current">
-                                            <button type="button" onclick="togglePassword('password')"
-                                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
-                                                <svg id="password-eye" class="h-5 w-5" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Confirm Password -->
-                                    <div class="space-y-2">
-                                        <label for="password_confirmation"
-                                            class="block text-sm font-medium text-gray-900">
-                                            Confirm Password
-                                        </label>
-                                        <div class="relative">
-                                            <div
-                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                                </svg>
-                                            </div>
-                                            <input type="password" name="password_confirmation"
-                                                id="password_confirmation"
-                                                class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl
-                                                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                                                          transition-all duration-200 hover:border-gray-400"
-                                                placeholder="Confirm new password">
-                                            <button type="button" onclick="togglePassword('password_confirmation')"
-                                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
-                                                <svg id="password_confirmation-eye" class="h-5 w-5" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        @error('password')
-                                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                        @enderror
-                                        @error('password_confirmation')
-                                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-
-                                    <div class="pt-4 border-t border-gray-100">
-                                        <p class="text-xs text-gray-500">
-                                            <svg class="w-4 h-4 inline mr-1 text-blue-500" fill="currentColor"
-                                                viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
-                                            Password must be at least 8 characters. Leave blank to keep current password.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="sticky top-8 space-y-4">
-                            <button type="submit"
-                                class="w-full inline-flex items-center justify-center px-6 py-4 border border-transparent
-                                           rounded-xl text-base font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600
-                                           hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2
-                                           focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl">
-                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                                Update User
-                            </button>
-
-                            <a href="{{ route('admin.users.index') }}"
-                                class="w-full inline-flex items-center justify-center px-6 py-4 border border-gray-300
-                                      rounded-xl text-base font-medium text-gray-700 bg-white hover:bg-gray-50
-                                      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500
-                                      transition-all duration-200 shadow-sm hover:shadow">
-                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                                Cancel
-                            </a>
-
-                            <div class="pt-6 border-t border-gray-200">
-                                <div class="text-center space-y-3">
-                                    <p class="text-sm text-gray-500">
-                                        Need help?
-                                        <a href="#" class="text-blue-600 hover:text-blue-800 font-medium">
-                                            View user documentation
-                                        </a>
-                                    </p>
-                                    <div class="text-xs text-gray-400">
-                                        User ID: {{ $user->id }}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </form>
+
+                <!-- Right Column - Status & Actions -->
+                <div class="lg:col-span-4 mt-8 lg:mt-0 space-y-8">
+                    <!-- Status & Actions Card -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-white rounded-xl shadow-sm mr-4">
+                                    <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-900">Status & Actions</h2>
+                                    <p class="text-sm text-gray-600 mt-1">Account status and quick actions</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-8">
+                            <div class="space-y-6">
+                                <!-- Account Status -->
+                                <div class="space-y-3">
+                                    <label class="block text-sm font-semibold text-gray-900">Account Status</label>
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                                        <div class="flex items-center">
+                                            @if ($user->is_active)
+                                                <div class="h-3 w-3 rounded-full bg-green-500 mr-3 animate-pulse">
+                                                </div>
+                                                <span class="font-medium text-gray-900">Active</span>
+                                            @else
+                                                <div class="h-3 w-3 rounded-full bg-red-500 mr-3"></div>
+                                                <span class="font-medium text-gray-900">Inactive</span>
+                                            @endif
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="is_active" value="1" class="sr-only peer"
+                                                {{ old('is_active', $user->is_active) ? 'checked' : '' }}>
+                                            <div
+                                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
+                                                          peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full
+                                                          peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px]
+                                                          after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full
+                                                          after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                            </div>
+                                        </label>
+                                    </div>
+                                    @error('is_active')
+                                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <!-- Email Verification -->
+                                <div class="space-y-3">
+                                    <label class="block text-sm font-semibold text-gray-900">Email Verification</label>
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                                        <div class="flex items-center">
+                                            @if ($user->email_verified_at)
+                                                <div class="h-3 w-3 rounded-full bg-green-500 mr-3"></div>
+                                                <div>
+                                                    <span class="font-medium text-gray-900">Verified</span>
+                                                    <p class="text-xs text-gray-500 mt-1">
+                                                        {{ $user->email_verified_at->format('M d, Y') }}
+                                                    </p>
+                                                </div>
+                                            @else
+                                                <div class="h-3 w-3 rounded-full bg-yellow-500 mr-3"></div>
+                                                <span class="font-medium text-gray-900">Pending Verification</span>
+                                            @endif
+                                        </div>
+                                        @if (!$user->email_verified_at)
+                                            <button type="button" onclick="verifyEmail()"
+                                                class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-lg
+                                                               text-xs font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                                Verify Now
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <!-- Last Login -->
+                                <div class="pt-6 border-t border-gray-100">
+                                    <h4 class="text-sm font-semibold text-gray-900 mb-4">Activity</h4>
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Last Login:</span>
+                                            <span class="text-sm font-medium text-gray-900">
+                                                @if ($user->last_login_at)
+                                                    {{ $user->last_login_at->diffForHumans() }}
+                                                @else
+                                                    Never
+                                                @endif
+                                            </span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Account Created:</span>
+                                            <span class="text-sm font-medium text-gray-900">
+                                                {{ $user->created_at->format('M d, Y') }}
+                                            </span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Last Updated:</span>
+                                            <span class="text-sm font-medium text-gray-900">
+                                                {{ $user->updated_at->format('M d, Y') }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Password Update Card -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-violet-50">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-white rounded-xl shadow-sm mr-4">
+                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-900">Password Update</h2>
+                                    <p class="text-sm text-gray-600 mt-1">Change user password (optional)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-8">
+                            <div class="space-y-6">
+                                <!-- Password -->
+                                <div class="space-y-2">
+                                    <label for="password" class="block text-sm font-medium text-gray-900">
+                                        New Password (Optional)
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                            </svg>
+                                        </div>
+                                        <input type="password" name="password" id="password"
+                                            class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl
+                                                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                                          transition-all duration-200 hover:border-gray-400"
+                                            placeholder="Leave blank to keep current">
+                                        <button type="button" onclick="togglePassword('password')"
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                            <svg id="password-eye" class="h-5 w-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Confirm Password -->
+                                <div class="space-y-2">
+                                    <label for="password_confirmation" class="block text-sm font-medium text-gray-900">
+                                        Confirm Password
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                            </svg>
+                                        </div>
+                                        <input type="password" name="password_confirmation" id="password_confirmation"
+                                            class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl
+                                                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                                          transition-all duration-200 hover:border-gray-400"
+                                            placeholder="Confirm new password">
+                                        <button type="button" onclick="togglePassword('password_confirmation')"
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                            <svg id="password_confirmation-eye" class="h-5 w-5" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    @error('password')
+                                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                    @enderror
+                                    @error('password_confirmation')
+                                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="pt-4 border-t border-gray-100">
+                                    <p class="text-xs text-gray-500">
+                                        <svg class="w-4 h-4 inline mr-1 text-blue-500" fill="currentColor"
+                                            viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                        Password must be at least 8 characters. Leave blank to keep current password.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="sticky top-8 space-y-4">
+                        <button type="submit"
+                            class="w-full inline-flex items-center justify-center px-6 py-4 border border-transparent
+                                           rounded-xl text-base font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600
+                                           hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2
+                                           focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            Update User
+                        </button>
+
+                        <a href="{{ route('admin.users.index') }}"
+                            class="w-full inline-flex items-center justify-center px-6 py-4 border border-gray-300
+                                      rounded-xl text-base font-medium text-gray-700 bg-white hover:bg-gray-50
+                                      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500
+                                      transition-all duration-200 shadow-sm hover:shadow">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Cancel
+                        </a>
+
+                        <div class="pt-6 border-t border-gray-200">
+                            <div class="text-center space-y-3">
+                                <p class="text-sm text-gray-500">
+                                    Need help?
+                                    <a href="#" class="text-blue-600 hover:text-blue-800 font-medium">
+                                        View user documentation
+                                    </a>
+                                </p>
+                                <div class="text-xs text-gray-400">
+                                    User ID: {{ $user->id }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
         </div>
+        </form>
+    </div>
     </div>
 
     <!-- Delete Modal -->
