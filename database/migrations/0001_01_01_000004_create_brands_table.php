@@ -39,10 +39,6 @@ return new class extends Migration
             $table->text('meta_description')->nullable();
             $table->json('meta_keywords')->nullable();
 
-            // Audit trail
-            // $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
-            // $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
-
             $table->timestamps();
             $table->softDeletes();
 
@@ -56,21 +52,10 @@ return new class extends Migration
             $table->index('is_featured');
             $table->index('created_at');
         });
-
-        // Create category pivot table for many-to-many relationship
-        Schema::create('category', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('brand_id')->constrained('brands')->onDelete('cascade');
-            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
-            $table->timestamps();
-
-            $table->unique(['brand_id', 'category_id']);
-        });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('category');
         Schema::dropIfExists('brands');
     }
 };

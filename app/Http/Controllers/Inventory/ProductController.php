@@ -8,11 +8,27 @@ use App\Models\Inventory\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Permission;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        // Apply middleware for permissions
+        $this->middleware('permission:view products')->only(['index', 'show']);
+        $this->middleware('permission:create products')->only(['create', 'store', 'generateProductCodeAjax']);
+        $this->middleware('permission:edit products')->only(['edit', 'update', 'toggleStatus']);
+        $this->middleware('permission:delete products')->only(['destroy']);
+        $this->middleware('permission:adjust stock')->only(['updateStock']);
+    }
+
     public function index(Request $request)
     {
+        // Alternative permission check (if not using middleware)
+        // if (!auth()->user()->can('view products')) {
+        //     abort(403, 'Unauthorized action.');
+        // }
+
         $companyId = Auth::user()->company_id;
         $search = $request->get('search');
         $category = $request->get('category');
@@ -63,7 +79,44 @@ class ProductController extends Controller
             ->orderBy('category_name')
             ->get();
 
-        return view('inventory.products.index', compact('products', 'search', 'category', 'status', 'stockStatus', 'categories'));
+        // Get statistics (only for users who can view reports)
+        $stats = [];
+        if (auth()->user()->can('view inventory reports')) {
+            $stats = [
+                'total_products' => Product::where('company_id', $companyId)->count(),
+                'active_products' => Product::where('company_id', $companyId)->where('is_active', true)->count(),
+                'low_stock_count' => Product::where('company_id', $companyId)
+                    ->whereColumn('stock_quantity', '<=', 'reorder_level')
+                    ->where('stock_quantity', '>', 0)
+                    ->count(),
+                'out_of_stock_count' => Product::where('company_id', $companyId)
+                    ->where('stock_quantity', '<=', 0)
+                    ->count(),
+                'total_stock_value' => Product::where('company_id', $companyId)
+                    ->sum(\DB::raw('stock_quantity * purchase_price')),
+            ];
+        }
+
+        // Check user permissions for UI elements
+        $permissions = [
+            'can_create' => auth()->user()->can('create products'),
+            'can_edit' => auth()->user()->can('edit products'),
+            'can_delete' => auth()->user()->can('delete products'),
+            'can_adjust_stock' => auth()->user()->can('adjust stock'),
+            'can_export' => auth()->user()->can('export products'),
+            'can_view_reports' => auth()->user()->can('view inventory reports'),
+        ];
+
+        return view('inventory.products.index', compact(
+            'products',
+            'search',
+            'category',
+            'status',
+            'stockStatus',
+            'categories',
+            'stats',
+            'permissions'
+        ));
     }
 
     /**
@@ -71,6 +124,11 @@ class ProductController extends Controller
      */
     public function create()
     {
+        // Permission already handled by middleware, but double check
+        // if (!auth()->user()->can('create products')) {
+        //     abort(403, 'You do not have permission to create products.');
+        // }
+
         $companyId = Auth::user()->company_id;
 
         $categories = Category::where('company_id', $companyId)
@@ -87,6 +145,11 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // Permission check
+        if (!auth()->user()->can('create products')) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $companyId = Auth::user()->company_id;
 
         // Debug: Check what's coming in
@@ -112,6 +175,7 @@ class ProductController extends Controller
         ]);
 
         $validated['company_id'] = $companyId;
+        $validated['created_by'] = Auth::id(); // Track who created the product
         $validated['track_batch'] = $request->has('track_batch');
         $validated['track_expiry'] = $request->has('track_expiry');
         $validated['is_active'] = $request->has('is_active');
@@ -127,6 +191,15 @@ class ProductController extends Controller
             }
 
             Log::info('Product created successfully:', $product->toArray());
+
+            // Log activity if user has permission
+            if (auth()->user()->can('log activities')) {
+                activity()
+                    ->causedBy(auth()->user())
+                    ->performedOn($product)
+                    ->withProperties(['new_data' => $validated])
+                    ->log('created product');
+            }
 
             if ($request->has('save_and_new')) {
                 return redirect()->route('inventory.products.create')
@@ -150,13 +223,21 @@ class ProductController extends Controller
      */
     public function show($id)
     {
+        // Check if user can view products
+        if (!auth()->user()->can('view products')) {
+            abort(403, 'You do not have permission to view products.');
+        }
+
         $companyId = Auth::user()->company_id;
 
         $product = Product::with(['category', 'inventories.warehouse'])
             ->where('company_id', $companyId)
             ->findOrFail($id);
 
-        return view('inventory.products.show', compact('product'));
+        // Check if user can view audit trail
+        $showAuditTrail = auth()->user()->can('view audit trail');
+
+        return view('inventory.products.show', compact('product', 'showAuditTrail'));
     }
 
     /**
@@ -164,6 +245,11 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
+        // Check permission
+        if (!auth()->user()->can('edit products')) {
+            abort(403, 'You do not have permission to edit products.');
+        }
+
         $companyId = Auth::user()->company_id;
 
         $product = Product::where('company_id', $companyId)
@@ -181,10 +267,18 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Check permission
+        if (!auth()->user()->can('edit products')) {
+            abort(403, 'You do not have permission to edit products.');
+        }
+
         $companyId = Auth::user()->company_id;
 
         $product = Product::where('company_id', $companyId)
             ->findOrFail($id);
+
+        // Store old data for logging
+        $oldData = $product->toArray();
 
         $validated = $request->validate([
             'product_code' => 'required|unique:products,product_code,' . $id . '|max:50',
@@ -205,8 +299,21 @@ class ProductController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $validated['track_batch'] = $request->has('track_batch');
         $validated['track_expiry'] = $request->has('track_expiry');
+        $validated['updated_by'] = Auth::id(); // Track who updated
 
         $product->update($validated);
+
+        // Log activity if user has permission
+        if (auth()->user()->can('log activities')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($product)
+                ->withProperties([
+                    'old_data' => $oldData,
+                    'new_data' => $validated
+                ])
+                ->log('updated product');
+        }
 
         return redirect()->route('inventory.products.show', $product->id)
             ->with('success', 'Product updated successfully!');
@@ -217,6 +324,11 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
+        // Check permission
+        if (!auth()->user()->can('delete products')) {
+            abort(403, 'You do not have permission to delete products.');
+        }
+
         $companyId = Auth::user()->company_id;
 
         $product = Product::where('company_id', $companyId)
@@ -228,7 +340,18 @@ class ProductController extends Controller
                 ->with('error', 'Cannot delete product with existing inventory.');
         }
 
+        // Store product data for logging
+        $productData = $product->toArray();
+
         $product->delete();
+
+        // Log activity if user has permission
+        if (auth()->user()->can('log activities')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->withProperties(['deleted_product' => $productData])
+                ->log('deleted product');
+        }
 
         return redirect()->route('inventory.products.index')
             ->with('success', 'Product deleted successfully!');
@@ -239,14 +362,37 @@ class ProductController extends Controller
      */
     public function toggleStatus($id)
     {
+        // Check permission
+        if (!auth()->user()->can('edit products')) {
+            abort(403, 'You do not have permission to edit products.');
+        }
+
         $companyId = Auth::user()->company_id;
 
         $product = Product::where('company_id', $companyId)
             ->findOrFail($id);
 
-        $product->update(['is_active' => !$product->is_active]);
+        $oldStatus = $product->is_active;
+        $newStatus = !$product->is_active;
 
-        $status = $product->is_active ? 'activated' : 'deactivated';
+        $product->update([
+            'is_active' => $newStatus,
+            'updated_by' => Auth::id()
+        ]);
+
+        $status = $newStatus ? 'activated' : 'deactivated';
+
+        // Log activity if user has permission
+        if (auth()->user()->can('log activities')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($product)
+                ->withProperties([
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus
+                ])
+                ->log("{$status} product");
+        }
 
         return redirect()->route('inventory.products.show', $product->id)
             ->with('success', "Product {$status} successfully!");
@@ -254,6 +400,14 @@ class ProductController extends Controller
 
     public function generateProductCodeAjax()
     {
+        // Check permission
+        if (!auth()->user()->can('create products')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action'
+            ], 403);
+        }
+
         try {
             $productCode = Product::generateProductCode();
 
@@ -269,11 +423,20 @@ class ProductController extends Controller
             ], 500);
         }
     }
+
     /**
      * Get products for dropdown (AJAX).
      */
     public function getProducts(Request $request)
     {
+        // Check if user can view products
+        if (!auth()->user()->can('view products')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action'
+            ], 403);
+        }
+
         $companyId = Auth::user()->company_id;
         $search = $request->get('search');
 
@@ -290,16 +453,26 @@ class ProductController extends Controller
         return response()->json($products);
     }
 
-
     /**
      * Update stock quantity.
      */
     public function updateStock(Request $request, Product $product)
     {
+        // Check permission
+        if (!auth()->user()->can('adjust stock')) {
+            abort(403, 'You do not have permission to adjust stock.');
+        }
+
+        // Also check if user can edit this specific product
+        if (!auth()->user()->can('edit products')) {
+            abort(403, 'You do not have permission to edit products.');
+        }
+
         $validated = $request->validate([
             'adjustment_type' => 'required|in:add,subtract,set',
             'quantity' => 'required|integer|min:1',
             'notes' => 'nullable|string',
+            'reason' => 'required|string|max:255',
         ]);
 
         $oldQuantity = $product->stock_quantity;
@@ -316,11 +489,176 @@ class ProductController extends Controller
                 break;
         }
 
-        $product->update(['stock_quantity' => $newQuantity]);
+        $product->update([
+            'stock_quantity' => $newQuantity,
+            'updated_by' => Auth::id()
+        ]);
 
-        // You can log this stock adjustment in a separate table here
+        // Log stock adjustment
+        if (auth()->user()->can('log activities')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($product)
+                ->withProperties([
+                    'old_quantity' => $oldQuantity,
+                    'new_quantity' => $newQuantity,
+                    'adjustment_type' => $validated['adjustment_type'],
+                    'adjustment_amount' => $validated['quantity'],
+                    'reason' => $validated['reason'],
+                    'notes' => $validated['notes'] ?? null
+                ])
+                ->log('adjusted stock');
+        }
 
         return redirect()->back()
             ->with('success', 'Stock updated successfully. New quantity: ' . $newQuantity);
+    }
+
+    /**
+     * Export products (if you want to add export functionality)
+     */
+    public function export(Request $request)
+    {
+        // Check permission
+        if (!auth()->user()->can('export products')) {
+            abort(403, 'You do not have permission to export products.');
+        }
+
+        $companyId = Auth::user()->company_id;
+
+        $products = Product::where('company_id', $companyId)
+            ->with('category')
+            ->get();
+
+        $filename = "products_export_" . date('Y_m_d_His') . ".csv";
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function() use ($products) {
+            $file = fopen('php://output', 'w');
+
+            // Add BOM for UTF-8
+            fputs($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // Headers
+            fputcsv($file, [
+                'Product Code',
+                'Product Name',
+                'Category',
+                'Description',
+                'Unit',
+                'Stock Quantity',
+                'Reorder Level',
+                'Purchase Price',
+                'Selling Price',
+                'MRP',
+                'HSN/SAC Code',
+                'Tax Rate',
+                'Status',
+                'Batch Tracking',
+                'Expiry Tracking'
+            ]);
+
+            // Data
+            foreach ($products as $product) {
+                fputcsv($file, [
+                    $product->product_code,
+                    $product->product_name,
+                    $product->category->category_name ?? 'N/A',
+                    $product->description,
+                    $product->unit_of_measure,
+                    $product->stock_quantity,
+                    $product->reorder_level,
+                    $product->purchase_price,
+                    $product->selling_price,
+                    $product->mrp,
+                    $product->hsn_sac_code,
+                    $product->tax_rate,
+                    $product->is_active ? 'Active' : 'Inactive',
+                    $product->track_batch ? 'Yes' : 'No',
+                    $product->track_expiry ? 'Yes' : 'No',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Bulk actions (delete/activate/deactivate)
+     */
+    public function bulkAction(Request $request)
+    {
+        // Check permissions based on action
+        $action = $request->input('action');
+
+        switch ($action) {
+            case 'delete':
+                if (!auth()->user()->can('delete products')) {
+                    abort(403, 'You do not have permission to delete products.');
+                }
+                break;
+            case 'activate':
+            case 'deactivate':
+                if (!auth()->user()->can('edit products')) {
+                    abort(403, 'You do not have permission to edit products.');
+                }
+                break;
+            default:
+                abort(400, 'Invalid action');
+        }
+
+        $companyId = Auth::user()->company_id;
+        $productIds = $request->input('product_ids', []);
+
+        if (empty($productIds)) {
+            return redirect()->back()->with('error', 'No products selected.');
+        }
+
+        $products = Product::where('company_id', $companyId)
+            ->whereIn('id', $productIds)
+            ->get();
+
+        $count = 0;
+        foreach ($products as $product) {
+            switch ($action) {
+                case 'delete':
+                    // Check if product has inventory
+                    if ($product->inventories()->count() === 0) {
+                        $product->delete();
+                        $count++;
+                    }
+                    break;
+                case 'activate':
+                    $product->update(['is_active' => true, 'updated_by' => Auth::id()]);
+                    $count++;
+                    break;
+                case 'deactivate':
+                    $product->update(['is_active' => false, 'updated_by' => Auth::id()]);
+                    $count++;
+                    break;
+            }
+        }
+
+        $message = "Successfully {$action}d {$count} product(s).";
+
+        // Log bulk action
+        if (auth()->user()->can('log activities')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => $action,
+                    'product_ids' => $productIds,
+                    'affected_count' => $count
+                ])
+                ->log("performed bulk {$action} on products");
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 }
