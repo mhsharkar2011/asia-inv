@@ -43,6 +43,7 @@ Route::middleware(['auth'])->group(function () {
         // Users Management
         Route::resource('users', UserController::class);
         // Additional user routes
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('super.dashboard');
         Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
         Route::post('users/{user}/verify-email', [UserController::class, 'verifyEmail'])->name('users.verify-email');
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
@@ -57,9 +58,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('users/bulk-delete', [UserController::class, 'bulk-delete'])->name('users.bulk-delete');
         Route::get('users/bulk-activate', [UserController::class, 'bulk-activate'])->name('users.bulk-activate');
         Route::get('users/bulk-deactivate', [UserController::class, 'bulk-deactivate'])->name('users.bulk-deactivate');
-        Route::get('branches/by-company', [BranchController::class, 'getByCompany'])->name('branches.by-company')
-            ->middleware('auth');
-
+        Route::get('branches/by-company', [BranchController::class, 'getByCompany'])->name('branches.by-company')->middleware('auth');
+        Route::get('audit-logs',[UserController::class,'audit-logs'])->name('audit-logs.index');
         // Company Management
         Route::get('companies/{type?}', [CompanyController::class, 'index'])->name('companies.index');
         Route::get('companies/{type?}/create', [CompanyController::class, 'create'])->name('companies.create');
