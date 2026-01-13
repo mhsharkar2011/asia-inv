@@ -30,3 +30,21 @@ php artisan make:migration create_activity_logs_table
 
 ## Base Model Approach (Recommended)
 Create a base model that all your models extend:
+
+## How to use helper function 
+
+{
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files": [
+            "app/Helpers/DateHelper.php"
+        ]
+    }
+}
+
+composer dump-autoload
+
+
+

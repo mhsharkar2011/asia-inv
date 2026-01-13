@@ -74,14 +74,14 @@
                                         </span>
                                     @endif
                                     <span class="text-sm text-gray-500">
-                                        Member since {{ $user->created_at->format('M d, Y') }}
+                                        Member since {{ format_date($user->created_at) }}
                                     </span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <a href="{{ route('admin.users.show', $user) }}"
+                        <a href="{{ route('profile.show', ['user' => $user->id]) }}"
                             class="inline-flex items-center px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-medium
                                   text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2
                                   focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow">
@@ -111,7 +111,7 @@
 
         <!-- Main Form -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <form action="{{ route('admin.users.update', $user) }}" method="POST" enctype="multipart/form-data"
+            <form action="{{ route('profile.update', $user) }}" method="POST" enctype="multipart/form-data"
                 id="editUserForm">
                 @csrf
                 @method('PUT')
@@ -503,7 +503,7 @@
                                                 <div>
                                                     <span class="font-medium text-gray-900">Verified</span>
                                                     <p class="text-xs text-gray-500 mt-1">
-                                                        {{ $user->email_verified_at->format('M d, Y') }}
+                                                        {{ format_date($user->email_verified_at)}}
                                                     </p>
                                                 </div>
                                             @else
@@ -538,13 +538,13 @@
                                         <div class="flex justify-between items-center">
                                             <span class="text-sm text-gray-600">Account Created:</span>
                                             <span class="text-sm font-medium text-gray-900">
-                                                {{ $user->created_at->format('M d, Y') }}
+                                                {{ format_date($user->created_at) }}
                                             </span>
                                         </div>
                                         <div class="flex justify-between items-center">
                                             <span class="text-sm text-gray-600">Last Updated:</span>
                                             <span class="text-sm font-medium text-gray-900">
-                                                {{ $user->updated_at->format('M d, Y') }}
+                                                {{ format_date($user->updated_at) }}
                                             </span>
                                         </div>
                                     </div>
@@ -744,7 +744,7 @@
                     </div>
                 </div>
                 <div class="bg-gray-50 px-8 py-6 sm:px-8 sm:flex sm:flex-row-reverse rounded-b-2xl">
-                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
+                    <form action="{{ route('profile.destroy', $user) }}" method="POST" class="inline">
                         @csrf
                         @method('DELETE')
                         <button type="submit"
