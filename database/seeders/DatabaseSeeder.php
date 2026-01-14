@@ -125,6 +125,8 @@ class DatabaseSeeder extends Seeder
 
         // If you have other seeders, call them here
         $this->call(ProductSeeder::class);
+        $this->call(BranchSeeder::class);
+        $this->call(DepartmentSeeder::class);
         // $this->call(CustomersSeeder::class);
         $this->call(LoginLogsSeeder::class);
 
