@@ -12,32 +12,17 @@ use Spatie\Permission\Models\Permission;
 
 class ProductController extends Controller
 {
-    public function __construct()
-    {
-        // Apply middleware for permissions
-        $this->middleware('permission:view products')->only(['index', 'show']);
-        $this->middleware('permission:create products')->only(['create', 'store', 'generateProductCodeAjax']);
-        $this->middleware('permission:edit products')->only(['edit', 'update', 'toggleStatus']);
-        $this->middleware('permission:delete products')->only(['destroy']);
-        $this->middleware('permission:adjust stock')->only(['updateStock']);
-    }
-
     public function index(Request $request)
     {
-        // Alternative permission check (if not using middleware)
-        // if (!auth()->user()->can('view products')) {
-        //     abort(403, 'Unauthorized action.');
-        // }
-
         $companyId = Auth::user()->company_id;
         $search = $request->get('search');
         $category = $request->get('category');
         $status = $request->get('status', 'all');
         $stockStatus = $request->get('stock_status', 'all');
+        $sort = $request->get('sort', 'created_desc');
 
         // Start building the query
-        $query = Product::with('category')
-            ->where('company_id', $companyId);
+        $query = Product::with('category')->where('company_id', $companyId);
 
         // Apply search filter
         if ($search) {
@@ -54,71 +39,110 @@ class ProductController extends Controller
             $query->where('category_id', $category);
         }
 
-        // Apply status filter
-        if ($status !== 'all') {
-            $query->where('status', $status === 'active');
-        }
-
-        // Apply stock status filter
-        if ($stockStatus !== 'all') {
-            if ($stockStatus === 'low_stock') {
-                $query->whereColumn('stock_quantity', '<=', 'reorder_level')
-                    ->where('stock_quantity', '>', 0);
-            } elseif ($stockStatus === 'out_of_stock') {
-                $query->where('stock_quantity', '<=', 0);
-            } elseif ($stockStatus === 'in_stock') {
-                $query->where('stock_quantity', '>', 0)
-                    ->whereColumn('stock_quantity', '>', 'reorder_level');
+        // Apply status filter - Updated to match blade view status values
+        if ($status !== '') {
+            if ($status === 'active') {
+                $query->where('status', 1);
+            } elseif ($status === 'inactive') {
+                $query->where('status', 0);
             }
         }
 
-        // Order and paginate
-        $products = $query->orderBy('product_name')->paginate(10);
+        // Apply stock status filter - Removed as we'll handle it differently to match blade
+        // The blade view calculates status based on stock quantity
 
+        // Apply sorting
+        switch ($sort) {
+            case 'name_asc':
+                $query->orderBy('product_name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('product_name', 'desc');
+                break;
+            case 'stock_asc':
+                $query->orderBy('stock_quantity', 'asc');
+                break;
+            case 'stock_desc':
+                $query->orderBy('stock_quantity', 'desc');
+                break;
+            case 'price_asc':
+                $query->orderBy('selling_price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('selling_price', 'desc');
+                break;
+            case 'created_desc':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        // Get paginated results
+        $products = $query->paginate(10);
+
+        // Get categories
         $categories = Category::where('company_id', $companyId)
             ->orderBy('category_name')
             ->get();
 
-        // Get statistics (only for users who can view reports)
-        $stats = [];
-        if (auth()->user()->can('view inventory reports')) {
-            $stats = [
-                'total_products' => Product::where('company_id', $companyId)->count(),
-                'active_products' => Product::where('company_id', $companyId)->where('is_active', true)->count(),
-                'low_stock_count' => Product::where('company_id', $companyId)
-                    ->whereColumn('stock_quantity', '<=', 'reorder_level')
-                    ->where('stock_quantity', '>', 0)
-                    ->count(),
-                'out_of_stock_count' => Product::where('company_id', $companyId)
-                    ->where('stock_quantity', '<=', 0)
-                    ->count(),
-                'total_stock_value' => Product::where('company_id', $companyId)
-                    ->sum(\DB::raw('stock_quantity * purchase_price')),
-            ];
-        }
+        // Calculate statistics for the current filtered results
+        $active_products = clone $query;
+        $lowStockCount = clone $query;
+        $outOfStockCount = clone $query;
+        $totalStockValue = clone $query;
 
-        // Check user permissions for UI elements
-        $permissions = [
-            'can_create' => auth()->user()->can('create products'),
-            'can_edit' => auth()->user()->can('edit products'),
-            'can_delete' => auth()->user()->can('delete products'),
-            'can_adjust_stock' => auth()->user()->can('adjust stock'),
-            'can_export' => auth()->user()->can('export products'),
-            'can_view_reports' => auth()->user()->can('view inventory reports'),
-        ];
+        // Active products count (status = active/1)
+        $active_products = $active_products->where('is_active', 1)->count();
 
-        return view('inventory.products.index', compact(
-            'products',
-            'search',
-            'category',
-            'status',
-            'stockStatus',
-            'categories',
-            'stats',
-            'permissions'
-        ));
+        // Low stock count (stock <= min_stock/reorder_level and > 0)
+        $lowStockCount = $lowStockCount->whereColumn('stock_quantity', '<=', 'reorder_level')
+            ->where('stock_quantity', '>', 0)
+            ->count();
+
+        // Out of stock count
+        $outOfStockCount = $outOfStockCount->where('stock_quantity', '<=', 0)->count();
+
+        // Total stock value (sum of stock * selling_price)
+        $totalStockValue = Product::where('company_id', $companyId)
+            ->where(function ($q) use ($search, $category, $status) {
+                // Apply the same filters
+                if ($search) {
+                    $q->where(function ($q2) use ($search) {
+                        $q2->where('product_code', 'like', "%{$search}%")
+                            ->orWhere('product_name', 'like', "%{$search}%")
+                            ->orWhere('description', 'like', "%{$search}%")
+                            ->orWhere('hsn_sac_code', 'like', "%{$search}%");
+                    });
+                }
+
+                if ($category) {
+                    $q->where('category_id', $category);
+                }
+
+                if ($status !== '') {
+                    if ($status === 'active') {
+                        $q->where('status', 1);
+                    } elseif ($status === 'inactive') {
+                        $q->where('status', 0);
+                    }
+                }
+            })
+            ->sum(\DB::raw('stock_quantity * selling_price'));
+
+        // Pass data to view - Updated variable names to match blade
+        return view('inventory.products.index', [
+            'products' => $products,
+            'categories' => $categories,
+            'active_products' => $active_products,
+            'lowStockCount' => $lowStockCount,
+            'outOfStockCount' => $outOfStockCount,
+            'totalStockValue' => $totalStockValue,
+            'search' => $search,
+            'category' => $category,
+            'is_active' => $status,
+            'sort' => $sort
+        ]);
     }
-
     /**
      * Show the form for creating a new product.
      */
@@ -458,21 +482,21 @@ class ProductController extends Controller
      */
     public function updateStock(Request $request, Product $product)
     {
-        // Check permission
-        if (!auth()->user()->can('adjust stock')) {
-            abort(403, 'You do not have permission to adjust stock.');
-        }
+        // // Only require stock adjustment permission, not edit permission
+        // if (!auth()->user()->can('adjust stock')) {
+        //     abort(403, 'You do not have permission to adjust stock.');
+        // }
 
-        // Also check if user can edit this specific product
-        if (!auth()->user()->can('edit products')) {
-            abort(403, 'You do not have permission to edit products.');
-        }
+        // // Optional: Check company ownership
+        // if ($product->company_id !== Auth::user()->company_id) {
+        //     abort(403, 'You do not have permission to adjust stock for this product.');
+        // }
 
         $validated = $request->validate([
             'adjustment_type' => 'required|in:add,subtract,set',
             'quantity' => 'required|integer|min:1',
             'notes' => 'nullable|string',
-            'reason' => 'required|string|max:255',
+            // 'reason' => 'required|string|max:255',
         ]);
 
         $oldQuantity = $product->stock_quantity;
@@ -485,10 +509,14 @@ class ProductController extends Controller
                 $newQuantity = max(0, $oldQuantity - $validated['quantity']);
                 break;
             case 'set':
-                $newQuantity = $validated['quantity'];
+                $newQuantity = max(0, $validated['quantity']);
+                break;
+            default:
+                $newQuantity = $oldQuantity;
                 break;
         }
 
+        // Update product stock
         $product->update([
             'stock_quantity' => $newQuantity,
             'updated_by' => Auth::id()
@@ -504,7 +532,7 @@ class ProductController extends Controller
                     'new_quantity' => $newQuantity,
                     'adjustment_type' => $validated['adjustment_type'],
                     'adjustment_amount' => $validated['quantity'],
-                    'reason' => $validated['reason'],
+                    // 'reason' => $validated['reason'],
                     'notes' => $validated['notes'] ?? null
                 ])
                 ->log('adjusted stock');
@@ -537,7 +565,7 @@ class ProductController extends Controller
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
-        $callback = function() use ($products) {
+        $callback = function () use ($products) {
             $file = fopen('php://output', 'w');
 
             // Add BOM for UTF-8

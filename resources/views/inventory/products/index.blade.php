@@ -128,7 +128,7 @@
                             </div>
                             <div>
                                 <p class="text-sm text-gray-600">Active Products</p>
-                                <p class="text-2xl font-bold text-gray-800">{{ $activeProductsCount }}</p>
+                                <p class="text-2xl font-bold text-gray-800">{{ $active_products }}</p>
                             </div>
                         </div>
                     </div>
@@ -226,7 +226,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                         {{ $product->category ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
-                                        {{ $product->category->name ?? 'Uncategorized' }}
+                                        {{ $product->category->category_name ?? 'Uncategorized' }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">

@@ -29,12 +29,12 @@ use Illuminate\Support\Facades\Auth;
 
 // Public Routes
 Route::middleware(['auth'])->group(function () {
-Route::get('/', [HomeController::class, 'index'])->name('home');
-// User profile routes
-Route::get('/show', [ProfileController::class, 'show'])->name('profile.show');
-Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
-Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
-Route::delete('profile/delete', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+    // User profile routes
+    Route::get('/show', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('profile/delete', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 require __DIR__ . '/auth.php';
 
@@ -52,7 +52,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
         Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
         Route::get('/roles', function () {
-            return redirect()->route('dashboard')->with('info', 'Role management coming soon!');})->name('roles.index');
+            return redirect()->route('dashboard')->with('info', 'Role management coming soon!');
+        })->name('roles.index');
         Route::get('users/export', [UserController::class, 'export'])->name('users.export');
         Route::post('users/bulk-action', [UserController::class, 'bulkAction'])->name('users.bulk-action');
         Route::get('users/{user}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
@@ -61,8 +62,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('users/bulk-delete', [UserController::class, 'bulk-delete'])->name('users.bulk-delete');
         Route::get('users/bulk-activate', [UserController::class, 'bulk-activate'])->name('users.bulk-activate');
         Route::get('users/bulk-deactivate', [UserController::class, 'bulk-deactivate'])->name('users.bulk-deactivate');
-        Route::get('branches/by-company', [BranchController::class, 'getByCompany'])->name('branches.by-company')->middleware('auth');
-        Route::get('audit-logs',[UserController::class,'audit-logs'])->name('audit-logs.index');
+        Route::get('branches/by-company', [BranchController::class, 'getByCompany'])->name('branches.by-company');
+        Route::get('audit-logs', [UserController::class, 'audit-logs'])->name('audit-logs.index');
         // Company Management
         Route::get('companies/{type?}', [CompanyController::class, 'index'])->name('companies.index');
         Route::get('companies/{type?}/create', [CompanyController::class, 'create'])->name('companies.create');
@@ -80,83 +81,73 @@ Route::middleware(['auth'])->group(function () {
 // Routes for users with inventory permissions (using permissions instead of roles)
 Route::middleware(['auth'])->group(function () {
     // Inventory Management - Check permissions
-    Route::prefix('inventory')->name('inventory.')->middleware('permission:view inventory')->group(function () {
-        Route::resource('categories', CategoryController::class)->middleware('permission:manage categories');
+    Route::prefix('inventory')->name('inventory.')->group(function () {
+        Route::resource('categories', CategoryController::class);
         Route::post('categories/{id}/toggle-status', [CategoryController::class, 'toggleStatus'])
-            ->name('categories.toggle-status')->middleware('permission:manage categories');
+            ->name('categories.toggle-status');
         Route::get('categories-ajax', [CategoryController::class, 'getCategories'])
-            ->name('categories.ajax')->middleware('permission:view categories');
+            ->name('categories.ajax');
         Route::get('categories/{parentId}/subcategories', [CategoryController::class, 'getSubcategories'])
-            ->name('categories.subcategories')->middleware('permission:view categories');
+            ->name('categories.subcategories');
 
-        Route::resource('products', ProductController::class)->middleware('permission:manage products');
+        Route::resource('products', ProductController::class);
         Route::post('products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])
-            ->name('products.toggle-status')->middleware('permission:manage products');
+            ->name('products.toggle-status');
         Route::get('products-ajax', [ProductController::class, 'getProducts'])
-            ->name('products.ajax')->middleware('permission:view products');
+            ->name('products.ajax');
         Route::get('/products/generate-code', [ProductController::class, 'generateProductCodeAjax'])
-            ->name('products.generate-code')->middleware('permission:manage products');
-        Route::post('products/{product}/update-stock', [ProductController::class, 'updateStock'])
-            ->name('products.update-stock')->middleware('permission:manage stock');
+            ->name('products.generate-code');
+        Route::post('products/{product}/update-stock', [ProductController::class, 'updateStock'])->name('products.update-stock');
 
-        Route::resource('stock', StockController::class)->middleware('permission:manage stock');
-        Route::resource('warehouses', WarehouseController::class)->middleware('permission:manage warehouses');
+        Route::resource('stock', StockController::class);
+        Route::resource('warehouses', WarehouseController::class);
         Route::get('warehouses/products', [WarehouseController::class, 'getProducts'])
-            ->name('warehouses.products')->middleware('permission:view warehouses');
+            ->name('warehouses.products');
     });
 
     // Purchase Management
     Route::prefix('purchase')->name('purchase.')->group(function () {
-        Route::resource('suppliers', SupplierController::class)->middleware('permission:manage suppliers');
+        Route::resource('suppliers', SupplierController::class);
         Route::post('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])
-            ->name('suppliers.toggle-status')->middleware('permission:manage suppliers');
+            ->name('suppliers.toggle-status');
         Route::get('suppliers-ajax', [SupplierController::class, 'getSuppliers'])
-            ->name('suppliers.ajax')->middleware('permission:view suppliers');
+            ->name('suppliers.ajax');
 
-        Route::resource('purchase-orders', PurchaseOrderController::class)->middleware('permission:manage purchase orders');
+        Route::resource('purchase-orders', PurchaseOrderController::class);
     });
 
     // Sales Management
-    Route::prefix('sales')->name('sales.')->middleware('permission:view sales')->group(function () {
-        Route::resource('customers', CustomerController::class)->middleware('permission:manage customers');
+    Route::prefix('sales')->name('sales.')->group(function () {
+        Route::resource('customers', CustomerController::class);
         Route::post('customers/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])
-            ->name('customers.toggle-status')->middleware('permission:manage customers');
+            ->name('customers.toggle-status');
         Route::get('customers-ajax', [CustomerController::class, 'getCustomers'])
-            ->name('customers.ajax')->middleware('permission:view customers');
+            ->name('customers.ajax');
 
-        Route::resource('sales-orders', SalesOrderController::class)->middleware('permission:manage sales orders');
-        Route::post('sales-orders/{salesOrder}/change-status', [SalesOrderController::class, 'changeStatus'])
-            ->name('sales-orders.change-status')->middleware('permission:manage sales orders');
-        Route::get('sales-orders/{salesOrder}/convert-to-invoice', [SalesOrderController::class, 'convertToInvoice'])
-            ->name('sales-orders.convert-to-invoice')->middleware('permission:manage sales orders');
-        Route::get('sales-orders/{salesOrder}/print', [SalesOrderController::class, 'print'])
-            ->name('sales-orders.print')->middleware('permission:view sales orders');
-        Route::post('sales-orders/{sales_order}/confirm', [SalesOrderController::class, 'confirm'])
-            ->name('sales-orders.confirm')->middleware('permission:manage sales orders');
-        Route::get('sales-orders/export', [SalesOrderController::class, 'export'])
-            ->name('sales-orders.export')->middleware('permission:export sales');
+        Route::resource('sales-orders', SalesOrderController::class);
+        Route::post('sales-orders/{salesOrder}/change-status', [SalesOrderController::class, 'changeStatus'])->name('sales-orders.change-status');
+        Route::get('sales-orders/{salesOrder}/convert-to-invoice', [SalesOrderController::class, 'convertToInvoice'])->name('sales-orders.convert-to-invoice');
+        Route::get('sales-orders/{salesOrder}/print', [SalesOrderController::class, 'print'])->name('sales-orders.print');
+        Route::post('sales-orders/{sales_order}/confirm', [SalesOrderController::class, 'confirm'])->name('sales-orders.confirm');
+        Route::get('sales-orders/export', [SalesOrderController::class, 'export'])->name('sales-orders.export');
 
-        Route::resource('invoices', InvoiceController::class)->middleware('permission:manage invoices');
-        Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])
-            ->name('invoices.download')->middleware('permission:view invoices');
-        Route::get('invoices/{invoice}/send', [InvoiceController::class, 'send'])
-            ->name('invoices.send')->middleware('permission:manage invoices');
-        Route::post('invoices/{invoice}/payment', [InvoiceController::class, 'recordPayment'])
-            ->name('invoices.payment')->middleware('permission:manage invoices');
-        Route::get('invoices/{invoice}/print', [InvoiceController::class, 'print'])
-            ->name('invoices.print')->middleware('permission:view invoices');
+        Route::resource('invoices', InvoiceController::class);
+        Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
+        Route::get('invoices/{invoice}/send', [InvoiceController::class, 'send'])->name('invoices.send');
+        Route::post('invoices/{invoice}/payment', [InvoiceController::class, 'recordPayment'])->name('invoices.payment');
+        Route::get('invoices/{invoice}/print', [InvoiceController::class, 'print'])->name('invoices.print');
     });
 
     // Reports
-    Route::prefix('reports')->name('reports.')->middleware('permission:view reports')->group(function () {
+    Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
         Route::get('/dashboard/reports-generate', [ReportController::class, 'reportsGenerate'])->name('dashboard.reports-generate');
-        Route::get('/sales', [ReportController::class, 'salesReport'])->name('sales')->middleware('permission:view sales reports');
-        Route::get('/customers', [ReportController::class, 'customerReport'])->name('customers')->middleware('permission:view customer reports');
-        Route::get('/products', [ReportController::class, 'productReport'])->name('products')->middleware('permission:view product reports');
-        Route::get('/tax', [ReportController::class, 'taxReport'])->name('tax')->middleware('permission:view tax reports');
-        Route::post('/export/pdf', [ReportController::class, 'exportPdf'])->name('export.pdf')->middleware('permission:export reports');
-        Route::post('/export/excel', [ReportController::class, 'exportExcel'])->name('export.excel')->middleware('permission:export reports');
+        Route::get('/sales', [ReportController::class, 'salesReport'])->name('sales');
+        Route::get('/customers', [ReportController::class, 'customerReport'])->name('customers');
+        Route::get('/products', [ReportController::class, 'productReport'])->name('products');
+        Route::get('/tax', [ReportController::class, 'taxReport'])->name('tax');
+        Route::post('/export/pdf', [ReportController::class, 'exportPdf'])->name('export.pdf');
+        Route::post('/export/excel', [ReportController::class, 'exportExcel'])->name('export.excel');
         Route::get('/placeholder', [ReportController::class, 'placeholder'])->name('placeholder');
         Route::get('inventory', [ReportController::class, 'inventory'])->name('inventory');
         Route::get('financial', [ReportController::class, 'financial'])->name('financial');
