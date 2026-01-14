@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Auth;
 Route::middleware(['auth'])->group(function () {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 // User profile routes
-Route::get('/', [ProfileController::class, 'show'])->name('profile.show');
+Route::get('/show', [ProfileController::class, 'show'])->name('profile.show');
 Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
 Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
 Route::delete('profile/delete', [ProfileController::class, 'destroy'])->name('profile.destroy');
