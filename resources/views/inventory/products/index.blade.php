@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="py-6">
@@ -215,10 +215,10 @@
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900">
-                                                {{ $product->name }}
+                                                {{ $product->product_name }}
                                             </div>
                                             <div class="text-sm text-gray-500">
-                                                SKU: {{ $product->sku ?? 'N/A' }}
+                                                Product Code: {{ $product->product_code ?? 'N/A' }}
                                             </div>
                                         </div>
                                     </div>

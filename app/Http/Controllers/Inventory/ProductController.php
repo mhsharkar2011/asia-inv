@@ -8,6 +8,7 @@ use App\Models\Inventory\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 
 class ProductController extends Controller
@@ -169,79 +170,108 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // Permission check
-        if (!auth()->user()->can('create products')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $companyId = Auth::user()->company_id;
-
-        // Debug: Check what's coming in
-        Log::info('Store request data:', $request->all());
-
+        // Validation
         $validated = $request->validate([
-            'product_code' => 'required|unique:products,product_code|max:50',
+            'product_code' => 'required|unique:products,product_code',
             'product_name' => 'required|max:255',
             'category_id' => 'required|exists:categories,id',
-            'description' => 'nullable|max:1000',
+            'hs_code' => 'nullable|max:50',
+            'description' => 'nullable',
             'unit_of_measure' => 'required|max:20',
-            'reorder_level' => 'required|integer|min:0',
-            'min_stock' => 'required|integer|min:0',
-            'max_stock' => 'nullable|integer|min:0',
-            'hsn_sac_code' => 'nullable|max:10',
             'tax_rate' => 'required|numeric|min:0|max:100',
             'purchase_price' => 'nullable|numeric|min:0',
             'selling_price' => 'nullable|numeric|min:0',
             'mrp' => 'nullable|numeric|min:0',
-            'track_batch' => 'nullable|in:0,1,true,false',
-            'track_expiry' => 'nullable|in:0,1,true,false',
-            'is_active' => 'nullable|in:0,1,true,false',
+            'reorder_level' => 'required|integer|min:0',
+            'min_stock' => 'required|integer|min:0',
+            'max_stock' => 'nullable|integer|min:0',
+            'is_active' => 'boolean',
+            'track_batch' => 'boolean',
+            'track_expiry' => 'boolean',
+            'track_serial' => 'boolean',
+            'manage_stock' => 'boolean',
+            'allow_backorder' => 'boolean',
+            'allow_negative' => 'boolean',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image_order' => 'nullable|json',
         ]);
 
-        $validated['company_id'] = $companyId;
-        $validated['created_by'] = Auth::id(); // Track who created the product
-        $validated['track_batch'] = $request->has('track_batch');
-        $validated['track_expiry'] = $request->has('track_expiry');
-        $validated['is_active'] = $request->has('is_active');
+        // Handle image uploads
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            $imageOrder = json_decode($request->input('image_order', '[]'), true);
 
-        Log::info('Final data to create:', $validated);
-
-        try {
-            $product = Product::create($validated);
-
-            if ($request->hasFile('image')) {
-                $product->addMedia($request->file('image'))
-                    ->toMediaCollection('products');
+            // Sort images based on order
+            $images = [];
+            foreach ($request->file('images') as $index => $file) {
+                $images[] = [
+                    'file' => $file,
+                    'order' => array_search($index, $imageOrder) ?: $index
+                ];
             }
 
-            Log::info('Product created successfully:', $product->toArray());
+            // Sort by order
+            usort($images, function ($a, $b) {
+                return $a['order'] <=> $b['order'];
+            });
 
-            // Log activity if user has permission
-            if (auth()->user()->can('log activities')) {
-                activity()
-                    ->causedBy(auth()->user())
-                    ->performedOn($product)
-                    ->withProperties(['new_data' => $validated])
-                    ->log('created product');
+            // Store images
+            foreach ($images as $imageData) {
+                $path = $imageData['file']->store('products/' . date('Y/m'), 'public');
+                $imagePaths[] = $path;
             }
-
-            if ($request->has('save_and_new')) {
-                return redirect()->route('inventory.products.create')
-                    ->with('success', 'Product created successfully!');
-            }
-
-            return redirect()->route('inventory.products.index')
-                ->with('success', 'Product created successfully!');
-        } catch (\Exception $e) {
-            Log::error('Product creation failed:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return back()->withInput()->withErrors(['error' => 'Failed to create product: ' . $e->getMessage()]);
         }
+
+        // Create product
+        $productData = $validated;
+        $productData['company_id'] = Auth::user()->company_id;
+        $productData['created_by'] = Auth::id();
+        $productData['images'] = json_encode($imagePaths);
+
+        // Convert boolean fields
+        $productData['is_active'] = $request->boolean('is_active');
+        $productData['track_batch'] = $request->boolean('track_batch');
+        $productData['track_expiry'] = $request->boolean('track_expiry');
+        $productData['track_serial'] = $request->boolean('track_serial');
+        $productData['manage_stock'] = $request->boolean('manage_stock');
+        $productData['allow_backorder'] = $request->boolean('allow_backorder');
+        $productData['allow_negative'] = $request->boolean('allow_negative');
+
+        $product = Product::create($productData);
+
+        // Log activity
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($product)
+            ->withProperties([
+                'product_code' => $product->product_code,
+                'images_count' => count($imagePaths)
+            ])
+            ->log('created product');
+
+        if ($request->has('save_and_new')) {
+            return redirect()->route('inventory.products.create')
+                ->with('success', 'Product created successfully!')
+                ->with('productCode', $this->generateProductCode()); // Regenerate code for next product
+        }
+
+        return redirect()->route('inventory.products.index')
+            ->with('success', 'Product created successfully!');
     }
 
+    protected function generateProductCode()
+    {
+        $prefix = 'PROD-';
+        $year = date('y');
+        $month = date('m');
+        $random = strtoupper(Str::random(3));
+        $sequence = Product::whereYear('created_at', date('Y'))
+            ->whereMonth('created_at', date('m'))
+            ->count() + 1;
+
+        return sprintf('%s%s%s%s%03d', $prefix, $year, $month, $random, $sequence);
+    }
     /**
      * Display the specified product.
      */

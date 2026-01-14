@@ -2,6 +2,7 @@
 
 namespace App\Models\Inventory;
 
+use Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +16,7 @@ class Product extends Model
         'company_id',
         'product_code',
         'product_name',
+        'images',
         'description',
         'category_id',
         'cost_price',
@@ -23,8 +25,6 @@ class Product extends Model
         'reorder_level',
         'hs_code',
         'ait_rate',
-        'status',
-        // Add these if you have them
         'unit_of_measure',
         'purchase_price',
         'mrp',
@@ -51,7 +51,23 @@ class Product extends Model
         'track_batch' => 'boolean',
         'track_expiry' => 'boolean',
         'is_active' => 'boolean',
+        'images' =>'array',
     ];
+
+
+     protected function images(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                if (!$value) return [];
+
+                $images = json_decode($value, true);
+                return array_map(function ($image) {
+                    return asset('storage/' . $image);
+                }, $images);
+            }
+        );
+    }
 
     /**
      * Get the inventories for the product.
