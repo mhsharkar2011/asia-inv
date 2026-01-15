@@ -60,19 +60,44 @@ class CategoryController extends Controller
         $companyId = Auth::user()->company_id;
 
         $validated = $request->validate([
-            'category_code' => 'required|unique:categories,category_code|max:50',
-            'category_name' => 'required|max:255',
+            'category_name' => 'required|string|max:255|unique:categories,category_name,NULL,id,company_id,' . $companyId,
+            'category_code' => 'nullable|string|max:50|unique:categories,category_code,NULL,id,company_id,' . $companyId,
             'parent_category_id' => 'nullable|exists:categories,id',
-            'description' => 'nullable|max:1000',
+            'description' => 'nullable|string',
             'tax_rate_applicable' => 'nullable|numeric|min:0|max:100',
         ]);
 
-        // $validated['company_id'] = $companyId;
+        // Add company_id and created_by to validated data
+        $validated['company_id'] = $companyId;
+        $validated['created_by'] = Auth::id();
+
+        // If category_code is empty, generate one from category_name
+        if (empty($validated['category_code'])) {
+            $validated['category_code'] = strtoupper(substr($validated['category_name'], 0, 4));
+        }
+
+        // Check if the generated code already exists for this company
+        $codeExists = Category::where('company_id', $companyId)
+            ->where('category_code', $validated['category_code'])
+            ->exists();
+
+        if ($codeExists) {
+            // Append numbers to make it unique
+            $baseCode = $validated['category_code'];
+            $counter = 1;
+            do {
+                $validated['category_code'] = $baseCode . $counter;
+                $counter++;
+            } while (Category::where('company_id', $companyId)
+                ->where('category_code', $validated['category_code'])
+                ->exists()
+            );
+        }
 
         Category::create($validated);
 
         return redirect()->route('inventory.categories.index')
-            ->with('success', 'Category created successfully!');
+            ->with('success', 'Category created successfully.');
     }
 
     /**
