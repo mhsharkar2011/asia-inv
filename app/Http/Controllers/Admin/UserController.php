@@ -10,11 +10,13 @@ use App\Models\Admin\User;
 use App\Models\LoginLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rules;
+use Pest\Support\View;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -219,14 +221,14 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        $user->load('roles', 'permissions', 'activities', 'loginLogs');
+        $user->load('company', 'branch', 'permissions', 'activities', 'loginLogs');
 
         // Get all permissions grouped by module
         $allPermissions = Permission::orderBy('name')->get()->groupBy(function ($permission) {
             return explode('.', $permission->name)[0] ?? 'general';
         });
 
-        return view('admin.users.show', compact('user', 'allPermissions'));
+        return view('profile.show', compact('user', 'allPermissions'));
     }
 
     public function edit(User $user)
@@ -767,5 +769,125 @@ class UserController extends Controller
             ->paginate(20);
 
         return view('admin.users.login-history', compact('user', 'loginLogs'));
+    }
+
+
+    /**
+     * Show the form for editing user roles.
+     */
+    public function editRoles(User $user)
+    {
+        // Check permission
+        $this->authorize('manage roles');
+
+        // Get all roles
+        $roles = Role::orderBy('name')->get();
+
+        // Get user's current role IDs
+        $userRoleIds = $user->roles->pluck('id')->toArray();
+
+        return view('admin.users.roles.edit', compact('user', 'roles', 'userRoleIds'));
+    }
+
+    /**
+     * Update user roles.
+     */
+    public function updateRoles(Request $request, User $user)
+    {
+        // Check permission
+        $this->authorize('manage roles');
+
+        $validated = $request->validate([
+            'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Sync roles
+            $user->syncRoles($validated['roles'] ?? []);
+
+            // Log activity
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($user)
+                ->withProperties([
+                    'roles' => $validated['roles'] ?? [],
+                    'old_roles' => $user->roles->pluck('name')->toArray()
+                ])
+                ->log('updated user roles');
+
+            DB::commit();
+
+            return redirect()->route('admin.users.show', $user)
+                ->with('success', 'User roles updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->back()
+                ->with('error', 'Failed to update roles: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show the form for editing user permissions.
+     */
+    public function editPermissions(User $user)
+    {
+        // Check permission
+        $this->authorize('manage permissions');
+
+        // Get all permissions grouped by guard name
+        $permissions = \Spatie\Permission\Models\Permission::orderBy('name')->get();
+
+        // Get user's direct permissions (excluding role permissions)
+        $userPermissionIds = $user->getDirectPermissions()->pluck('id')->toArray();
+
+        return view('admin.users.permissions.edit', compact('user', 'permissions', 'userPermissionIds'));
+    }
+    /**
+     * Update user permissions.
+     */
+    public function updatePermissions(Request $request, User $user)
+    {
+        // Check permission
+        $this->authorize('manage permissions');
+
+        $validated = $request->validate([
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Get current direct permissions
+            $currentPermissions = $user->getDirectPermissions()->pluck('id')->toArray();
+
+            // Sync permissions (only direct permissions)
+            $permissionIds = $validated['permissions'] ?? [];
+            $user->syncPermissions($permissionIds);
+
+            // Log activity
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($user)
+                ->withProperties([
+                    'permissions_added' => array_diff($permissionIds, $currentPermissions),
+                    'permissions_removed' => array_diff($currentPermissions, $permissionIds)
+                ])
+                ->log('updated user permissions');
+
+            DB::commit();
+
+            return redirect()->route('admin.users.show', $user)
+                ->with('success', 'User permissions updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->back()
+                ->with('error', 'Failed to update permissions: ' . $e->getMessage());
+        }
     }
 }

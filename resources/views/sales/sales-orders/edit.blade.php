@@ -187,27 +187,27 @@
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Customer *</label>
                                         <select name="customer_id" id="customerSelect"
-                                            class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('customer_id') border-red-300 @enderror {{ $salesOrder->status != 'draft' ? 'bg-gray-50' : '' }}"
+                                            class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('id') border-red-300 @enderror {{ $salesOrder->status != 'draft' ? 'bg-gray-50' : '' }}"
                                             {{ $salesOrder->status != 'draft' ? 'disabled' : 'required' }}>
                                             <option value="">Select Customer</option>
                                             @foreach ($customers as $customer)
-                                                <option value="{{ $customer->id }}"
-                                                    {{ old('customer_id', $salesOrder->customer_id) == $customer->id ? 'selected' : '' }}
+                                                <option value="{{ $customer->customer_id }}"
+                                                    {{ old('id', $salesOrder->id) == $customer->customer_id ? 'selected' : '' }}
                                                     data-address="{{ $customer->address ?? '' }}"
                                                     data-phone="{{ $customer->phone ?? '' }}"
                                                     data-email="{{ $customer->email ?? '' }}">
-                                                    {{ $customer->customer_name }}
-                                                    @if ($customer->company_name)
-                                                        ({{ $customer->company_name }})
+                                                    {{ $customer->name }}
+                                                    @if ($customer->name)
+                                                        ({{ $customer->name }})
                                                     @endif
                                                 </option>
                                             @endforeach
                                         </select>
                                         @if ($salesOrder->status != 'draft')
                                             <input type="hidden" name="customer_id"
-                                                value="{{ $salesOrder->customer_id }}">
+                                                value="{{ $salesOrder->id }}">
                                         @endif
-                                        @error('customer_id')
+                                        @error('id')
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
@@ -861,11 +861,11 @@
                                 <div id="customerDetails" class="space-y-3">
                                     <div>
                                         <p class="text-sm font-medium text-gray-900">
-                                            {{ $salesOrder->customer->customer_name }}</p>
-                                        @if ($salesOrder->customer->company_name)
+                                            {{ $salesOrder->customer->name }}</p>
+                                        @if ($salesOrder->customer->name)
                                             <p class="text-xs text-gray-600 mt-1"><span
                                                     class="font-medium">Company:</span>
-                                                {{ $salesOrder->customer->company_name }}</p>
+                                                {{ $salesOrder->customer->name }}</p>
                                         @endif
                                     </div>
                                     @if ($salesOrder->customer->email)

@@ -24,7 +24,8 @@
                 <!-- Desktop Navigation - ONLY FOR AUTHENTICATED USERS -->
                 @auth
                     <div class="hidden md:flex items-center space-x-1 ml-10">
-                        @if (auth()->user()->can('view dashboard') || auth()->user()->hasRole(['admin', 'super-admin']))
+                        @if (auth()->user()->can('view dashboard') ||
+                                auth()->user()->hasRole(['admin', 'super-admin']))
                             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')"
                                 class="relative px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 group">
                                 <div class="flex items-center space-x-2">
@@ -41,13 +42,14 @@
 
                         <!-- Inventory Dropdown -->
                         @if (auth()->user()->canAny([
-                                'manage inventory',
-                                'view products',
-                                'view categories',
-                                'view suppliers',
-                                'view purchases',
-                                'view sales',
-                            ]) || auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager', 'sales-person']))
+                                    'manage inventory',
+                                    'view products',
+                                    'view categories',
+                                    'view suppliers',
+                                    'view purchases',
+                                    'view sales',
+                                ]) ||
+                                auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager', 'sales-person']))
                             <div class="relative" x-data="{ open: false }">
                                 <button @click="open = !open" @click.away="open = false"
                                     class="flex items-center space-x-2 px-4 py-2 rounded-lg font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 group"
@@ -80,7 +82,8 @@
                                         </a>
                                     @endif
 
-                                    @if (auth()->user()->can('view categories') || auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
+                                    @if (auth()->user()->can('view categories') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
                                         <a href="{{ route('inventory.categories.index') }}"
                                             class="flex items-center space-x-3 px-4 py-3 hover:bg-green-50 group transition-colors {{ request()->routeIs('inventory.categories.*') ? 'bg-green-50 text-green-600 border-r-3 border-green-500' : 'text-gray-700' }}">
                                             <div
@@ -94,7 +97,8 @@
                                         </a>
                                     @endif
 
-                                    @if (auth()->user()->can('view suppliers') || auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
+                                    @if (auth()->user()->can('view suppliers') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
                                         <a href="{{ route('purchase.suppliers.index') }}"
                                             class="flex items-center space-x-3 px-4 py-3 hover:bg-purple-50 group transition-colors {{ request()->routeIs('purchase.suppliers.*') ? 'bg-purple-50 text-purple-600 border-r-3 border-purple-500' : 'text-gray-700' }}">
                                             <div
@@ -108,7 +112,8 @@
                                         </a>
                                     @endif
 
-                                    @if (auth()->user()->can('view purchases') || auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
+                                    @if (auth()->user()->can('view purchases') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
                                         <a href="{{ route('purchase.purchase-orders.index') }}"
                                             class="flex items-center space-x-3 px-4 py-3 hover:bg-amber-50 group transition-colors {{ request()->routeIs('purchases.*') ? 'bg-amber-50 text-amber-600 border-r-3 border-amber-500' : 'text-gray-700' }}">
                                             <div
@@ -137,7 +142,8 @@
                                         </a>
                                     @endif
 
-                                    @if (auth()->user()->can('manage inventory') || auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
+                                    @if (auth()->user()->can('manage inventory') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
                                         <div class="border-t border-gray-100 mt-2 pt-2">
                                             <a href="{{ route('dashboard') }}"
                                                 class="flex items-center space-x-3 px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 group transition-colors">
@@ -158,13 +164,14 @@
 
                         <!-- Reports Dropdown -->
                         @if (auth()->user()->canAny([
-                                'view reports',
-                                'generate reports',
-                                'view financial reports',
-                                'view inventory reports',
-                                'view sales reports',
-                                'view purchase reports',
-                            ]) || auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                                    'view reports',
+                                    'generate reports',
+                                    'view financial reports',
+                                    'view inventory reports',
+                                    'view sales reports',
+                                    'view purchase reports',
+                                ]) ||
+                                auth()->user()->hasAnyRole(['admin', 'super-admin']))
                             <div class="relative" x-data="{ open: false }">
                                 <button @click="open = !open" @click.away="open = false"
                                     class="flex items-center space-x-2 px-4 py-2 rounded-lg font-medium text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200 group"
@@ -182,7 +189,84 @@
                                     x-transition:leave-start="opacity-100 translate-y-0"
                                     x-transition:leave-end="opacity-0 translate-y-2"
                                     class="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
-                                    <!-- Reports dropdown items (same as before but using auth()->user()) -->
+
+                                    <!-- Reports Dropdown Items -->
+                                    @if (auth()->user()->can('view financial reports') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                                        <a href="{{ route('reports.financial') }}"
+                                            class="flex items-center space-x-3 px-4 py-3 hover:bg-green-50 group transition-colors">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center group-hover:bg-green-200">
+                                                <i class="fas fa-chart-line text-green-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium">Financial Reports</span>
+                                                <p class="text-xs text-gray-500">Profit & loss, balance sheets</p>
+                                            </div>
+                                        </a>
+                                    @endif
+
+                                    @if (auth()->user()->can('view inventory reports') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
+                                        <a href="{{ route('reports.inventory') }}"
+                                            class="flex items-center space-x-3 px-4 py-3 hover:bg-blue-50 group transition-colors">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200">
+                                                <i class="fas fa-boxes text-blue-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium">Inventory Reports</span>
+                                                <p class="text-xs text-gray-500">Stock levels & movements</p>
+                                            </div>
+                                        </a>
+                                    @endif
+
+                                    @if (auth()->user()->can('view sales reports') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin', 'sales-person']))
+                                        <a href="{{ route('reports.sales') }}"
+                                            class="flex items-center space-x-3 px-4 py-3 hover:bg-purple-50 group transition-colors">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center group-hover:bg-purple-200">
+                                                <i class="fas fa-chart-bar text-purple-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium">Sales Reports</span>
+                                                <p class="text-xs text-gray-500">Sales performance & trends</p>
+                                            </div>
+                                        </a>
+                                    @endif
+
+                                    @if (auth()->user()->can('view purchase reports') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
+                                        <a href="{{ route('reports.purchases') }}"
+                                            class="flex items-center space-x-3 px-4 py-3 hover:bg-amber-50 group transition-colors">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center group-hover:bg-amber-200">
+                                                <i class="fas fa-shopping-cart text-amber-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium">Purchase Reports</span>
+                                                <p class="text-xs text-gray-500">Supplier & purchase analysis</p>
+                                            </div>
+                                        </a>
+                                    @endif
+
+                                    @if (auth()->user()->can('generate reports') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                                        <div class="border-t border-gray-100 mt-2 pt-2">
+                                            <a href="{{ route('reports.customers') }}"
+                                                class="flex items-center space-x-3 px-4 py-3 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-100 group transition-colors">
+                                                <div
+                                                    class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                    <i class="fas fa-file-alt text-white text-sm"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium text-emerald-600">Custom Reports</span>
+                                                    <p class="text-xs text-emerald-500">Generate custom reports</p>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         @endif
@@ -193,10 +277,12 @@
                                 <button @click="open = !open" @click.away="open = false"
                                     class="flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 group"
                                     :class="auth()->user()->hasRole('super-admin')
-                                                                        ? 'text-rose-600 hover:text-rose-700 hover:bg-rose-50'
-                                                                        : 'text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50'"
-                                    :class="{ 'bg-rose-50': open && auth()->user()->hasRole('super-admin'),
-                                                                             'bg-indigo-50': open && auth()->user()->hasRole('admin') }">
+                                                                            ? 'text-rose-600 hover:text-rose-700 hover:bg-rose-50'
+                                                                            : 'text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50'"
+                                    :class="{
+                                                                            'bg-rose-50': open && auth()->user()->hasRole('super-admin'),
+                                                                            'bg-indigo-50': open && auth()->user()->hasRole('admin')
+                                                                        }">
                                     @if (auth()->user()->hasRole('super-admin'))
                                         <i class="fas fa-crown text-rose-500"></i>
                                     @else
@@ -215,7 +301,113 @@
                                     x-transition:leave-end="opacity-0 translate-y-2"
                                     class="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50"
                                     :class="auth()->user()->hasRole('super-admin') ? 'border-rose-100' : 'border-indigo-100'">
-                                    <!-- Admin dropdown items (same as before but using auth()->user()) -->
+
+                                    <!-- Admin Dropdown Items -->
+                                    @if (auth()->user()->can('view users') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                                        <a href="{{ route('admin.users.index') }}"
+                                            class="flex items-center space-x-3 px-4 py-3 hover:bg-indigo-50 group transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-indigo-50 text-indigo-600 border-r-3 border-indigo-500' : 'text-gray-700' }}">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-200">
+                                                <i class="fas fa-users text-indigo-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium">Users</span>
+                                                <p class="text-xs text-gray-500">Manage users & roles</p>
+                                            </div>
+                                        </a>
+                                    @endif
+
+                                    @if (auth()->user()->can('manage roles') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                                        <a href="{{ route('admin.roles.index') }}"
+                                            class="flex items-center space-x-3 px-4 py-3 hover:bg-purple-50 group transition-colors {{ request()->routeIs('admin.roles.*') ? 'bg-purple-50 text-purple-600 border-r-3 border-purple-500' : 'text-gray-700' }}">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center group-hover:bg-purple-200">
+                                                <i class="fas fa-user-shield text-purple-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium">Roles & Permissions</span>
+                                                <p class="text-xs text-gray-500">Manage access controls</p>
+                                            </div>
+                                        </a>
+                                    @endif
+
+                                    @if (auth()->user()->can('manage departments') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                                        <a href="{{ route('admin.departments.index') }}"
+                                            class="flex items-center space-x-3 px-4 py-3 hover:bg-blue-50 group transition-colors {{ request()->routeIs('admin.departments.*') ? 'bg-blue-50 text-blue-600 border-r-3 border-blue-500' : 'text-gray-700' }}">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200">
+                                                <i class="fas fa-building text-blue-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium">Departments</span>
+                                                <p class="text-xs text-gray-500">Organization structure</p>
+                                            </div>
+                                        </a>
+                                    @endif
+
+                                    @if (auth()->user()->can('manage companies') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                                        <a href="{{ route('admin.companies.index') }}"
+                                            class="flex items-center space-x-3 px-4 py-3 hover:bg-green-50 group transition-colors {{ request()->routeIs('admin.companies.*') ? 'bg-green-50 text-green-600 border-r-3 border-green-500' : 'text-gray-700' }}">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center group-hover:bg-green-200">
+                                                <i class="fas fa-warehouse text-green-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium">Companies</span>
+                                                <p class="text-xs text-gray-500">Manage companies</p>
+                                            </div>
+                                        </a>
+                                    @endif
+
+                                    @if (auth()->user()->can('manage branches') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                                        <a href="{{ route('admin.branches.index') }}"
+                                            class="flex items-center space-x-3 px-4 py-3 hover:bg-amber-50 group transition-colors {{ request()->routeIs('admin.branches.*') ? 'bg-amber-50 text-amber-600 border-r-3 border-amber-500' : 'text-gray-700' }}">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center group-hover:bg-amber-200">
+                                                <i class="fas fa-code-branch text-amber-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium">Branches</span>
+                                                <p class="text-xs text-gray-500">Manage branches</p>
+                                            </div>
+                                        </a>
+                                    @endif
+
+                                    @if (auth()->user()->can('view audit logs') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                                        <a href="{{ route('admin.audit-logs.index') }}"
+                                            class="flex items-center space-x-3 px-4 py-3 hover:bg-red-50 group transition-colors {{ request()->routeIs('admin.audit-logs.*') ? 'bg-red-50 text-red-600 border-r-3 border-red-500' : 'text-gray-700' }}">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center group-hover:bg-red-200">
+                                                <i class="fas fa-history text-red-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium">Audit Logs</span>
+                                                <p class="text-xs text-gray-500">System activities</p>
+                                            </div>
+                                        </a>
+                                    @endif
+
+                                    @if (auth()->user()->hasRole('super-admin'))
+                                        <div class="border-t border-gray-100 mt-2 pt-2">
+                                            <a href="{{ route('admin.system-settings') }}"
+                                                class="flex items-center space-x-3 px-4 py-3 hover:bg-gradient-to-r hover:from-rose-50 hover:to-pink-50 group transition-colors">
+                                                <div
+                                                    class="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                    <i class="fas fa-cogs text-white text-sm"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="font-medium text-rose-600">System Settings</span>
+                                                    <p class="text-xs text-rose-500">Configuration & setup</p>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         @endif
@@ -259,7 +451,8 @@
                             </div>
                             <div class="hidden md:block text-left">
                                 <p class="font-medium text-gray-900">{{ auth()->user()->name }}</p>
-                                <p class="text-xs text-gray-500">{{ auth()->user()->getRoleNames()->first() ?? 'User' }}</p>
+                                <p class="text-xs text-gray-500">{{ auth()->user()->getRoleNames()->first() ?? 'User' }}
+                                </p>
                             </div>
                             <i class="fas fa-chevron-down text-gray-400 text-sm transition-transform duration-200"
                                 :class="{ 'rotate-180': open }"></i>
@@ -272,7 +465,65 @@
                             x-transition:leave-start="opacity-100 translate-y-0"
                             x-transition:leave-end="opacity-0 translate-y-2"
                             class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
-                            <!-- User dropdown menu (same as before but using auth()->user()) -->
+
+                            <!-- Profile -->
+                            <a href="{{ route('profile.show') }}"
+                                class="flex items-center space-x-3 px-4 py-3 hover:bg-blue-50 group transition-colors">
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200">
+                                    <i class="fas fa-user text-blue-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <span class="font-medium">Your Profile</span>
+                                    <p class="text-xs text-gray-500">View & edit profile</p>
+                                </div>
+                            </a>
+
+                            <!-- Settings -->
+                            <a href="{{ route('profile.settings') }}"
+                                class="flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 group transition-colors">
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-gray-200">
+                                    <i class="fas fa-cog text-gray-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <span class="font-medium">Settings</span>
+                                    <p class="text-xs text-gray-500">Preferences & account</p>
+                                </div>
+                            </a>
+
+                            @if (auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                                <!-- Switch to Admin -->
+                                <a href="{{ route('dashboard') }}"
+                                    class="flex items-center space-x-3 px-4 py-3 hover:bg-indigo-50 group transition-colors">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-200">
+                                        <i class="fas fa-shield-alt text-indigo-600 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium">Admin Panel</span>
+                                        <p class="text-xs text-gray-500">Switch to admin view</p>
+                                    </div>
+                                </a>
+                            @endif
+
+                            <div class="border-t border-gray-100 my-2"></div>
+
+                            <!-- Logout -->
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                    class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-red-50 group transition-colors text-left">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center group-hover:bg-red-200">
+                                        <i class="fas fa-sign-out-alt text-red-600 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium text-red-600">Logout</span>
+                                        <p class="text-xs text-gray-500">Sign out from account</p>
+                                    </div>
+                                </button>
+                            </form>
                         </div>
                     </div>
 
@@ -286,12 +537,12 @@
                 <!-- Guest User Links (when not authenticated) -->
                 <div class="flex items-center space-x-4">
                     <a href="{{ route('login') }}"
-                       class="text-gray-700 hover:text-blue-600 font-medium px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors">
+                        class="text-gray-700 hover:text-blue-600 font-medium px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors">
                         {{ __('Login') }}
                     </a>
                     @if (Route::has('register'))
                         <a href="{{ route('register') }}"
-                           class="bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-sm">
+                            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-sm">
                             {{ __('Register') }}
                         </a>
                     @endif
@@ -320,7 +571,8 @@
                     </div>
                 </div>
 
-                @if (auth()->user()->can('view dashboard') || auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                @if (auth()->user()->can('view dashboard') ||
+                        auth()->user()->hasAnyRole(['admin', 'super-admin']))
                     <a href="{{ route('dashboard') }}"
                         class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-blue-50 transition-colors {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-600' : 'text-gray-700' }}">
                         <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
@@ -350,10 +602,86 @@
                                 </a>
                             @endif
 
-                            <!-- Other mobile inventory links -->
+                            @if (auth()->user()->can('view categories') ||
+                                    auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
+                                <a href="{{ route('inventory.categories.index') }}"
+                                    class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-green-50 transition-colors {{ request()->routeIs('inventory.categories.*') ? 'bg-green-50 text-green-600' : 'text-gray-700' }}">
+                                    <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                                        <i class="fas fa-tags text-green-600 text-sm"></i>
+                                    </div>
+                                    <span class="font-medium">Categories</span>
+                                </a>
+                            @endif
+
+                            @if (auth()->user()->can('view suppliers') ||
+                                    auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
+                                <a href="{{ route('purchase.suppliers.index') }}"
+                                    class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-purple-50 transition-colors {{ request()->routeIs('purchase.suppliers.*') ? 'bg-purple-50 text-purple-600' : 'text-gray-700' }}">
+                                    <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                                        <i class="fas fa-truck text-purple-600 text-sm"></i>
+                                    </div>
+                                    <span class="font-medium">Suppliers</span>
+                                </a>
+                            @endif
                         </div>
                     </div>
                 @endif
+
+                <!-- Mobile Admin Section -->
+                @if (auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                    <div class="border-t border-gray-100 pt-3">
+                        <h3 class="text-xs font-semibold uppercase text-gray-500 tracking-wider px-4 mb-2">Admin</h3>
+                        <div class="space-y-1">
+                            @if (auth()->user()->can('view users'))
+                                <a href="{{ route('admin.users.index') }}"
+                                    class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-indigo-50 transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700' }}">
+                                    <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                                        <i class="fas fa-users text-indigo-600 text-sm"></i>
+                                    </div>
+                                    <span class="font-medium">Users</span>
+                                </a>
+                            @endif
+
+                            @if (auth()->user()->can('manage roles'))
+                                <a href="{{ route('admin.roles.index') }}"
+                                    class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-purple-50 transition-colors {{ request()->routeIs('admin.roles.*') ? 'bg-purple-50 text-purple-600' : 'text-gray-700' }}">
+                                    <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                                        <i class="fas fa-user-shield text-purple-600 text-sm"></i>
+                                    </div>
+                                    <span class="font-medium">Roles & Permissions</span>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Mobile Profile Section -->
+                <div class="border-t border-gray-100 pt-3">
+                    <a href="{{ route('profile.show') }}"
+                        class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-blue-50 transition-colors">
+                        <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <div>
+                            <span class="font-medium">Your Profile</span>
+                            <p class="text-sm text-gray-500">View & edit profile</p>
+                        </div>
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit"
+                            class="flex items-center space-x-3 w-full px-4 py-3 rounded-xl hover:bg-red-50 transition-colors text-left">
+                            <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+                                <i class="fas fa-sign-out-alt text-red-600"></i>
+                            </div>
+                            <div>
+                                <span class="font-medium text-red-600">Logout</span>
+                                <p class="text-sm text-gray-500">Sign out from account</p>
+                            </div>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     @endauth

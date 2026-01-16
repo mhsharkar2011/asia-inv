@@ -200,7 +200,7 @@ class SalesOrderController extends Controller
 
             Log::info('Sales order created with ID:', ['id' => $salesOrder->id]);
 
-            // Create order items
+            // Create order items - CORRECTED FIELD NAMES
             $createdItems = 0;
             foreach ($itemsData as $itemInfo) {
                 $product = $itemInfo['product'];
@@ -213,9 +213,9 @@ class SalesOrderController extends Controller
                     'quantity' => $itemData['quantity'],
                     'unit_price' => $itemData['unit_price'],
                     'discount_percentage' => $itemData['discount'] ?? 0,
-                    'discount_amount' => $itemInfo['discount_amount'],
-                    'total_amount' => $itemInfo['total_amount'],
+                    'discount_amount' => $itemInfo['discount_amount'], // Correct field name
                     'item_total' => $itemInfo['item_total'],
+                    'total_amount' => $itemInfo['total_amount'], // Correct field name - this is item total after discount
                 ]);
 
                 if (!$item) {

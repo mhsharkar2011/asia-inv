@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\BranchController;
+use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\BranchController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
@@ -35,6 +36,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('profile/delete', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('profile/settings', [ProfileController::class, 'setting'])->name('profile.settings');
 });
 require __DIR__ . '/auth.php';
 
@@ -51,9 +53,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('users/{user}/verify-email', [UserController::class, 'verifyEmail'])->name('users.verify-email');
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
         Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
-        Route::get('/roles', function () {
-            return redirect()->route('dashboard')->with('info', 'Role management coming soon!');
-        })->name('roles.index');
+        // Roles and Permission Routes
+        Route::get('/users/roles', [UserController::class, 'indexRole'])->name('roles.index');
+        Route::get('/users/{user}/roles/edit', [UserController::class, 'editRoles'])->name('users.roles.edit');
+        Route::post('/users/{user}/roles', [UserController::class, 'updateRoles'])->name('users.roles.update');
+        Route::get('/users/{user}/permissions/edit', [UserController::class, 'editPermissions'])->name('users.permissions.edit');
+        Route::post('/users/{user}/permissions', [UserController::class, 'updatePermissions'])->name('users.permissions.update');
+        // End Roles and Permission Routes
+        Route::post('/users/{user}/send-password-reset', [UserController::class, 'sendPasswordReset'])->name('users.send-password-reset');
         Route::get('users/export', [UserController::class, 'export'])->name('users.export');
         Route::post('users/bulk-action', [UserController::class, 'bulkAction'])->name('users.bulk-action');
         Route::get('users/{user}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
@@ -75,6 +82,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('companies/export', [CompanyController::class, 'export'])->name('companies.export');
         Route::get('companies/{type?}/import', [CompanyController::class, 'import'])->name('companies.import');
         Route::post('companies/{company}/toggle-status', [CompanyController::class, 'toggleStatus'])->name('companies.toggle-status');
+        Route::resource('departments', DepartmentController::class);
+        Route::resource('branches', BranchController::class);
+        Route::get('branches/export',[BranchController::class,'export'])->name('branches.export');
+        Route::get('branches/toggle-status',[BranchController::class,'toggleStatus'])->name('branches.toggle-status');
+        Route::get('branches/import',[BranchController::class,'import'])->name('branches.import');
     });
 });
 
@@ -114,10 +126,13 @@ Route::middleware(['auth'])->group(function () {
             ->name('suppliers.ajax');
 
         Route::resource('purchase-orders', PurchaseOrderController::class);
+        Route::get('purchase-orders/export', [PurchaseOrderController::class,'export'])->name('purchase-orders.export');
+        Route::get('purchase-orders/import', [PurchaseOrderController::class,'import'])->name('purchase-orders.import');
     });
 
     // Sales Management
     Route::prefix('sales')->name('sales.')->group(function () {
+        Route::resource('companies',CompanyController::class);
         Route::resource('customers', CustomerController::class);
         Route::post('customers/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])
             ->name('customers.toggle-status');

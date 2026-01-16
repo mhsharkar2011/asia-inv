@@ -123,4 +123,62 @@ class PurchaseOrderController extends Controller
                 ->with('error', 'Error deleting purchase order: ' . $e->getMessage());
         }
     }
+    public function export(Request $request)
+    {
+        // Option 1: Simple CSV export
+        $purchaseOrders = PurchaseOrder::with(['supplier', 'warehouse', 'company'])
+            ->filter($request->all())
+            ->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="purchase_orders_' . date('Y-m-d') . '.csv"',
+        ];
+
+        $callback = function () use ($purchaseOrders) {
+            $file = fopen('php://output', 'w');
+
+            // Add CSV headers
+            fputcsv($file, [
+                'PO Number',
+                'Supplier',
+                'Warehouse',
+                'Order Date',
+                'Delivery Date',
+                'Status',
+                'Amount',
+                'Tax Amount',
+                'Discount',
+                'Final Amount'
+            ]);
+
+            // Add data rows
+            foreach ($purchaseOrders as $po) {
+                fputcsv($file, [
+                    $po->po_number,
+                    $po->supplier->name ?? 'N/A',
+                    $po->warehouse->name ?? 'N/A',
+                    $po->order_date->format('Y-m-d'),
+                    $po->expected_delivery_date ? $po->expected_delivery_date->format('Y-m-d') : 'N/A',
+                    $po->status,
+                    $po->amount,
+                    $po->tax_amount,
+                    $po->discount,
+                    $po->final_amount,
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+
+        // Option 2: Using Laravel Excel (if installed)
+        // return Excel::download(new PurchaseOrdersExport($request->all()), 'purchase_orders.xlsx');
+    }
+
+    public function import()
+    {
+        //
+    }
 }

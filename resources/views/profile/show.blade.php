@@ -580,7 +580,7 @@
                     </div>
                 </div>
                 <div class="bg-gray-50 px-8 py-6 sm:px-8 sm:flex sm:flex-row-reverse rounded-b-2xl">
-                    <form action="{{ route('.destroy', $user) }}" method="POST" class="inline">
+                    <form action="{{ route('profile.destroy', $user) }}" method="POST" class="inline">
                         @csrf
                         @method('DELETE')
                         <button type="submit"

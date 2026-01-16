@@ -13,13 +13,14 @@ class SalesOrderItem extends Model
 
     protected $fillable = [
         'sales_order_id',
+        'product_id',
         'description',
         'quantity',
         'unit_price',
         'discount_percentage',
-        'discount',
-        'tax_amount',
-        'amount',
+        'discount_amount',
+        'item_total',
+        'total_amount',
     ];
 
     // protected $guarded = [];

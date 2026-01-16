@@ -227,8 +227,13 @@
                                                 d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
                                                 clip-rule="evenodd" />
                                         </svg>
-                                        <span
-                                            class="font-medium text-gray-900">{{ $user->role ? ucfirst($user->role) : 'No Role Assigned' }}</span>
+                                        <span class="font-medium text-gray-900">
+                                            @if($user->roles->count() > 0)
+                                                {{ $user->roles->pluck('name')->join(', ') }}
+                                            @else
+                                                No Role Assigned
+                                            @endif
+                                        </span>
                                     </div>
                                 </div>
 
@@ -256,6 +261,113 @@
                                         <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
                                             <p class="text-gray-700 leading-relaxed">{{ $user->bio }}</p>
                                         </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Roles & Permissions Card -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                        <div class="p-8">
+                            <div class="flex items-center justify-between mb-8">
+                                <div>
+                                    <h2 class="text-2xl font-bold text-gray-900">Roles & Permissions</h2>
+                                    <p class="text-gray-600 mt-2">User roles and assigned permissions</p>
+                                </div>
+                                <div class="p-3 bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl">
+                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Roles Section -->
+                            <div class="mb-8">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Assigned Roles</h3>
+                                @if($user->roles->count() > 0)
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                        @foreach($user->roles as $role)
+                                            <div class="bg-gradient-to-r from-purple-50 to-violet-50 border border-purple-100 rounded-xl p-4">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <div class="flex items-center">
+                                                        <div class="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center mr-3">
+                                                            <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                        <span class="font-semibold text-gray-900">{{ $role->name }}</span>
+                                                    </div>
+                                                    <span class="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded-full">
+                                                        {{ $role->permissions->count() }} permissions
+                                                    </span>
+                                                </div>
+                                                @if($role->description)
+                                                    <p class="text-sm text-gray-600 mt-2">{{ $role->description }}</p>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                        <h3 class="mt-2 text-sm font-medium text-gray-900">No roles assigned</h3>
+                                        <p class="mt-1 text-sm text-gray-500">This user doesn't have any roles yet.</p>
+                                        <div class="mt-6">
+                                            <a href="{{ route('admin.users.edit', $user) }}" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                                </svg>
+                                                Assign Roles
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Permissions Section -->
+                            <div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Direct Permissions</h3>
+                                    <span class="text-sm text-gray-500">
+                                        {{ $user->getAllPermissions()->count() }} total permissions
+                                    </span>
+                                </div>
+
+                                @php
+                                    $permissions = $user->getAllPermissions()->groupBy(function($permission) {
+                                        return explode(' ', $permission->name)[0] ?? 'other';
+                                    });
+                                @endphp
+
+                                @if($user->getAllPermissions()->count() > 0)
+                                    <div class="space-y-4">
+                                        @foreach($permissions as $group => $groupPermissions)
+                                            <div class="bg-gray-50 rounded-xl p-4">
+                                                <h4 class="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wider">
+                                                    {{ ucfirst($group) }}
+                                                </h4>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                                    @foreach($groupPermissions as $permission)
+                                                        <div class="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-200">
+                                                            <div class="h-2 w-2 rounded-full bg-green-500 mr-3"></div>
+                                                            <span class="text-sm text-gray-700">{{ $permission->name }}</span>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                                        <svg class="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                        <p class="mt-2 text-sm text-gray-500">No direct permissions assigned</p>
                                     </div>
                                 @endif
                             </div>
@@ -512,6 +624,30 @@
                             Edit User Profile
                         </a>
 
+                        <!-- Manage Roles Button -->
+                        <a href="{{ route('admin.users.roles.edit', $user) }}"
+                            class="w-full inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-purple-500 to-violet-600
+                                   text-white font-medium rounded-xl hover:from-purple-600 hover:to-violet-700
+                                   transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            Manage Roles
+                        </a>
+
+                        <!-- Manage Permissions Button -->
+                        <a href="{{ route('admin.users.permissions.edit', $user) }}"
+                            class="w-full inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-emerald-500 to-green-600
+                                   text-white font-medium rounded-xl hover:from-emerald-600 hover:to-green-700
+                                   transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            Manage Permissions
+                        </a>
+
                         <a href="{{ route('admin.users.index') }}"
                             class="w-full inline-flex items-center justify-center px-6 py-4 bg-white border-2 border-gray-200
                                    text-gray-700 font-medium rounded-xl hover:bg-gray-50 hover:border-gray-300
@@ -526,13 +662,18 @@
                         <div class="pt-6 border-t border-gray-200 mt-6">
                             <div class="text-center">
                                 <p class="text-sm text-gray-500 mb-4">Need to reset user password?</p>
-                                <button
-                                    class="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-emerald-500 to-green-600
-                                           text-white text-sm font-medium rounded-xl hover:from-emerald-600 hover:to-green-700
+                                <button onclick="sendPasswordReset()"
+                                    class="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-600
+                                           text-white text-sm font-medium rounded-xl hover:from-amber-600 hover:to-orange-700
                                            transition-all duration-200 shadow hover:shadow-lg">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                    </svg>
                                     Send Password Reset Link
                                 </button>
                                 <p class="text-xs text-gray-400 mt-4">User ID: {{ $user->id }}</p>
+                                <p class="text-xs text-gray-400">Total Permissions: {{ $user->getAllPermissions()->count() }}</p>
                             </div>
                         </div>
                     </div>
@@ -615,22 +756,8 @@
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: .5;
-            }
-        }
-
-        /* Smooth transitions for all elements */
-        * {
-            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease,
-                fill 0.2s ease, stroke 0.2s ease, opacity 0.2s ease,
-                box-shadow 0.2s ease, transform 0.2s ease;
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
         }
     </style>
 @endpush
@@ -638,18 +765,12 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('User Show Page - Initializing...');
-
             // Modal functions
             function showDeleteModal() {
                 const modal = document.getElementById('deleteModal');
                 modal.classList.remove('hidden');
                 document.body.classList.add('overflow-hidden');
-
-                // Add backdrop animation
-                setTimeout(() => {
-                    modal.style.opacity = '1';
-                }, 10);
+                setTimeout(() => { modal.style.opacity = '1'; }, 10);
             }
 
             function hideDeleteModal() {
@@ -659,6 +780,29 @@
                     modal.classList.add('hidden');
                     document.body.classList.remove('overflow-hidden');
                 }, 200);
+            }
+
+            // Send password reset
+            async function sendPasswordReset() {
+                try {
+                    const response = await fetch('{{ route("admin.users.send-password-reset", $user) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showAlert('Password reset link sent successfully!', 'success');
+                    } else {
+                        showAlert(result.message || 'Failed to send reset link', 'error');
+                    }
+                } catch (error) {
+                    showAlert('An error occurred. Please try again.', 'error');
+                }
             }
 
             // Alert notification function
@@ -686,18 +830,12 @@
 
                 document.body.appendChild(alert);
 
-                // Animate in
-                setTimeout(() => {
-                    alert.style.transform = 'translateX(0)';
-                }, 10);
+                setTimeout(() => { alert.style.transform = 'translateX(0)'; }, 10);
 
-                // Remove after 5 seconds
                 setTimeout(() => {
                     alert.style.opacity = '0';
                     alert.style.transform = 'translateX(100%)';
-                    setTimeout(() => {
-                        alert.remove();
-                    }, 300);
+                    setTimeout(() => { alert.remove(); }, 300);
                 }, 5000);
             }
 
@@ -713,9 +851,8 @@
             // Global functions
             window.showDeleteModal = showDeleteModal;
             window.hideDeleteModal = hideDeleteModal;
+            window.sendPasswordReset = sendPasswordReset;
             window.showAlert = showAlert;
-
-            console.log('User Show Page - Initialization complete');
         });
     </script>
 @endpush
