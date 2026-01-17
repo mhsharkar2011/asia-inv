@@ -222,7 +222,7 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @forelse($warehouses as $warehouse)
                                         <tr class="warehouse-row hover:bg-gray-50 transition-colors duration-150"
-                                            data-status="{{ $warehouse->is_active ? 'active' : 'inactive' }}"
+                                            data-status="{{ $warehouse->is_active ? '1' : '0' }}"
                                             data-capacity="{{ $warehouse->capacity > 5000 ? 'high-capacity' : 'low-capacity' }}">
                                             <td class="px-6 py-4">
                                                 <div class="flex items-center">
@@ -564,7 +564,7 @@
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900">Create New Warehouse</h3>
             </div>
-            <form id="createWarehouseForm" action="{{ route('inventory.warehouses.store') }}" method="POST"
+            <form id="createWarehouseForm" action="{{ route('admin.warehouses.store') }}" method="POST"
                 class="p-6">
                 @csrf
                 <div class="space-y-6">
@@ -589,18 +589,18 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">City *</label>
-                            <input type="text" name="city" required
+                            <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                            <input type="text" name="city"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">State *</label>
-                            <input type="text" name="state" required
+                            <label class="block text-sm font-medium text-gray-700 mb-2">State</label>
+                            <input type="text" name="state"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Country *</label>
-                            <select name="country" required
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                            <select name="country"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">Select Country</option>
                                 <option value="Bangladesh">Bangladesh</option>
@@ -613,8 +613,8 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Zip Code</label>
-                            <input type="text" name="zip_code"
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+                            <input type="text" name="postal_code"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div>
@@ -626,27 +626,67 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Total Capacity (sqft) *</label>
-                            <input type="number" name="capacity" required
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Total Capacity</label>
+                            <input type="number" name="capacity"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Staff Count</label>
-                            <input type="number" name="staff_count" value="1"
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" name="email"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <!-- Manager Information -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Manager Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Manager Name</label>
+                                <input type="text" name="manager_name"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Manager Phone</label>
+                                <input type="tel" name="manager_phone"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Manager Email</label>
+                                <input type="email" name="manager_email"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                        <textarea name="description" rows="3"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                        <textarea name="notes" rows="3"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                     </div>
 
+                    <!-- Active Status - Using radio buttons instead of checkbox -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Active Status *</label>
+                        <div class="flex items-center space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="is_active" value="1" checked
+                                    class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Active</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="is_active" value="0"
+                                    class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Inactive</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Default Warehouse -->
                     <div class="flex items-center">
-                        <input type="checkbox" name="is_active" id="is_active" checked
+                        <input type="checkbox" name="is_default" id="is_default" value="1"
                             class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        <label for="is_active" class="ml-2 text-sm text-gray-700">Active Warehouse</label>
+                        <label for="is_default" class="ml-2 text-sm text-gray-700">Set as Default Warehouse</label>
                     </div>
                 </div>
 
@@ -857,22 +897,42 @@
             }
 
             // Form validation
-            const createForm = document.getElementById('createWarehouseForm');
-            if (createForm) {
-                createForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
+            // Add this to your existing JavaScript
+            document.addEventListener('DOMContentLoaded', function() {
+                const createForm = document.getElementById('createWarehouseForm');
+                if (createForm) {
+                    createForm.addEventListener('submit', function(e) {
+                        // Remove required attributes from non-required fields
+                        const requiredFields = ['name', 'code', 'is_active'];
+                        let isValid = true;
 
-                    const name = this.querySelector('input[name="name"]').value;
-                    const code = this.querySelector('input[name="code"]').value;
+                        requiredFields.forEach(fieldName => {
+                            const field = this.querySelector(`[name="${fieldName}"]`);
+                            if (field && !field.value && field.type !== 'radio') {
+                                isValid = false;
+                                field.style.borderColor = '#ef4444';
+                            }
+                        });
 
-                    if (!name.trim() || !code.trim()) {
-                        alert('Please fill in all required fields');
-                        return;
-                    }
+                        // Check radio buttons for is_active
+                        const isActiveRadios = this.querySelectorAll('input[name="is_active"]');
+                        let isActiveChecked = false;
+                        isActiveRadios.forEach(radio => {
+                            if (radio.checked) isActiveChecked = true;
+                        });
 
-                    this.submit();
-                });
-            }
+                        if (!isActiveChecked) {
+                            isValid = false;
+                            alert('Please select Active Status');
+                        }
+
+                        if (!isValid) {
+                            e.preventDefault();
+                            alert('Please fill in all required fields (*)');
+                        }
+                    });
+                }
+            });
 
             // Animate progress bars
             setTimeout(() => {

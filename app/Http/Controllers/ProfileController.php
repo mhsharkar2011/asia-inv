@@ -44,11 +44,11 @@ class ProfileController extends Controller
 
         // Get companies and branches for dropdowns
         $companies = Company::orderBy('name')->get();
-        $branches = Branch::orderBy('branch_name')->get();
+        $branches = Branch::orderBy('name')->get();
 
         // Check if user has any companies/branches assigned for preselection
         $assignedCompany = $user->company_id;
-        $assignedBranch = $user->branch_id;
+        $assignedBranch = $user->id;
 
         return view('admin.users.edit', [
             'user' => $user,
@@ -107,8 +107,8 @@ class ProfileController extends Controller
                 $user->company_id = $request->company_id ?: null;
             }
 
-            if ($request->has('branch_id')) {
-                $user->branch_id = $request->branch_id ?: null;
+            if ($request->has('id')) {
+                $user->id = $request->id ?: null;
             }
 
             // Update account status

@@ -258,7 +258,7 @@
 
                             <!-- Manager Name -->
                             <div>
-                                <label for="manager_name" class="block text-sm font-bold text-gray-700 mb-2">
+                                <label for="contact_person" class="block text-sm font-bold text-gray-700 mb-2">
                                     Manager Name
                                 </label>
                                 <div class="relative">
@@ -269,11 +269,11 @@
                                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
                                     </div>
-                                    <input type="text" name="manager_name" id="manager_name"
-                                        value="{{ old('manager_name') }}"
-                                        class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 @error('manager_name') border-red-300 @enderror"
+                                    <input type="text" name="contact_person" id="contact_person"
+                                        value="{{ old('contact_person') }}"
+                                        class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 @error('contact_person') border-red-300 @enderror"
                                         placeholder="Enter branch manager name">
-                                    @error('manager_name')
+                                    @error('contact_person')
                                         <div class="mt-1 text-sm text-red-600">{{ $message }}</div>
                                     @enderror
                                 </div>

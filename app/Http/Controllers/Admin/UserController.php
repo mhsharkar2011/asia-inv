@@ -7,6 +7,7 @@ use App\Models\Activity;
 use App\Models\Admin\Branch;
 use App\Models\Admin\Company;
 use App\Models\Admin\User;
+use App\Models\AuditLog;
 use App\Models\LoginLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -255,7 +256,7 @@ class UserController extends Controller
 
         // Get companies and branches
         $companies = Company::orderBy('name')->get();
-        $branches = Branch::orderBy('branch_name')->get();
+        $branches = Branch::orderBy('name')->get();
 
         return view('admin.users.edit', compact(
             'user',
@@ -291,7 +292,7 @@ class UserController extends Controller
                 'permissions' => 'nullable|array',
                 'permissions.*' => 'exists:permissions,name',
                 'company_id' => 'nullable|exists:companies,id',
-                'branch_id' => 'nullable|exists:branches,id',
+                'id' => 'nullable|exists:branches,id',
             ];
 
             $validated = $request->validate($rules);

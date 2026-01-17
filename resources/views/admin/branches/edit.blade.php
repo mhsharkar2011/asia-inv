@@ -268,8 +268,8 @@
 
                         <!-- Manager Name -->
                         <div>
-                            <label for="manager_name" class="block text-sm font-bold text-gray-700 mb-2">
-                                Manager Name
+                            <label for="contact_person" class="block text-sm font-bold text-gray-700 mb-2">
+                                Contact Person
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -279,12 +279,12 @@
                                     </svg>
                                 </div>
                                 <input type="text"
-                                       name="manager_name"
-                                       id="manager_name"
-                                       value="{{ old('manager_name', $branch->manager_name) }}"
-                                       class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 @error('manager_name') border-red-300 @enderror"
+                                       name="contact_person"
+                                       id="contact_person"
+                                       value="{{ old('contact_person', $branch->contact_person) }}"
+                                       class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 @error('contact_person') border-red-300 @enderror"
                                        placeholder="Enter branch manager name">
-                                @error('manager_name')
+                                @error('contact_person')
                                     <div class="mt-1 text-sm text-red-600">{{ $message }}</div>
                                 @enderror
                             </div>

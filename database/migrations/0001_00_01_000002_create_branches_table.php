@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('type')->default('retail')->comment('retail, warehouse, office, factory, etc.');
             $table->string('contact_person')->nullable();
+            $table->string('designation')->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable()->comment('Primary phone number');
             $table->string('mobile_phone')->nullable()->comment('Mobile phone number');

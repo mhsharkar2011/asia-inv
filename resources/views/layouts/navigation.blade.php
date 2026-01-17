@@ -378,6 +378,21 @@
                                         </a>
                                     @endif
 
+                                     @if (auth()->user()->can('manage warehouses') ||
+                                            auth()->user()->hasAnyRole(['admin', 'super-admin']))
+                                        <a href="{{ route('admin.warehouses.index') }}"
+                                            class="flex items-center space-x-3 px-4 py-3 hover:bg-amber-50 group transition-colors {{ request()->routeIs('admin.warehouses.*') ? 'bg-amber-50 text-amber-600 border-r-3 border-amber-500' : 'text-gray-700' }}">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center group-hover:bg-amber-200">
+                                                <i class="fas fa-code-branch text-amber-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <span class="font-medium">Warehouses</span>
+                                                <p class="text-xs text-gray-500">Manage warehouses</p>
+                                            </div>
+                                        </a>
+                                    @endif
+
                                     @if (auth()->user()->can('view audit logs') ||
                                             auth()->user()->hasAnyRole(['admin', 'super-admin']))
                                         <a href="{{ route('admin.audit-logs.index') }}"

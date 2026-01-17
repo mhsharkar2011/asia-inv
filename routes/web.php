@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\BranchController;
 use Illuminate\Support\Facades\Route;
@@ -9,7 +10,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Inventory\CategoryController;
 use App\Http\Controllers\Inventory\ProductController;
 use App\Http\Controllers\Inventory\StockController;
-use App\Http\Controllers\Inventory\WarehouseController;
+use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Sales\InvoiceController;
 use App\Http\Controllers\Purchase\PurchaseOrderController;
 use App\Http\Controllers\Reports\ReportController;
@@ -70,7 +71,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('users/bulk-activate', [UserController::class, 'bulk-activate'])->name('users.bulk-activate');
         Route::get('users/bulk-deactivate', [UserController::class, 'bulk-deactivate'])->name('users.bulk-deactivate');
         Route::get('branches/by-company', [BranchController::class, 'getByCompany'])->name('branches.by-company');
-        Route::get('audit-logs', [UserController::class, 'audit-logs'])->name('audit-logs.index');
         // Company Management
         Route::get('companies/{type?}', [CompanyController::class, 'index'])->name('companies.index');
         Route::get('companies/{type?}/create', [CompanyController::class, 'create'])->name('companies.create');
@@ -84,9 +84,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('companies/{company}/toggle-status', [CompanyController::class, 'toggleStatus'])->name('companies.toggle-status');
         Route::resource('departments', DepartmentController::class);
         Route::resource('branches', BranchController::class);
-        Route::get('branches/export',[BranchController::class,'export'])->name('branches.export');
-        Route::get('branches/toggle-status',[BranchController::class,'toggleStatus'])->name('branches.toggle-status');
-        Route::get('branches/import',[BranchController::class,'import'])->name('branches.import');
+        Route::get('branches/export', [BranchController::class, 'export'])->name('branches.export');
+        Route::post('branches/toggle-status/{id}', [BranchController::class, 'toggleStatus'])->name('branches.toggle-status');
+        Route::get('branches/import', [BranchController::class, 'import'])->name('branches.import');
+        Route::resource('warehouses', WarehouseController::class);
+        Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+        Route::get('/audit-logs/{id}', [AuditLogController::class, 'show'])->name('audit-logs.show');
     });
 });
 
@@ -112,9 +115,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('products/{product}/update-stock', [ProductController::class, 'updateStock'])->name('products.update-stock');
 
         Route::resource('stock', StockController::class);
-        Route::resource('warehouses', WarehouseController::class);
-        Route::get('warehouses/products', [WarehouseController::class, 'getProducts'])
-            ->name('warehouses.products');
+        Route::get('warehouses/products', [WarehouseController::class, 'getProducts'])->name('warehouses.products');
     });
 
     // Purchase Management
@@ -126,13 +127,13 @@ Route::middleware(['auth'])->group(function () {
             ->name('suppliers.ajax');
 
         Route::resource('purchase-orders', PurchaseOrderController::class);
-        Route::get('purchase-orders/export', [PurchaseOrderController::class,'export'])->name('purchase-orders.export');
-        Route::get('purchase-orders/import', [PurchaseOrderController::class,'import'])->name('purchase-orders.import');
+        Route::get('purchase-orders/export', [PurchaseOrderController::class, 'export'])->name('purchase-orders.export');
+        Route::get('purchase-orders/import', [PurchaseOrderController::class, 'import'])->name('purchase-orders.import');
     });
 
     // Sales Management
     Route::prefix('sales')->name('sales.')->group(function () {
-        Route::resource('companies',CompanyController::class);
+        Route::resource('companies', CompanyController::class);
         Route::resource('customers', CustomerController::class);
         Route::post('customers/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])
             ->name('customers.toggle-status');

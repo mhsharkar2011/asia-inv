@@ -20,7 +20,7 @@ class BranchController extends Controller
         $companies = Company::where('is_active', true)
             ->orderBy('name')
             ->get();
-        return view('admin.branches.create',compact('companies'));
+        return view('admin.branches.create', compact('companies'));
     }
 
     public function store(Request $request)
@@ -33,7 +33,8 @@ class BranchController extends Controller
             'email' => 'nullable|email|max:255',
             'city' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100',
-            'manager_name' => 'nullable|string|max:255',
+            'contact_person' => 'nullable|string|max:255',
+            'designation' => 'nullable|string|max:255',
             'is_active' => 'boolean',
         ]);
 
@@ -52,11 +53,11 @@ class BranchController extends Controller
 
     public function edit(Branch $branch)
     {
-         $companies = Company::where('is_active', true)
+        $companies = Company::where('is_active', true)
             ->orderBy('name')
             ->get();
 
-        return view('admin.branches.edit', compact('branch','companies'));
+        return view('admin.branches.edit', compact('branch', 'companies'));
     }
 
     public function update(Request $request, Branch $branch)
@@ -69,7 +70,8 @@ class BranchController extends Controller
             'email' => 'nullable|email|max:255',
             'city' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100',
-            'manager_name' => 'nullable|string|max:255',
+            'contact_person' => 'nullable|string|max:255',
+            'designation' => 'nullable|string|max:255',
             'is_active' => 'boolean',
         ]);
 
@@ -84,5 +86,19 @@ class BranchController extends Controller
         $branch->delete();
         return redirect()->route('admin.branches.index')
             ->with('success', 'Branch deleted successfully.');
+    }
+
+    public function toggleStatus(Request $request, $id)
+    {
+        try {
+            $branch = Branch::findOrFail($id);
+            $branch->is_active = !$branch->is_active;
+            $branch->save();
+            return redirect()->route('admin.branches.index')
+                ->with('success', 'Branch status updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.branches.index')
+                ->with('error', 'Failed to update status: ' . $e->getMessage());
+        }
     }
 }

@@ -2,14 +2,9 @@
 
 namespace App\Exports;
 
-use App\Models\PurchaseOrder;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use App\Models\Purchase\PurchaseOrder;
 
-class PurchaseOrdersExport implements FromCollection, WithHeadings, WithMapping, WithStyles
+class PurchaseOrdersExport
 {
     protected $filters;
 
@@ -78,14 +73,6 @@ class PurchaseOrdersExport implements FromCollection, WithHeadings, WithMapping,
             $po->discount,
             $po->final_amount,
             $po->created_at->format('Y-m-d H:i'),
-        ];
-    }
-
-    public function styles(Worksheet $sheet)
-    {
-        return [
-            // Style the first row as bold text
-            1 => ['font' => ['bold' => true]],
         ];
     }
 }
