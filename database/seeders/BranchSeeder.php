@@ -20,7 +20,7 @@ class BranchSeeder extends Seeder
                 'name' => $company->name . ' Head Office',
                 'type' => 'office',
                 'contact_person' => 'Ahmed Khan',
-                'designation' => 'Executive ' . $i,
+                'designation' => 'Executive ',
                 'email' => 'office@' . strtolower(str_replace(' ', '', $company->name)) . '.com',
                 'phone' => '+880' . rand(1700000000, 1999999999),
                 'mobile_phone' => '+880' . rand(1700000000, 1999999999),

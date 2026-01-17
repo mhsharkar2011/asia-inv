@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Purchase;
 
 use App\Http\Controllers\Controller;
 use App\Models\Purchase\PurchaseOrder;
-use App\Models\Purchase\Supplier;
-use App\Models\Inventory\Warehouse;
+use App\Models\Admin\Warehouse;
 use App\Http\Requests\PurchaseOrderRequest;
 use App\Models\Admin\Company;
 use Illuminate\Support\Facades\Route;
@@ -21,38 +20,64 @@ class PurchaseOrderController extends Controller
         $endDate = $request->input('end_date');
         $perPage = $request->input('per_page', 10);
 
-        // Get statistics
-        $pendingCount = PurchaseOrder::where('status', 'pending')->count();
-        $completedCount = PurchaseOrder::where('status', 'completed')->count();
-        $totalValue = PurchaseOrder::where('status', '!=', 'cancelled')->sum('final_amount');
+        // Get statistics from companies table where type = 'supplier'
+        $totalSuppliers = Company::where('type', 'supplier')->count();
+        $activeSuppliers = Company::where('type', 'supplier')->where('is_active', true)->count();
+        $inactiveSuppliers = Company::where('type', 'supplier')->where('is_active', false)->count();
 
-        $query = PurchaseOrder::with(['company', 'supplier', 'warehouse'])
+        // Calculate credit limit statistics
+        $totalCreditLimit = Company::where('type', 'supplier')->sum('credit_limit');
+        $totalOutstanding = Company::where('type', 'supplier')->sum('outstanding_balance');
+        $exceededCount = Company::where('type', 'supplier')
+            ->where('is_credit_limit_exceeded', true)
+            ->count();
+
+        // Calculate averages
+        $avgCreditLimit = Company::where('type', 'supplier')
+            ->where('credit_limit', '>', 0)
+            ->avg('credit_limit') ?? 0;
+
+        $activePercentage = $totalSuppliers > 0 ? round(($activeSuppliers / $totalSuppliers) * 100) : 0;
+
+        // Query suppliers
+        $query = Company::where('type', 'supplier')
             ->when($search, function ($query, $search) {
-                return $query->where('po_number', 'like', "%{$search}%")
-                    ->orWhereHas('supplier', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    });
+                return $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('code', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('contact_person', 'like', "%{$search}%");
+                });
             })
-            ->when($status, function ($query, $status) {
-                return $query->where('status', $status);
-            })
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('order_date', [$startDate, $endDate]);
+            ->when($status && $status !== 'all', function ($query, $status) {
+                if ($status === 'active') {
+                    return $query->where('is_active', true);
+                } elseif ($status === 'inactive') {
+                    return $query->where('is_active', false);
+                } elseif ($status === 'credit_exceeded') {
+                    return $query->where('is_credit_limit_exceeded', true);
+                }
+                return $query;
             })
             ->orderBy('created_at', 'desc');
 
-        $purchaseOrders = $query->paginate($perPage);
+        $suppliers = $query->paginate($perPage);
 
-        return view('purchase.purchase-orders.index', compact(
-            'purchaseOrders',
+        return view('purchase.suppliers.index', compact(
+            'suppliers',
             'search',
             'status',
-            'pendingCount',
-            'completedCount',
-            'totalValue'
+            'totalSuppliers',
+            'activeSuppliers',
+            'inactiveSuppliers',
+            'activePercentage',
+            'totalCreditLimit',
+            'totalOutstanding',
+            'exceededCount',
+            'avgCreditLimit'
         ));
     }
-
     public function create()
     {
         $companies = Company::all();
@@ -83,7 +108,7 @@ class PurchaseOrderController extends Controller
 
     public function show(PurchaseOrder $purchaseOrder)
     {
-        $purchaseOrder->load(['company', 'supplier', 'warehouse', 'items']);
+        $purchaseOrder->load(['company', 'warehouse', 'items']);
         return view('purchase.purchase-orders.show', compact('purchaseOrder'));
     }
 
@@ -126,7 +151,7 @@ class PurchaseOrderController extends Controller
     public function export(Request $request)
     {
         // Option 1: Simple CSV export
-        $purchaseOrders = PurchaseOrder::with(['supplier', 'warehouse', 'company'])
+        $purchaseOrders = PurchaseOrder::with(['warehouse', 'company'])
             ->filter($request->all())
             ->get();
 
@@ -156,7 +181,7 @@ class PurchaseOrderController extends Controller
             foreach ($purchaseOrders as $po) {
                 fputcsv($file, [
                     $po->po_number,
-                    $po->supplier->name ?? 'N/A',
+                    $po->company->name ?? 'N/A',
                     $po->warehouse->name ?? 'N/A',
                     $po->order_date->format('Y-m-d'),
                     $po->expected_delivery_date ? $po->expected_delivery_date->format('Y-m-d') : 'N/A',

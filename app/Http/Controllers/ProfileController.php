@@ -157,9 +157,7 @@ class ProfileController extends Controller
         // Load user with relationships
         $user->load(['company', 'branch', 'roles', 'permissions']);
 
-        return view('admin.users.show', [
-            'user' => $user,
-        ]);
+        return view('profile.show', compact('user'));
     }
     /**
      * Delete the user's account.

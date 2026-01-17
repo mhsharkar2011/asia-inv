@@ -33,11 +33,11 @@ use Illuminate\Support\Facades\Auth;
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     // User profile routes
-    Route::get('/show', [ProfileController::class, 'show'])->name('profile.show');
-    Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('profile/delete', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('profile/settings', [ProfileController::class, 'setting'])->name('profile.settings');
+    Route::get('/profile/{user}/show', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/{user}/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/{user}', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/delete', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile/settings', [ProfileController::class, 'setting'])->name('profile.settings');
 });
 require __DIR__ . '/auth.php';
 
@@ -98,34 +98,24 @@ Route::middleware(['auth'])->group(function () {
     // Inventory Management - Check permissions
     Route::prefix('inventory')->name('inventory.')->group(function () {
         Route::resource('categories', CategoryController::class);
-        Route::post('categories/{id}/toggle-status', [CategoryController::class, 'toggleStatus'])
-            ->name('categories.toggle-status');
-        Route::get('categories-ajax', [CategoryController::class, 'getCategories'])
-            ->name('categories.ajax');
-        Route::get('categories/{parentId}/subcategories', [CategoryController::class, 'getSubcategories'])
-            ->name('categories.subcategories');
+        Route::post('categories/{id}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
+        Route::get('categories-ajax', [CategoryController::class, 'getCategories'])->name('categories.ajax');
+        Route::get('categories/{parentId}/subcategories', [CategoryController::class, 'getSubcategories'])->name('categories.subcategories');
 
         Route::resource('products', ProductController::class);
-        Route::post('products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])
-            ->name('products.toggle-status');
-        Route::get('products-ajax', [ProductController::class, 'getProducts'])
-            ->name('products.ajax');
-        Route::get('/products/generate-code', [ProductController::class, 'generateProductCodeAjax'])
-            ->name('products.generate-code');
+        Route::post('products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggle-status');
+        Route::get('products-ajax', [ProductController::class, 'getProducts'])->name('products.ajax');
+        Route::get('/products/generate-code', [ProductController::class, 'generateProductCodeAjax'])->name('products.generate-code');
         Route::post('products/{product}/update-stock', [ProductController::class, 'updateStock'])->name('products.update-stock');
-
         Route::resource('stock', StockController::class);
         Route::get('warehouses/products', [WarehouseController::class, 'getProducts'])->name('warehouses.products');
     });
 
     // Purchase Management
     Route::prefix('purchase')->name('purchase.')->group(function () {
-        Route::resource('suppliers', SupplierController::class);
-        Route::post('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])
-            ->name('suppliers.toggle-status');
-        Route::get('suppliers-ajax', [SupplierController::class, 'getSuppliers'])
-            ->name('suppliers.ajax');
-
+        Route::resource('companies', CompanyController::class);
+        Route::post('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
+        Route::get('suppliers-ajax', [SupplierController::class, 'getSuppliers'])->name('suppliers.ajax');
         Route::resource('purchase-orders', PurchaseOrderController::class);
         Route::get('purchase-orders/export', [PurchaseOrderController::class, 'export'])->name('purchase-orders.export');
         Route::get('purchase-orders/import', [PurchaseOrderController::class, 'import'])->name('purchase-orders.import');
@@ -135,10 +125,8 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('sales')->name('sales.')->group(function () {
         Route::resource('companies', CompanyController::class);
         Route::resource('customers', CustomerController::class);
-        Route::post('customers/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])
-            ->name('customers.toggle-status');
-        Route::get('customers-ajax', [CustomerController::class, 'getCustomers'])
-            ->name('customers.ajax');
+        Route::post('customers/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customers.toggle-status');
+        Route::get('customers-ajax', [CustomerController::class, 'getCustomers'])->name('customers.ajax');
 
         Route::resource('sales-orders', SalesOrderController::class);
         Route::post('sales-orders/{salesOrder}/change-status', [SalesOrderController::class, 'changeStatus'])->name('sales-orders.change-status');

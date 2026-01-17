@@ -174,10 +174,10 @@
                                                 <a href="#" data-filter="all"
                                                     class="filter-option block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All
                                                     Warehouses</a>
-                                                <a href="#" data-filter="active"
+                                                <a href="#" data-filter="1"
                                                     class="filter-option block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Active
                                                     Only</a>
-                                                <a href="#" data-filter="inactive"
+                                                <a href="#" data-filter="0"
                                                     class="filter-option block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inactive
                                                     Only</a>
                                                 <div class="border-t border-gray-200 my-1"></div>
@@ -222,7 +222,7 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @forelse($warehouses as $warehouse)
                                         <tr class="warehouse-row hover:bg-gray-50 transition-colors duration-150"
-                                            data-status="{{ $warehouse->is_active ? '1' : '0' }}"
+                                            data-status="{{ $warehouse->status ? '1' : '0' }}"
                                             data-capacity="{{ $warehouse->capacity > 5000 ? 'high-capacity' : 'low-capacity' }}">
                                             <td class="px-6 py-4">
                                                 <div class="flex items-center">
@@ -291,7 +291,7 @@
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4">
-                                                @if ($warehouse->is_active)
+                                                @if ($warehouse->status)
                                                     <span
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
@@ -390,7 +390,7 @@
                                                         <div id="actionMenu{{ $warehouse->id }}"
                                                             class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                                                             <div class="py-1">
-                                                                @if ($warehouse->is_active)
+                                                                @if ($warehouse->status)
                                                                     <a href="#"
                                                                         onclick="toggleStatus({{ $warehouse->id }})"
                                                                         class="block px-4 py-2 text-sm text-yellow-700 hover:bg-yellow-50">Deactivate</a>
@@ -670,12 +670,12 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Active Status *</label>
                         <div class="flex items-center space-x-4">
                             <label class="inline-flex items-center">
-                                <input type="radio" name="is_active" value="1" checked
+                                <input type="radio" name="status" value="1" checked
                                     class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
                                 <span class="ml-2 text-sm text-gray-700">Active</span>
                             </label>
                             <label class="inline-flex items-center">
-                                <input type="radio" name="is_active" value="0"
+                                <input type="radio" name="status" value="0"
                                     class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
                                 <span class="ml-2 text-sm text-gray-700">Inactive</span>
                             </label>
@@ -828,10 +828,10 @@
                             row.style.display = '';
                         } else if (filterType === 'active') {
                             row.style.display = row.getAttribute('data-status') ===
-                                'active' ? '' : 'none';
+                                '1' ? '' : 'none';
                         } else if (filterType === 'inactive') {
                             row.style.display = row.getAttribute('data-status') ===
-                                'inactive' ? '' : 'none';
+                                '0' ? '' : 'none';
                         } else if (filterType === 'high-capacity') {
                             row.style.display = row.getAttribute('data-capacity') ===
                                 'high-capacity' ? '' : 'none';
@@ -903,7 +903,7 @@
                 if (createForm) {
                     createForm.addEventListener('submit', function(e) {
                         // Remove required attributes from non-required fields
-                        const requiredFields = ['name', 'code', 'is_active'];
+                        const requiredFields = ['name', 'code', 'status'];
                         let isValid = true;
 
                         requiredFields.forEach(fieldName => {
@@ -914,8 +914,8 @@
                             }
                         });
 
-                        // Check radio buttons for is_active
-                        const isActiveRadios = this.querySelectorAll('input[name="is_active"]');
+                        // Check radio buttons for status
+                        const isActiveRadios = this.querySelectorAll('input[name="status"]');
                         let isActiveChecked = false;
                         isActiveRadios.forEach(radio => {
                             if (radio.checked) isActiveChecked = true;

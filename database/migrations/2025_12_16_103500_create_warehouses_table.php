@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('current_occupancy')->nullable();
             $table->string('staff_count')->nullable();
             $table->foreignId('manager_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->boolean('is_active')->default(true);
+            $table->boolean('status')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Purchase;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Company;
 use App\Models\Purchase\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +24,7 @@ class SupplierController extends Controller
         $search = $request->get('search');
         $status = $request->get('status', 'all');
 
-        $suppliers = Supplier::where('company_id', $companyId)
+        $suppliers = Company::where('type', 'supplier')
             ->when($search, function($query) use ($search) {
                 return $query->where(function($q) use ($search) {
                     $q->where('supplier_code', 'like', "%{$search}%")
@@ -43,7 +44,7 @@ class SupplierController extends Controller
                     return $query->whereRaw('outstanding_balance > credit_limit');
                 }
             })
-            ->orderBy('supplier_name')
+            ->orderBy('name')
             ->paginate(20);
 
         return view('purchase.suppliers.index', compact('suppliers', 'search', 'status'));

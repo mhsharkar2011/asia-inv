@@ -229,7 +229,7 @@ class UserController extends Controller
             return explode('.', $permission->name)[0] ?? 'general';
         });
 
-        return view('profile.show', compact('user', 'allPermissions'));
+        return view('admin.users.show', compact('user', 'allPermissions'));
     }
 
     public function edit(User $user)

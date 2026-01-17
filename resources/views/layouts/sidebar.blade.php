@@ -505,7 +505,7 @@
             </div>
         </div>
         <div class="mt-3">
-            <a href="{{ route('profile.edit') }}"
+            <a href="{{ route('profile.show', auth()->user()) }}"
                 class="block w-full text-center px-3 py-2 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
                 <i class="fas fa-user-cog mr-2"></i>
                 Profile Settings

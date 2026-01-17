@@ -28,7 +28,7 @@ class Warehouse extends Model
         'manager_email',
         'capacity',
         'used_capacity',
-        'is_active',
+        'status',
         'is_default',
         'notes',
         'settings',
@@ -45,7 +45,7 @@ class Warehouse extends Model
     ];
 
     protected $attributes = [
-        'is_active' => 'active',
+        'status' => '1',
     ];
 
     // Relationships
@@ -82,12 +82,12 @@ class Warehouse extends Model
     // Scopes
     public function scopeActive($query)
     {
-        return $query->where('is_active', 'active');
+        return $query->where('status', 'active');
     }
 
     public function scopeInactive($query)
     {
-        return $query->where('is_active', 'inactive');
+        return $query->where('status', 'inactive');
     }
 
     public function scopeDefault($query)
