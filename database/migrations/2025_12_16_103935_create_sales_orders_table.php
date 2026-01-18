@@ -14,6 +14,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained('companies')->onDelete('cascade');
             $table->date('order_date');
             $table->date('delivery_date');
+            $table->date('confirmed_at')->nullable();
             $table->string('sales_person')->nullable();
             $table->string('reference_number')->nullable();
             $table->text('shipping_address')->nullable();
