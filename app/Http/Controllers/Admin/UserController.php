@@ -778,16 +778,19 @@ class UserController extends Controller
      */
     public function editRoles(User $user)
     {
-        // Check permission
-        $this->authorize('manage roles');
+        try {
+            // Get all available roles
+            $roles = Role::orderBy('name')->get();
 
-        // Get all roles
-        $roles = Role::orderBy('name')->get();
+            // Get user's current role IDs
+            $userRoleIds = $user->roles->pluck('id')->toArray();
 
-        // Get user's current role IDs
-        $userRoleIds = $user->roles->pluck('id')->toArray();
-
-        return view('admin.users.roles.edit', compact('user', 'roles', 'userRoleIds'));
+            return view('admin.users.roles.edit', compact('user', 'roles', 'userRoleIds'));
+        } catch (\Exception $e) {
+            Log::error('RoleController editRoles error: ' . $e->getMessage());
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Error loading edit form: ' . $e->getMessage());
+        }
     }
 
     /**

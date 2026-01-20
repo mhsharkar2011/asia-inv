@@ -18,6 +18,8 @@ use App\Http\Controllers\Sales\CustomerController;
 use App\Http\Controllers\Sales\SalesOrderController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CompanyController;
+use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Purchase\SupplierController;
@@ -55,8 +57,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
         Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
         // Roles and Permission Routes
-        Route::get('/users/roles', [UserController::class, 'indexRole'])->name('roles.index');
-        Route::get('/users/{user}/roles/edit', [UserController::class, 'editRoles'])->name('users.roles.edit');
+        Route::resource('roles', RoleController::class)->except(['show']);
+        // Route::get('roles', [RoleController::class,'index'])->name('users.roles.index');
+        // Route::get('roles/create', [RoleController::class,'create'])->name('users.roles.create');
+        // Route::post('roles', [RoleController::class,'store'])->name('users.roles.store');
+
+        // Route::delete('roles/{role}', [RoleController::class,'destroy'])->name('users.roles.destroy');
+
+
+        // Route::get('/users/{user}/roles/edit', [UserController::class, 'editRoles'])->name('roles.edit');
         Route::post('/users/{user}/roles', [UserController::class, 'updateRoles'])->name('users.roles.update');
         Route::get('/users/{user}/permissions/edit', [UserController::class, 'editPermissions'])->name('users.permissions.edit');
         Route::post('/users/{user}/permissions', [UserController::class, 'updatePermissions'])->name('users.permissions.update');
@@ -90,6 +99,11 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('warehouses', WarehouseController::class);
         Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
         Route::get('/audit-logs/{id}', [AuditLogController::class, 'show'])->name('audit-logs.show');
+
+         Route::resource('permissions', PermissionController::class)->except(['show']);
+         Route::get('permissions/{permission}/edit', [PermissionController::class, 'edit'])->name('admin.permissions.edit');
+         Route::put('/users/{user}/permissions', [PermissionController::class, 'update'])->name('users.permissions.update');
+        Route::delete('permissions/{permission}', [PermissionController::class, 'destroy'])->name('admin.permissions.destroy');
     });
 });
 

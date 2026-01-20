@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
@@ -10,31 +11,17 @@ use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('permission:view roles|view any roles', ['only' => ['index', 'show']]);
-        $this->middleware('permission:create roles', ['only' => ['create', 'store']]);
-        $this->middleware('permission:edit roles', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:delete roles', ['only' => ['destroy']]);
-    }
-
     /**
      * Display a listing of roles
      */
     public function index()
     {
-        try {
-            $roles = Role::withCount('users', 'permissions')
-                ->orderBy('name')
-                ->paginate(20);
+        $roles = Role::with(['permissions', 'users'])->latest()->paginate(20);
+        $totalPermissions = Permission::count();
+        $usersCount = User::count();
+        $systemRoles = Role::whereIn('name', ['admin', 'super-admin'])->count();
 
-            return view('admin.roles.index', compact('roles'));
-        } catch (\Exception $e) {
-            Log::error('RoleController index error: ' . $e->getMessage());
-            return redirect()->route('dashboard')
-                ->with('error', 'Error loading roles: ' . $e->getMessage());
-        }
+        return view('admin.roles.index', compact('roles', 'totalPermissions', 'usersCount', 'systemRoles'));
     }
 
     /**
@@ -49,7 +36,7 @@ class RoleController extends Controller
                     return explode('.', $permission->name)[0] ?? 'general';
                 });
 
-            return view('admin.roles.create', compact('permissions'));
+            return view('admin.users.roles.create', compact('permissions'));
         } catch (\Exception $e) {
             Log::error('RoleController create error: ' . $e->getMessage());
             return redirect()->route('admin.roles.index')
@@ -112,17 +99,37 @@ class RoleController extends Controller
     public function edit(Role $role)
     {
         try {
-            $permissions = Permission::orderBy('name')
-                ->get()
-                ->groupBy(function ($permission) {
-                    return explode('.', $permission->name)[0] ?? 'general';
+            // Get permissions with proper error handling
+            $permissions = Permission::orderBy('name')->get();
+
+            // Check if permissions exist
+            if ($permissions->isEmpty()) {
+                Log::warning('No permissions found when editing role: ' . $role->id);
+            }
+
+            // Group permissions safely
+            $groupedPermissions = collect([]); // Initialize empty collection
+
+            if ($permissions->isNotEmpty()) {
+                $groupedPermissions = $permissions->groupBy(function ($permission) {
+                    // Safely get the prefix
+                    if (isset($permission->name) && is_string($permission->name)) {
+                        $parts = explode('.', $permission->name);
+                        return $parts[0] ?? 'general';
+                    }
+                    return 'general';
                 });
+            }
 
-            $rolePermissions = $role->permissions->pluck('name')->toArray();
+            $rolePermissionIds = $role->permissions->pluck('id')->toArray();
 
-            return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
+            return view('admin.roles.edit', compact('role', 'permissions', 'groupedPermissions', 'rolePermissionIds'));
         } catch (\Exception $e) {
-            Log::error('RoleController edit error: ' . $e->getMessage());
+            Log::error('RoleController edit error: ' . $e->getMessage(), [
+                'role_id' => $role->id ?? 'null',
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return redirect()->route('admin.roles.index')
                 ->with('error', 'Error loading edit form: ' . $e->getMessage());
         }

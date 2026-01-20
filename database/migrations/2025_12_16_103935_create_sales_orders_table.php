@@ -14,7 +14,6 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained('companies')->onDelete('cascade');
             $table->date('order_date');
             $table->date('delivery_date');
-            $table->date('confirmed_at')->nullable();
             $table->string('sales_person')->nullable();
             $table->string('reference_number')->nullable();
             $table->text('shipping_address')->nullable();
@@ -31,6 +30,15 @@ return new class extends Migration
             $table->text('terms_conditions')->nullable();
             $table->string('currency')->default('BDT');
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->timestamp('confirmed_at')->nullable();
+            $table->foreignId('confirmed_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->timestamp('delivered_at')->nullable();
+            $table->foreignId('delivered_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->timestamp('completed_at')->nullable();
+            $table->foreignId('completed_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->timestamp('cancelled_at')->nullable();
+            $table->foreignId('cancelled_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->text('cancellation_reason')->nullable();
 
             // Totals
             $table->decimal('subtotal', 15, 2)->default(0);
