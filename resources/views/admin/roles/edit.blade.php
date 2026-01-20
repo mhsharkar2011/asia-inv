@@ -24,15 +24,6 @@
             </div>
         </div>
 
-        <!-- Debug Info (remove in production) -->
-        @if (config('app.debug'))
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-                <div class="bg-yellow-50 border border-yellow-200 rounded p-3 text-sm">
-                    Debug: Permissions count: {{ $permissions->count() }}, Grouped: {{ $groupedPermissions->count() }}
-                </div>
-            </div>
-        @endif
-
         <!-- Main Content -->
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
@@ -113,54 +104,27 @@
                             </div>
 
                             <div class="bg-gray-50 rounded-xl p-4">
-                                @if ($permissions && $permissions->count() > 0 && $groupedPermissions && $groupedPermissions->count() > 0)
-                                    <div class="space-y-4">
-                                        @foreach ($groupedPermissions as $group => $groupPermissions)
-                                            @if ($groupPermissions && $groupPermissions->count() > 0)
-                                                <div class="border border-gray-200 rounded-lg bg-white p-4">
-                                                    <div class="flex items-center justify-between mb-3">
-                                                        <div class="flex items-center space-x-2">
-                                                            <h4 class="font-medium text-gray-900 capitalize">
-                                                                {{ $group }}</h4>
-                                                            <span
-                                                                class="text-xs text-gray-500">({{ $groupPermissions->count() }})</span>
-                                                        </div>
-                                                        <button type="button" onclick="toggleGroup('{{ $group }}')"
-                                                            class="text-xs text-indigo-600 hover:text-indigo-500 transition-colors duration-150">
-                                                            Toggle Group
-                                                        </button>
-                                                    </div>
-                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                        @foreach ($groupPermissions as $permission)
-                                                            @if ($permission && isset($permission->id))
-                                                                <div class="relative flex items-start">
-                                                                    <div class="flex items-center h-5">
-                                                                        <input id="permission_{{ $permission->id }}"
-                                                                            name="permissions[]" type="checkbox"
-                                                                            value="{{ $permission->id }}"
-                                                                            {{ in_array($permission->id, old('permissions', $rolePermissionIds)) ? 'checked' : '' }}
-                                                                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded permission-checkbox"
-                                                                            data-group="{{ $group }}">
-                                                                    </div>
-                                                                    <div class="ml-3 text-sm">
-                                                                        <label for="permission_{{ $permission->id }}"
-                                                                            class="font-medium text-gray-700 cursor-pointer">
-                                                                            {{ $permission->name ?? 'Unnamed Permission' }}
-                                                                        </label>
-                                                                        <p class="text-xs text-gray-500 mt-1">
-                                                                            @if (isset($permission->name) && is_string($permission->name))
-                                                                                {{ str($permission->name)->replace('.', ' • ')->title() }}
-                                                                            @else
-                                                                                No description
-                                                                            @endif
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-                                                            @endif
-                                                        @endforeach
-                                                    </div>
+                                @if ($permissions && $permissions->count() > 0)
+                                    <div class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                                        @foreach ($permissions as $permission)
+                                            <div
+                                                class="flex items-center p-3 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition duration-150 ease-in-out">
+                                                <div class="flex items-center h-5">
+                                                    <input id="permission_{{ $permission->id }}" name="permissions[]"
+                                                        type="checkbox" value="{{ $permission->id }}"
+                                                        {{ in_array($permission->id, old('permissions', $rolePermissionIds)) ? 'checked' : '' }}
+                                                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
                                                 </div>
-                                            @endif
+                                                <div class="ml-3 text-sm">
+                                                    <label for="permission_{{ $permission->id }}"
+                                                        class="font-medium text-gray-700 cursor-pointer">
+                                                        {{ $permission->name }}
+                                                    </label>
+                                                    <p class="text-xs text-gray-500 mt-1">
+                                                        {{ str($permission->name)->replace('.', ' • ')->title() }}
+                                                    </p>
+                                                </div>
+                                            </div>
                                         @endforeach
                                     </div>
                                 @else
@@ -195,19 +159,17 @@
                                         class="px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
                                         Cancel
                                     </a>
-                                    @if ($permissions && $permissions->count() > 0)
-                                        <button type="submit"
-                                            class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-lg text-sm font-medium text-white hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out transform hover:-translate-y-0.5">
-                                            <div class="flex items-center">
-                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M5 13l4 4L19 7" />
-                                                </svg>
-                                                Update Role
-                                            </div>
-                                        </button>
-                                    @endif
+                                    <button type="submit"
+                                        class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-lg text-sm font-medium text-white hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out transform hover:-translate-y-0.5">
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Update Role
+                                        </div>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -253,25 +215,16 @@
 @push('scripts')
     <script>
         function selectAllPermissions() {
-            const checkboxes = document.querySelectorAll('.permission-checkbox');
+            const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = true;
             });
         }
 
         function deselectAllPermissions() {
-            const checkboxes = document.querySelectorAll('.permission-checkbox');
+            const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = false;
-            });
-        }
-
-        function toggleGroup(group) {
-            const checkboxes = document.querySelectorAll(`.permission-checkbox[data-group="${group}"]`);
-            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = !allChecked;
             });
         }
 

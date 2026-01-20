@@ -24,19 +24,13 @@ class RoleController extends Controller
         return view('admin.roles.index', compact('roles', 'totalPermissions', 'usersCount', 'systemRoles'));
     }
 
-    /**
-     * Show the form for creating a new role
-     */
     public function create()
     {
         try {
-            $permissions = Permission::orderBy('name')
-                ->get()
-                ->groupBy(function ($permission) {
-                    return explode('.', $permission->name)[0] ?? 'general';
-                });
+            $permissions = Permission::orderBy('name')->get();
 
-            return view('admin.users.roles.create', compact('permissions'));
+            // Skip grouping for now
+            return view('admin.roles.create', compact('permissions'));
         } catch (\Exception $e) {
             Log::error('RoleController create error: ' . $e->getMessage());
             return redirect()->route('admin.roles.index')
@@ -99,37 +93,15 @@ class RoleController extends Controller
     public function edit(Role $role)
     {
         try {
-            // Get permissions with proper error handling
+            // Get permissions without grouping
             $permissions = Permission::orderBy('name')->get();
 
-            // Check if permissions exist
-            if ($permissions->isEmpty()) {
-                Log::warning('No permissions found when editing role: ' . $role->id);
-            }
-
-            // Group permissions safely
-            $groupedPermissions = collect([]); // Initialize empty collection
-
-            if ($permissions->isNotEmpty()) {
-                $groupedPermissions = $permissions->groupBy(function ($permission) {
-                    // Safely get the prefix
-                    if (isset($permission->name) && is_string($permission->name)) {
-                        $parts = explode('.', $permission->name);
-                        return $parts[0] ?? 'general';
-                    }
-                    return 'general';
-                });
-            }
-
+            // Get role's current permission IDs
             $rolePermissionIds = $role->permissions->pluck('id')->toArray();
 
-            return view('admin.roles.edit', compact('role', 'permissions', 'groupedPermissions', 'rolePermissionIds'));
+            return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissionIds'));
         } catch (\Exception $e) {
-            Log::error('RoleController edit error: ' . $e->getMessage(), [
-                'role_id' => $role->id ?? 'null',
-                'trace' => $e->getTraceAsString()
-            ]);
-
+            Log::error('RoleController edit error: ' . $e->getMessage());
             return redirect()->route('admin.roles.index')
                 ->with('error', 'Error loading edit form: ' . $e->getMessage());
         }
@@ -141,33 +113,34 @@ class RoleController extends Controller
     public function update(Request $request, Role $role)
     {
         try {
+            // Prevent modification of system roles
+            if (in_array($role->name, ['admin', 'super-admin'])) {
+                $request->merge([
+                    'name' => $role->name,
+                    'guard_name' => $role->guard_name
+                ]);
+            }
+
             $request->validate([
                 'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
+                'guard_name' => 'required|string|in:web,api,sanctum',
                 'permissions' => 'nullable|array',
-                'permissions.*' => 'exists:permissions,name'
+                'permissions.*' => 'exists:permissions,id'
             ]);
 
-            // Prevent editing super_admin role
-            if ($role->name === 'super_admin') {
-                return redirect()->route('admin.roles.index')
-                    ->with('error', 'Super admin role cannot be modified.');
-            }
+            // Update role
+            $role->update($request->only('name', 'guard_name'));
 
-            $role->update(['name' => $request->name]);
+            // Sync permissions (use empty array if no permissions selected)
+            $permissions = $request->permissions ?? [];
+            $role->syncPermissions($permissions);
 
-            if ($request->has('permissions')) {
-                $role->syncPermissions($request->permissions);
-            } else {
-                $role->syncPermissions([]);
-            }
-
-            return redirect()->route('admin.roles.show', $role)
-                ->with('success', 'Role updated successfully!');
+            return redirect()->route('admin.roles.index')
+                ->with('success', 'Role updated successfully.');
         } catch (\Exception $e) {
             Log::error('RoleController update error: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('error', 'Error updating role: ' . $e->getMessage())
-                ->withInput();
+            return back()->withInput()
+                ->with('error', 'Error updating role: ' . $e->getMessage());
         }
     }
 

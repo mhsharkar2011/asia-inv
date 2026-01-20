@@ -18,7 +18,7 @@
                     </a>
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900">Create New Role</h1>
-                        <p class="mt-2 text-sm text-gray-600">Define a new role and assign permissions</p>
+                        <p class="mt-2 text-sm text-gray-600">Define a new user role</p>
                     </div>
                 </div>
             </div>
@@ -73,85 +73,62 @@
                             </div>
                         </div>
 
-                        <!-- Permissions Assignment -->
+                        <!-- Description (Optional) -->
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                                Description (Optional)
+                            </label>
+                            <textarea id="description" name="description" rows="3"
+                                class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out @error('description') border-red-300 @enderror"
+                                placeholder="Brief description of this role's purpose and responsibilities">{{ old('description') }}</textarea>
+                            @error('description')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Permissions Assignment (Simplified) -->
                         <div>
                             <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-lg font-medium text-gray-900">Assign Permissions</h3>
-                                <div class="flex space-x-2">
-                                    <button type="button" onclick="selectAllPermissions()"
-                                        class="text-sm text-indigo-600 hover:text-indigo-500 transition-colors duration-150">
-                                        Select All
-                                    </button>
-                                    <span class="text-gray-300">|</span>
-                                    <button type="button" onclick="deselectAllPermissions()"
-                                        class="text-sm text-gray-600 hover:text-gray-500 transition-colors duration-150">
-                                        Deselect All
-                                    </button>
+                                <h3 class="text-lg font-medium text-gray-900">Assign Permissions (Optional)</h3>
+                                <div class="text-sm text-gray-500">
+                                    You can assign permissions later when editing the role
                                 </div>
                             </div>
 
+                            <!-- Simple permission selection without grouping -->
                             <div class="bg-gray-50 rounded-xl p-4">
-                                <div class="space-y-4">
-                                    @php
-                                        // Group permissions by their prefix
-                                        $groupedPermissions = $permissions->groupBy(function ($permission) {
-                                            $parts = explode('.', $permission->name);
-                                            return $parts[0] ?? 'other';
-                                        });
-                                    @endphp
-
-                                    @foreach ($groupedPermissions as $group => $groupPermissions)
-                                        <div class="border border-gray-200 rounded-lg bg-white p-4">
-                                            <div class="flex items-center justify-between mb-3">
-                                                <div class="flex items-center space-x-2">
-                                                    <h4 class="font-medium text-gray-900 capitalize">{{ $group }}
-                                                    </h4>
-                                                    <span
-                                                        class="text-xs text-gray-500">({{ $groupPermissions->count() }})</span>
+                                @if ($permissions && $permissions->count() > 0)
+                                    <div class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                                        @foreach ($permissions as $permission)
+                                            <div
+                                                class="flex items-center p-3 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition duration-150 ease-in-out">
+                                                <div class="flex items-center h-5">
+                                                    <input id="permission_{{ $permission->id }}" name="permissions[]"
+                                                        type="checkbox" value="{{ $permission->id }}"
+                                                        {{ in_array($permission->id, old('permissions', [])) ? 'checked' : '' }}
+                                                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
                                                 </div>
-                                                <button type="button" onclick="toggleGroup('{{ $group }}')"
-                                                    class="text-xs text-indigo-600 hover:text-indigo-500 transition-colors duration-150">
-                                                    Toggle Group
-                                                </button>
+                                                <div class="ml-3 text-sm">
+                                                    <label for="permission_{{ $permission->id }}"
+                                                        class="font-medium text-gray-700 cursor-pointer">
+                                                        {{ $permission->name }}
+                                                    </label>
+                                                    <p class="text-xs text-gray-500 mt-1">
+                                                        {{ str($permission->name)->replace('.', ' • ')->title() }}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                @foreach ($groupPermissions as $permission)
-                                                    <div class="relative flex items-start">
-                                                        <div class="flex items-center h-5">
-                                                            <input id="permission_{{ $permission->id }}"
-                                                                name="permissions[]" type="checkbox"
-                                                                value="{{ $permission->id }}"
-                                                                {{ in_array($permission->id, old('permissions', [])) ? 'checked' : '' }}
-                                                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded permission-checkbox"
-                                                                data-group="{{ $group }}">
-                                                        </div>
-                                                        <div class="ml-3 text-sm">
-                                                            <label for="permission_{{ $permission->id }}"
-                                                                class="font-medium text-gray-700 cursor-pointer">
-                                                                {{ $permission->name }}
-                                                            </label>
-                                                            <p class="text-xs text-gray-500 mt-1">
-                                                                {{ str($permission->name)->replace('.', ' • ')->title() }}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-
-                                @if ($permissions->isEmpty())
+                                        @endforeach
+                                    </div>
+                                @else
                                     <div class="text-center py-8">
                                         <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none"
                                             stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
                                                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <p class="text-gray-500">No permissions available. <a
-                                                href="{{ route('admin.permissions.create') }}"
-                                                class="text-indigo-600 hover:text-indigo-500">Create permissions first</a>.
-                                        </p>
+                                        <p class="text-gray-500">No permissions available. You can create a role now and
+                                            assign permissions later.</p>
                                     </div>
                                 @endif
                             </div>
@@ -185,26 +162,18 @@
 
 @push('scripts')
     <script>
+        // Simple select/deselect all functionality
         function selectAllPermissions() {
-            const checkboxes = document.querySelectorAll('.permission-checkbox');
+            const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = true;
             });
         }
 
         function deselectAllPermissions() {
-            const checkboxes = document.querySelectorAll('.permission-checkbox');
+            const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = false;
-            });
-        }
-
-        function toggleGroup(group) {
-            const checkboxes = document.querySelectorAll(`.permission-checkbox[data-group="${group}"]`);
-            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = !allChecked;
             });
         }
     </script>

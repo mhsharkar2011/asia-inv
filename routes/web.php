@@ -58,14 +58,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
         // Roles and Permission Routes
         Route::resource('roles', RoleController::class)->except(['show']);
-        // Route::get('roles', [RoleController::class,'index'])->name('users.roles.index');
-        // Route::get('roles/create', [RoleController::class,'create'])->name('users.roles.create');
-        // Route::post('roles', [RoleController::class,'store'])->name('users.roles.store');
-
-        // Route::delete('roles/{role}', [RoleController::class,'destroy'])->name('users.roles.destroy');
-
-
-        // Route::get('/users/{user}/roles/edit', [UserController::class, 'editRoles'])->name('roles.edit');
+        Route::get('/users/{user}/roles/edit', [UserController::class, 'editRoles'])->name('users.roles.edit');
         Route::post('/users/{user}/roles', [UserController::class, 'updateRoles'])->name('users.roles.update');
         Route::get('/users/{user}/permissions/edit', [UserController::class, 'editPermissions'])->name('users.permissions.edit');
         Route::post('/users/{user}/permissions', [UserController::class, 'updatePermissions'])->name('users.permissions.update');
