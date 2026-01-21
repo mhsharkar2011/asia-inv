@@ -28,6 +28,8 @@ class Department extends Model
         'sort_order'
     ];
 
+
+
     protected $casts = [
         'is_active' => 'boolean',
         'staff_count' => 'integer',
@@ -37,7 +39,7 @@ class Department extends Model
         'updated_at' => 'datetime',
     ];
 
-    protected $appends = ['full_path'];
+    protected $appends = ['full_path', 'is_leaf', 'active_staff_count'];
 
     // Relationships
     public function manager(): BelongsTo
@@ -110,8 +112,8 @@ class Department extends Model
     public function scopeSearch($query, $search)
     {
         return $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+            ->orWhere('code', 'like', "%{$search}%")
+            ->orWhere('description', 'like', "%{$search}%");
     }
 
     // Methods

@@ -3,64 +3,55 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Department;
+
+use App\Models\Admin\Department;
+use App\Models\Admin\User;
 use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request, Department $department)
     {
-        //
+        $query = Department::with(['manager', 'parent', 'children'])
+            ->withCount(['users as active_staff_count' => function ($q) {
+                $q->where('is_active', true);
+            }]);
+
+        // Apply filters
+        if ($request->has('search')) {
+            $query->search($request->search);
+        }
+
+        if ($request->has('status')) {
+            $query->where('is_active', $request->status === 'active');
+        }
+
+        if ($request->has('level') && $request->level === 'top') {
+            $query->whereNull('parent_id');
+        }
+
+        // Get departments for tree view (top level only)
+        $departments = (clone $query)->whereNull('parent_id')
+            ->orderBy('sort_order')
+            ->get();
+
+        // Get all departments for grid view
+        $allDepartments = $query->orderBy('sort_order')->paginate(20);
+
+        // Get managers for dropdown
+        $managers = User::where('is_active', true)
+            ->whereHas('roles', function ($q) {
+                $q->where('name', 'manager');
+            })
+            ->get();
+
+        return view('admin.departments.index', compact('departments','department', 'allDepartments', 'managers'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Department $department)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Department $department)
     {
-        //
+        return response()->json($department);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Department $department)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Department $department)
-    {
-        //
-    }
+    // Other controller methods...
 }
