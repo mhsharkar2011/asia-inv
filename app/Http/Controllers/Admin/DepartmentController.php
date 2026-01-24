@@ -130,20 +130,23 @@ class DepartmentController extends Controller
 
     public function edit(Department $department)
     {
-        // For AJAX requests (from modal)
-        if (request()->ajax()) {
-            return response()->json($department);
-        }
-
-        // For regular page view
-        $departments = Department::where('id', '!=', $department->id)->get();
-        $managers = User::where('is_active', true)
-            ->whereHas('roles', function ($q) {
-                $q->whereIn('name', ['manager', 'admin']);
-            })
-            ->get();
-
-        return view('admin.departments.edit', compact('department', 'departments', 'managers'));
+        // Always return JSON for now to test
+        return response()->json([
+            'id' => $department->id,
+            'company_id' => $department->company_id,
+            'name' => $department->name,
+            'code' => $department->code,
+            'parent_id' => $department->parent_id,
+            'manager_id' => $department->manager_id,
+            'email' => $department->email,
+            'phone' => $department->phone,
+            'staff_count' => $department->staff_count,
+            'budget' => $department->budget,
+            'location' => $department->location,
+            'sort_order' => $department->sort_order,
+            'description' => $department->description,
+            'is_active' => $department->is_active,
+        ]);
     }
 
     public function update(Request $request, Department $department)
@@ -161,11 +164,11 @@ class DepartmentController extends Controller
             'location' => 'nullable|string|max:255',
             'sort_order' => 'nullable|integer|min:0',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            'is_active' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
-            if (request()->ajax()) {
+            if ($request->ajax()) {
                 return response()->json(['errors' => $validator->errors()], 422);
             }
             return redirect()->back()
@@ -176,17 +179,14 @@ class DepartmentController extends Controller
         try {
             DB::beginTransaction();
 
-            // Prevent circular reference
+            // Prevent circular reference - a department cannot be its own parent
             if ($request->parent_id == $department->id) {
                 throw new \Exception('Department cannot be its own parent.');
             }
 
-            // Check if parent is a descendant
+            // Check if parent is a descendant - simple version without descendants() method
             if ($request->parent_id) {
-                $descendants = $department->descendants()->pluck('id')->toArray();
-                if (in_array($request->parent_id, $descendants)) {
-                    throw new \Exception('Cannot set a descendant as parent.');
-                }
+                $this->checkIfParentIsDescendant($department, $request->parent_id);
             }
 
             $department->update([
@@ -202,13 +202,16 @@ class DepartmentController extends Controller
                 'location' => $request->location,
                 'sort_order' => $request->sort_order ?? $department->sort_order,
                 'description' => $request->description,
-                'is_active' => $request->has('is_active'),
+                'is_active' => $request->boolean('is_active'),
             ]);
 
             DB::commit();
 
-            if (request()->ajax()) {
-                return response()->json(['success' => true, 'message' => 'Department updated successfully.']);
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Department updated successfully.'
+                ]);
             }
 
             return redirect()->route('admin.departments.index')
@@ -216,8 +219,10 @@ class DepartmentController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            if (request()->ajax()) {
-                return response()->json(['error' => $e->getMessage()], 500);
+            if ($request->ajax()) {
+                return response()->json([
+                    'error' => $e->getMessage()
+                ], 500);
             }
 
             return redirect()->back()
@@ -226,6 +231,27 @@ class DepartmentController extends Controller
         }
     }
 
+    // Add this helper method to the controller
+    private function checkIfParentIsDescendant($department, $parentId)
+    {
+        $current = Department::find($parentId);
+
+        while ($current) {
+            if ($current->id == $department->id) {
+                throw new \Exception('Cannot set a descendant as parent.');
+            }
+
+            // Move up to parent
+            $current = $current->parent;
+
+            // If we reach null (top level) and haven't found the department, it's not a descendant
+            if ($current === null) {
+                break;
+            }
+        }
+    }
+
+    
     public function destroy(Department $department)
     {
         try {
