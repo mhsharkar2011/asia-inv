@@ -12,9 +12,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
             $table->foreignId('parent_id')->nullable()->constrained('departments')->onDelete('set null');
+            $table->foreignId('manager_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('code')->unique()->comment('Department code e.g., DEPT001');
             $table->string('name');
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
             $table->text('description')->nullable();
+            $table->string('location')->nullable();
             $table->integer('staff_count')->default(0);
             $table->decimal('budget', 15, 2)->nullable();
             $table->boolean('is_active')->default(true);

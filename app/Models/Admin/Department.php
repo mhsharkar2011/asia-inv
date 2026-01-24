@@ -14,6 +14,7 @@ class Department extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'company_id',
         'code',
         'name',
         'description',
@@ -42,6 +43,11 @@ class Department extends Model
     protected $appends = ['full_path', 'is_leaf', 'active_staff_count'];
 
     // Relationships
+     public function company(): BelongsTo // Add this
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
+    
     public function manager(): BelongsTo
     {
         return $this->belongsTo(User::class, 'manager_id');
