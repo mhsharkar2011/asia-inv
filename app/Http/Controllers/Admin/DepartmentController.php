@@ -60,8 +60,9 @@ class DepartmentController extends Controller
                 $q->whereIn('name', ['manager', 'admin']);
             })
             ->get();
+        $companies = Company::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.departments.create', compact('departments', 'managers'));
+        return view('admin.departments.create', compact('departments', 'managers', 'companies'));
     }
 
     public function store(Request $request)
@@ -251,7 +252,7 @@ class DepartmentController extends Controller
         }
     }
 
-    
+
     public function destroy(Department $department)
     {
         try {

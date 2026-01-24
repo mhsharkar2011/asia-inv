@@ -145,7 +145,7 @@ class Department extends Model
     {
         return $this->hasMany(Department::class, 'parent_id')->with('descendants');
     }
-    
+
     public function getAllDescendantIds()
     {
         $ids = [];
@@ -156,6 +156,19 @@ class Department extends Model
         }
 
         return $ids;
+    }
+
+    public function getLevel(): int
+    {
+        $level = 0;
+        $parent = $this->parent;
+
+        while ($parent) {
+            $level++;
+            $parent = $parent->parent;
+        }
+
+        return $level;
     }
 
     // Auto-generate code
