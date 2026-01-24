@@ -46,6 +46,7 @@ return new class extends Migration
 
             // Financial Information (for customers)
             $table->decimal('credit_limit', 15, 2)->default(0);
+            $table->boolean('is_credit_limit_exceeded')->default(false);
             $table->decimal('outstanding_balance', 15, 2)->default(0);
 
             // Financial Information (for suppliers)

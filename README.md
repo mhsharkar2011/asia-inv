@@ -46,5 +46,7 @@ Create a base model that all your models extend:
 
 composer dump-autoload
 
+php artisan queue:work
+
 
 
