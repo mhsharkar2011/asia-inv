@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $table->date('order_date');
             $table->date('expected_delivery_date')->nullable();
-            $table->enum('status', ['draft', 'pending', 'partial', 'completed', 'cancelled'])->default('draft');
+            $table->enum('status', ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'])->default('pending');
             $table->decimal('total_amount', 15, 2)->default(0);
             $table->decimal('tax_amount', 15, 2)->default(0);
             $table->decimal('discount', 15, 2)->default(0);

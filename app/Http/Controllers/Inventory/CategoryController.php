@@ -23,6 +23,10 @@ class CategoryController extends Controller
         $companyId = Auth::user()->company_id;
         $search = $request->get('search');
 
+        // Debug: Check company ID and count
+        \Log::info('Company ID: ' . $companyId);
+        \Log::info('Total categories for company: ' . Category::where('company_id', $companyId)->count());
+
         $categories = Category::with('parent', 'products')
             ->where('company_id', $companyId)
             ->when($search, function ($query) use ($search) {
@@ -32,6 +36,9 @@ class CategoryController extends Controller
             ->orderBy('parent_category_id')
             ->orderBy('category_name')
             ->paginate(20);
+
+        // Debug: Check fetched categories
+        \Log::info('Categories fetched:', $categories->toArray());
 
         return view('inventory.categories.index', compact('categories', 'search'));
     }
@@ -107,9 +114,24 @@ class CategoryController extends Controller
     {
         $companyId = Auth::user()->company_id;
 
-        $category = Category::with(['parent', 'children'])
+        // Eager load children with their products count
+        $category = Category::with(['parent', 'children' => function ($query) {
+            $query->withCount('products'); // This adds a products_count attribute
+        }])
             ->where('company_id', $companyId)
             ->findOrFail($id);
+
+        // Debug: Check what's loaded
+        \Log::info('Category loaded with children:', [
+            'category_id' => $category->id,
+            'category_name' => $category->category_name,
+            'children_count' => $category->children->count(),
+            'first_child' => $category->children->first() ? [
+                'id' => $category->children->first()->id,
+                'name' => $category->children->first()->category_name,
+                'products_count' => $category->children->first()->products_count ?? 'not loaded',
+            ] : 'no children',
+        ]);
 
         // Get all category IDs (parent + children)
         $categoryIds = $this->getAllCategoryIds($category);
@@ -120,6 +142,23 @@ class CategoryController extends Controller
         return view('inventory.categories.show', compact('category', 'products'));
     }
 
+    private function getAllNestedCategoryIds($category)
+    {
+        $ids = [$category->id];
+
+        // Recursive function to get all descendant IDs
+        $getIds = function ($cat, &$idCollection) use (&$getIds) {
+            if ($cat->children && $cat->children->isNotEmpty()) {
+                foreach ($cat->children as $child) {
+                    $idCollection[] = $child->id;
+                    $getIds($child, $idCollection);
+                }
+            }
+        };
+
+        $getIds($category, $ids);
+        return array_unique($ids);
+    }
     /**
      * Show the form for editing the specified category.
      */

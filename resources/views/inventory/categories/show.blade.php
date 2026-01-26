@@ -95,20 +95,6 @@
                                                     stroke="currentColor" viewBox="0 0 24 24"
                                                     xmlns="http://www.w3.org/2000/svg">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-                                                </svg>
-                                                <div>
-                                                    <p class="text-sm font-medium text-gray-900">Category Code</p>
-                                                    <p class="text-lg font-bold text-blue-600">
-                                                        {{ $category->category_code }}</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="flex items-start">
-                                                <svg class="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                                                 </svg>
                                                 <div>
@@ -118,6 +104,20 @@
                                                 </div>
                                             </div>
 
+                                             <div class="flex items-start">
+                                                <svg class="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                                </svg>
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-900">Category Code</p>
+                                                    <p class="text-lg font-bold text-blue-600">
+                                                        {{ $category->category_code }}</p>
+                                                </div>
+                                            </div>
+                                            
                                             <div class="flex items-start">
                                                 <svg class="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" fill="none"
                                                     stroke="currentColor" viewBox="0 0 24 24"

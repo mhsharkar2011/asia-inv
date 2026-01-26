@@ -123,7 +123,11 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('companies', CompanyController::class);
         Route::post('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
         Route::get('suppliers-ajax', [SupplierController::class, 'getSuppliers'])->name('suppliers.ajax');
+
         Route::resource('purchase-orders', PurchaseOrderController::class);
+        Route::post('purchase-orders/{purchaseOrder}/change-status', [PurchaseOrderController::class, 'changeStatus'])->name('purchase-orders.change-status');
+        Route::get('purchase-orders/{purchaseOrder}/print', [PurchaseOrderController::class, 'print'])->name('purchase-orders.print');
+        Route::post('purchase-orders/{purchase_order}/confirm', [PurchaseOrderController::class, 'confirm'])->name('purchase-orders.confirm');
         Route::get('purchase-orders/export', [PurchaseOrderController::class, 'export'])->name('purchase-orders.export');
         Route::get('purchase-orders/import', [PurchaseOrderController::class, 'import'])->name('purchase-orders.import');
     });

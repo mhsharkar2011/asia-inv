@@ -63,9 +63,14 @@ class PurchaseOrderController extends Controller
             ->orderBy('created_at', 'desc');
 
         $suppliers = $query->paginate($perPage);
+        $purchaseOrders = PurchaseOrder::with(['company', 'warehouse'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
 
-        return view('purchase.suppliers.index', compact(
+
+        return view('purchase.purchase-orders.index', compact(
             'suppliers',
+            'purchaseOrders',
             'search',
             'status',
             'totalSuppliers',
@@ -78,9 +83,11 @@ class PurchaseOrderController extends Controller
             'avgCreditLimit'
         ));
     }
+
+    // Show the form for creating a new resource.
     public function create()
     {
-        $companies = Company::all();
+        $companies = Company::where('type', 'company')->get();
         $suppliers = Company::where('type', 'supplier')->get();
         $warehouses = Warehouse::all();
         $statuses = ['draft', 'pending', 'partial', 'completed', 'cancelled'];
