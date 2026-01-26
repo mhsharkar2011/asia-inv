@@ -18,7 +18,7 @@
                         </div>
                     </div>
                     <div class="flex space-x-3 mt-4 sm:mt-0">
-                        <a href="{{ route('purchases.create') }}"
+                        <a href="{{ route('purchase.purchase-orders.create') }}"
                             class="inline-flex items-center px-4 py-3 bg-green-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 shadow-sm">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -385,7 +385,7 @@
                                         <td class="px-6 py-4">
                                             <div class="flex flex-col space-y-2">
                                                 <!-- Quick Create Purchase Order -->
-                                                <a href="{{ route('purchases.create', ['supplier_id' => $supplier->id]) }}"
+                                                <a href="{{ route('purchase.purchase-orders.create', ['supplier_id' => $supplier->id]) }}"
                                                     class="inline-flex items-center justify-center px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 shadow-sm">
                                                     <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
@@ -418,7 +418,7 @@
                                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                         </svg>
                                                     </a>
-                                                    <a href="{{ route('purchases.index', ['supplier_id' => $supplier->id]) }}"
+                                                    <a href="{{ route('purchase.purchase-orders.index', ['supplier_id' => $supplier->id]) }}"
                                                         class="inline-flex items-center p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200"
                                                         title="View Orders">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"

@@ -4,7 +4,7 @@ namespace App\Models\Purchase;
 
 use App\Models\Admin\Company;
 use App\Models\Purchase\Supplier;
-use App\Models\Inventory\Warehouse;
+use App\Models\Admin\Warehouse;
 use App\Models\Purchase\PurchaseOrderItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

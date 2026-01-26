@@ -16,8 +16,7 @@ class PurchaseOrderRequest extends FormRequest
         return [
             'company_id' => 'required|exists:companies,id',
             'po_number' => 'required|unique:purchase_orders,po_number,' . $this->route('purchase_order'),
-            'supplier_id' => 'required|exists:suppliers,id',
-            'warehouse_id' => 'required|exists:warehouses,id',
+            'supplier_id' => 'required|exists:companies,id',
             'order_date' => 'required|date',
             'expected_delivery_date' => 'nullable|date|after_or_equal:order_date',
             'status' => 'required|in:draft,pending,partial,completed,cancelled',
