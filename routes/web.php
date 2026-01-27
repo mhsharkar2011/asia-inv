@@ -93,12 +93,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('warehouses/products', [WarehouseController::class, 'getProducts'])->name('warehouses.products');
         Route::post('warehouses/{warehouse}/toggle-status', [WarehouseController::class, 'toggleStatus'])->name('warehouses.toggle-status');
         Route::get('warehouses/export', [WarehouseController::class, 'export'])->name('warehouses.export');
+        // API routes for warehouse modals
+        Route::get('/api/warehouses/{warehouse}', [WarehouseController::class, 'apiShow'])->name('api.warehouses.show');
+        Route::get('/api/warehouses/{warehouse}/edit', [WarehouseController::class, 'apiEdit'])->name('api.warehouses.edit');
+
         Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
         Route::get('/audit-logs/{id}', [AuditLogController::class, 'show'])->name('audit-logs.show');
 
-         Route::resource('permissions', PermissionController::class)->except(['show']);
-         Route::get('permissions/{permission}/edit', [PermissionController::class, 'edit'])->name('admin.permissions.edit');
-         Route::put('/users/{user}/permissions', [PermissionController::class, 'update'])->name('users.permissions.update');
+        Route::resource('permissions', PermissionController::class)->except(['show']);
+        Route::get('permissions/{permission}/edit', [PermissionController::class, 'edit'])->name('admin.permissions.edit');
+        Route::put('/users/{user}/permissions', [PermissionController::class, 'update'])->name('users.permissions.update');
         Route::delete('permissions/{permission}', [PermissionController::class, 'destroy'])->name('admin.permissions.destroy');
     });
 });

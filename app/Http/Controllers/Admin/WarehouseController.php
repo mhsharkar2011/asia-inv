@@ -16,24 +16,24 @@ class WarehouseController extends Controller
      */
     public function index()
     {
+        // Get all users who are managers for the dropdown
+        $managers = Warehouse::with('manager')->get()->pluck('manager')->unique();
+
         $warehouses = Warehouse::with(['manager'])
             ->latest()
             ->paginate(20);
 
         // Calculate statistics
-        $totalWarehouses = $warehouses->total();
-        $activeWarehouses = $warehouses->where('status', true)->count();
+        $totalWarehouses = Warehouse::count();
+        $activeWarehouses = Warehouse::where('status', true)->count();
         $activePercentage = $totalWarehouses > 0 ? round(($activeWarehouses / $totalWarehouses) * 100) : 0;
-        $totalCapacity = $warehouses->sum('capacity');
-        $totalStaff = $warehouses->sum('staff_count');
+        $totalCapacity = Warehouse::sum('capacity');
+        $totalStaff = Warehouse::sum('staff_count');
         $avgStaffPerWarehouse = $totalWarehouses > 0 ? round($totalStaff / $totalWarehouses, 1) : 0;
 
-        // Calculate capacity utilization (if you have occupancy data)
-        $totalOccupancy = $warehouses->sum('current_occupancy');
+        // Calculate capacity utilization
+        $totalOccupancy = Warehouse::sum('current_occupancy');
         $capacityUtilization = $totalCapacity > 0 ? round(($totalOccupancy / $totalCapacity) * 100) : 0;
-
-        $managers = Warehouse::with('manager')->get()->pluck('manager')->unique();
-
 
         return view('admin.warehouses.index', compact(
             'warehouses',
@@ -48,13 +48,6 @@ class WarehouseController extends Controller
         ));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('admin.warehouses.create');
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -64,39 +57,32 @@ class WarehouseController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:warehouses,code',
-            'location' => 'nullable|string|max:255',
             'address' => 'nullable|string',
-            'city' => 'nullable|string|max:100',
-            'state' => 'nullable|string|max:100',
-            'country' => 'nullable|string|max:100',
-            'postal_code' => 'nullable|string|max:20',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'manager_name' => 'nullable|string|max:255',
-            'manager_phone' => 'nullable|string|max:20',
-            'manager_email' => 'nullable|email|max:255',
             'capacity' => 'nullable|numeric|min:0',
+            'current_occupancy' => 'nullable|numeric|min:0',
+            'staff_count' => 'nullable|integer|min:0',
+            'manager_id' => 'nullable|exists:users,id',
             'status' => 'required|integer|in:0,1',
-            'is_default' => 'boolean',
             'notes' => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($validated, $request) {
-            // If this is set as default, remove default from others
-            if ($request->is_default) {
-                Warehouse::where('is_default', true)->update(['is_default' => false]);
-            }
-
-            $warehouse = Warehouse::create([
-                ...$validated,
+            // Convert string values to appropriate types
+            $data = [
+                'name' => $validated['name'],
+                'code' => $validated['code'],
+                'address' => $validated['address'] ?? null,
+                'capacity' => $validated['capacity'] ?? null,
+                'current_occupancy' => $validated['current_occupancy'] ?? null,
+                'staff_count' => $validated['staff_count'] ?? null,
+                'manager_id' => $validated['manager_id'] ?? null,
+                'status' => (bool) $validated['status'],
+                'notes' => $validated['notes'] ?? null,
                 'created_by' => Auth::id(),
                 'updated_by' => Auth::id(),
-            ]);
+            ];
 
-            // If no warehouse is default yet and this is active, make it default
-            if (!Warehouse::where('is_default', true)->exists() && $warehouse->status === '1') {
-                $warehouse->update(['is_default' => true]);
-            }
+            $warehouse = Warehouse::create($data);
         });
 
         return redirect()->route('admin.warehouses.index')
@@ -108,7 +94,7 @@ class WarehouseController extends Controller
      */
     public function show(Warehouse $warehouse)
     {
-        $warehouse->load(['creator', 'updater', 'zones', 'racks', 'bins']);
+        $warehouse->load(['manager', 'creator', 'updater']);
 
         return view('admin.warehouses.show', compact('warehouse'));
     }
@@ -118,7 +104,11 @@ class WarehouseController extends Controller
      */
     public function edit(Warehouse $warehouse)
     {
-        return view('admin.warehouses.edit', compact('warehouse'));
+        $managers = User::whereHas('roles', function ($query) {
+            $query->where('name', 'manager');
+        })->orWhere('role', 'manager')->get();
+
+        return view('admin.warehouses.edit', compact('warehouse', 'managers'));
     }
 
     /**
@@ -129,33 +119,26 @@ class WarehouseController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:warehouses,code,' . $warehouse->id,
-            'location' => 'nullable|string|max:255',
             'address' => 'nullable|string',
-            'city' => 'nullable|string|max:100',
-            'state' => 'nullable|string|max:100',
-            'country' => 'nullable|string|max:100',
-            'postal_code' => 'nullable|string|max:20',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'manager_name' => 'nullable|string|max:255',
-            'manager_phone' => 'nullable|string|max:20',
-            'manager_email' => 'nullable|email|max:255',
             'capacity' => 'nullable|numeric|min:0',
+            'current_occupancy' => 'nullable|numeric|min:0',
+            'staff_count' => 'nullable|integer|min:0',
+            'manager_id' => 'nullable|exists:users,id',
             'status' => 'required|integer|in:0,1',
-            'is_default' => 'boolean',
             'notes' => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($warehouse, $validated) {
-            // If this is set as default, remove default from others
-            if ($request->is_default) {
-                Warehouse::where('is_default', true)
-                    ->where('id', '!=', $warehouse->id)
-                    ->update(['is_default' => false]);
-            }
-
             $warehouse->update([
-                ...$validated,
+                'name' => $validated['name'],
+                'code' => $validated['code'],
+                'address' => $validated['address'] ?? null,
+                'capacity' => $validated['capacity'] ?? null,
+                'current_occupancy' => $validated['current_occupancy'] ?? null,
+                'staff_count' => $validated['staff_count'] ?? null,
+                'manager_id' => $validated['manager_id'] ?? null,
+                'status' => (bool) $validated['status'],
+                'notes' => $validated['notes'] ?? null,
                 'updated_by' => Auth::id(),
             ]);
         });
@@ -175,12 +158,6 @@ class WarehouseController extends Controller
                 ->with('error', 'Cannot delete warehouse that has inventory. Please transfer inventory first.');
         }
 
-        // Check if it's the default warehouse
-        if ($warehouse->is_default) {
-            return redirect()->back()
-                ->with('error', 'Cannot delete default warehouse. Set another warehouse as default first.');
-        }
-
         $warehouse->delete();
 
         return redirect()->route('admin.warehouses.index')
@@ -192,7 +169,7 @@ class WarehouseController extends Controller
      */
     public function toggleStatus(Request $request, Warehouse $warehouse)
     {
-        $newStatus = $warehouse->status === '1' ? '0' : '1';
+        $newStatus = !$warehouse->status; // Toggle boolean
 
         $warehouse->update([
             'status' => $newStatus,
@@ -207,31 +184,18 @@ class WarehouseController extends Controller
     }
 
     /**
-     * Set as default warehouse
-     */
-    public function setDefault(Warehouse $warehouse)
-    {
-        $warehouse->markAsDefault();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Warehouse set as default successfully',
-        ]);
-    }
-
-    /**
      * Get warehouse statistics
      */
     public function statistics()
     {
         $stats = [
             'total_warehouses' => Warehouse::count(),
-            'active_warehouses' => Warehouse::active()->count(),
+            'active_warehouses' => Warehouse::where('status', true)->count(),
             'total_capacity' => Warehouse::sum('capacity'),
-            'used_capacity' => Warehouse::sum('used_capacity'),
-            'default_warehouse' => Warehouse::default()->first(),
+            'used_capacity' => Warehouse::sum('current_occupancy'),
         ];
 
         return response()->json($stats);
     }
+
 }
