@@ -99,7 +99,7 @@
 
                                     @if (auth()->user()->can('view suppliers') ||
                                             auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
-                                        <a href="{{ route('purchase.companies.index') }}"
+                                        <a href="{{ route('purchase.suppliers.index') }}"
                                             class="flex items-center space-x-3 px-4 py-3 hover:bg-purple-50 group transition-colors {{ request()->routeIs('purchase.suppliers.*') ? 'bg-purple-50 text-purple-600 border-r-3 border-purple-500' : 'text-gray-700' }}">
                                             <div
                                                 class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center group-hover:bg-purple-200">
@@ -630,7 +630,7 @@
 
                             @if (auth()->user()->can('view suppliers') ||
                                     auth()->user()->hasAnyRole(['admin', 'super-admin', 'inventory-manager']))
-                                <a href="{{ route('purchase.companies.index') }}"
+                                <a href="{{ route('purchase.suppliers.index') }}"
                                     class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-purple-50 transition-colors {{ request()->routeIs('purchase.suppliers.*') ? 'bg-purple-50 text-purple-600' : 'text-gray-700' }}">
                                     <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
                                         <i class="fas fa-truck text-purple-600 text-sm"></i>

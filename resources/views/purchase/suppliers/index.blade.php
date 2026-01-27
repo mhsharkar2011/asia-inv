@@ -207,7 +207,6 @@
                                         $lastOrder = $supplierData->lastOrder ?? null;
                                         $orderCount = $supplierData->orderCount ?? 0;
                                         $totalSpent = $supplierData->totalSpent ?? 0;
-                                        $performance = $supplierData->performance ?? 'Good';
                                     @endphp
 
                                     <tr class="hover:bg-gray-50 transition-colors duration-150">
@@ -233,10 +232,8 @@
                                                                 {{ $supplier->code ?? 'N/A' }}</div>
                                                         </div>
                                                         <div class="ml-2">
-                                                            <span
-                                                                class="inline-flex items-center px-2 py-1 rounded text-xs font-medium {{ $performance == 'Excellent' ? 'bg-green-100 text-green-800' : ($performance == 'Good' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') }}">
-                                                                {{ $performance }}
-                                                            </span>
+                                                            <x-performance-badge :performance="$supplier->supplierData->performance ??
+                                                                'No Data'" />
                                                         </div>
                                                     </div>
                                                     @if ($supplier->address)

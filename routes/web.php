@@ -120,7 +120,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Purchase Management
     Route::prefix('purchase')->name('purchase.')->group(function () {
-        Route::resource('companies', CompanyController::class);
+        Route::resource('suppliers', SupplierController::class);
         Route::post('suppliers/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
         Route::get('suppliers-ajax', [SupplierController::class, 'getSuppliers'])->name('suppliers.ajax');
 
