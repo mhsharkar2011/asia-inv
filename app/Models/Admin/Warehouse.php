@@ -13,25 +13,14 @@ class Warehouse extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'manager_id',
         'name',
         'code',
-        'location',
         'address',
-        'city',
-        'state',
-        'country',
-        'postal_code',
-        'phone',
-        'email',
-        'manager_name',
-        'manager_phone',
-        'manager_email',
         'capacity',
-        'used_capacity',
+        'current_occupancy',
         'status',
-        'is_default',
         'notes',
-        'settings',
         'created_by',
         'updated_by',
         'deleted_at',
@@ -42,11 +31,21 @@ class Warehouse extends Model
         'used_capacity' => 'decimal:2',
         'is_default' => 'boolean',
         'settings' => 'array',
+        'status' => 'boolean',
     ];
 
-    protected $attributes = [
-        'status' => '1',
-    ];
+    // // Add an accessor to get the status display name
+    // public function getStatusNameAttribute()
+    // {
+    //     return $this->status ? 'Active' : 'Inactive';
+    // }
+
+    // Add an accessor for display class
+    public function getStatusClassAttribute()
+    {
+        return $this->status ? 'success' : 'danger';
+    }
+
 
     // Relationships
     public function creator()
@@ -131,4 +130,11 @@ class Warehouse extends Model
         }
         $this->save();
     }
+
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
+
+
 }

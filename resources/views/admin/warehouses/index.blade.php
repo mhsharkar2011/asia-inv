@@ -41,15 +41,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Total Warehouses</p>
-                            <p class="text-3xl font-bold text-gray-900 mt-2">{{ $warehouses->total() }}</p>
-                            <div class="mt-3 flex items-center text-green-600">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
-                                </svg>
-                                <span class="text-sm">+5 from last month</span>
-                            </div>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalWarehouses }}</p>
                         </div>
                         <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
                             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -68,9 +60,9 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Active Warehouses</p>
-                            <p class="text-3xl font-bold text-gray-900 mt-2">{{ $activeWarehouses ?? 0 }}</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">{{ $activeWarehouses }}</p>
                             <div class="mt-3">
-                                <span class="text-sm text-gray-600">{{ $activePercentage ?? 0 }}% of total</span>
+                                <span class="text-sm text-gray-600">{{ $activePercentage }}% of total</span>
                             </div>
                         </div>
                         <div class="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
@@ -89,14 +81,13 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Total Capacity</p>
-                            <p class="text-3xl font-bold text-gray-900 mt-2">{{ number_format($totalCapacity ?? 0) }} sqft
-                            </p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">{{ number_format($totalCapacity) }} sqft</p>
                             <div class="mt-3">
                                 <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="bg-yellow-500 h-2 rounded-full"
-                                        style="width: {{ $capacityUtilization ?? 0 }}%"></div>
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ $capacityUtilization }}%">
+                                    </div>
                                 </div>
-                                <div class="text-sm text-gray-600 mt-1">{{ $capacityUtilization ?? 0 }}% utilized</div>
+                                <div class="text-sm text-gray-600 mt-1">{{ $capacityUtilization }}% utilized</div>
                             </div>
                         </div>
                         <div class="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center">
@@ -115,9 +106,9 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Staff Count</p>
-                            <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalStaff ?? 0 }}</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalStaff }}</p>
                             <div class="mt-3">
-                                <span class="text-sm text-gray-600">Average: {{ $avgStaffPerWarehouse ?? 0 }} per
+                                <span class="text-sm text-gray-600">Average: {{ $avgStaffPerWarehouse }} per
                                     warehouse</span>
                             </div>
                         </div>
@@ -204,7 +195,7 @@
                                             Warehouse</th>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Location</th>
+                                            Address</th>
                                         <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Capacity</th>
@@ -257,10 +248,10 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                     </svg>
-                                                    <div>
-                                                        <div class="text-sm text-gray-900 truncate max-w-xs">
-                                                            {{ $warehouse->city }}, {{ $warehouse->state }}</div>
-                                                        <div class="text-sm text-gray-500">{{ $warehouse->country }}</div>
+                                                    <div class="max-w-xs">
+                                                        <div class="text-sm text-gray-900 truncate">
+                                                            {{ $warehouse->address }}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -269,11 +260,14 @@
                                                     {{ number_format($warehouse->capacity) }} sqft</div>
                                                 <div class="mt-1">
                                                     @php
-                                                        $utilization = min(
-                                                            ($warehouse->current_occupancy / $warehouse->capacity) *
+                                                        $utilization = 0;
+                                                        if ($warehouse->capacity > 0 && $warehouse->current_occupancy) {
+                                                            $utilization = min(
+                                                                ($warehouse->current_occupancy / $warehouse->capacity) *
+                                                                    100,
                                                                 100,
-                                                            100,
-                                                        );
+                                                            );
+                                                        }
                                                         $color =
                                                             $utilization > 80
                                                                 ? 'red'
@@ -287,6 +281,7 @@
                                                     </div>
                                                     <div class="text-xs text-gray-500 mt-1">
                                                         {{ number_format($warehouse->current_occupancy ?? 0) }} sqft used
+                                                        ({{ number_format($utilization, 1) }}%)
                                                     </div>
                                                 </div>
                                             </td>
@@ -366,7 +361,7 @@
                                                             </path>
                                                         </svg>
                                                     </button>
-                                                    <a href="{{ route('inventory.warehouses.products', $warehouse->id) }}"
+                                                    <a href="{{ route('admin.warehouses.products', $warehouse->id) }}"
                                                         class="inline-flex items-center p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                             viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -465,90 +460,91 @@
                     <!-- Warehouse Locations -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
                         <div class="px-6 py-4 border-b border-gray-200">
-                            <h3 class="text-lg font-semibold text-gray-900">Warehouse Locations</h3>
+                            <h3 class="text-lg font-semibold text-gray-900">Warehouse Statistics</h3>
                         </div>
-                        <div class="p-0">
-                            <div
-                                class="h-64 bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl flex items-center justify-center">
-                                <div class="text-center text-white">
-                                    <svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7">
-                                        </path>
-                                    </svg>
-                                    <p class="mt-2 font-medium">Interactive Map View</p>
-                                    <p class="text-sm text-blue-100">Would show warehouse locations</p>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <!-- Active vs Inactive -->
+                                <div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Active Warehouses</span>
+                                        <span class="text-sm font-medium text-gray-700">{{ $activeWarehouses }}</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-500 h-2 rounded-full"
+                                            style="width: {{ $activePercentage }}%"></div>
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-1">{{ $activePercentage }}% of total</div>
                                 </div>
-                            </div>
-                            <div class="p-4">
-                                <div class="space-y-4">
-                                    @foreach ($warehouses->take(3) as $warehouse)
-                                        <div class="flex items-center">
-                                            <div
-                                                class="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center mr-3">
-                                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                                    </path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                </svg>
-                                            </div>
-                                            <div class="flex-grow">
-                                                <div class="text-sm font-medium text-gray-900">{{ $warehouse->name }}
-                                                </div>
-                                                <div class="text-sm text-gray-500">{{ $warehouse->city }}</div>
-                                            </div>
-                                            <span
-                                                class="text-sm font-medium text-gray-900">{{ $warehouse->distance ?? '--' }}
-                                                km</span>
+
+                                <!-- Capacity Utilization -->
+                                <div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Capacity Utilization</span>
+                                        <span class="text-sm font-medium text-gray-700">{{ $capacityUtilization }}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-yellow-500 h-2 rounded-full"
+                                            style="width: {{ $capacityUtilization }}%"></div>
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-1">{{ number_format($totalOccupancy ?? 0) }} sqft
+                                        used</div>
+                                </div>
+
+                                <!-- Staff Distribution -->
+                                <div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Staff Distribution</span>
+                                        <span class="text-sm font-medium text-gray-700">{{ $totalStaff }} total</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-indigo-500 h-2 rounded-full"
+                                            style="width: {{ $avgStaffPerWarehouse > 0 ? min($avgStaffPerWarehouse * 10, 100) : 0 }}%">
                                         </div>
-                                    @endforeach
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-1">Avg: {{ $avgStaffPerWarehouse }} per warehouse
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Capacity Overview -->
+                    <!-- Quick Actions -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
                         <div class="px-6 py-4 border-b border-gray-200">
-                            <h3 class="text-lg font-semibold text-gray-900">Capacity Overview</h3>
+                            <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
                         </div>
                         <div class="p-6">
-                            <div class="space-y-5">
-                                @foreach ($warehouses->take(5) as $warehouse)
-                                    <div>
-                                        <div class="flex justify-between mb-2">
-                                            <span
-                                                class="text-sm font-medium text-gray-700 truncate">{{ $warehouse->name }}</span>
-                                            <span class="text-sm text-gray-500">{{ number_format($warehouse->capacity) }}
-                                                sqft</span>
-                                        </div>
-                                        @php
-                                            $utilization = min(
-                                                ($warehouse->current_occupancy / $warehouse->capacity) * 100,
-                                                100,
-                                            );
-                                            $color =
-                                                $utilization > 80 ? 'red' : ($utilization > 60 ? 'yellow' : 'green');
-                                        @endphp
-                                        <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-{{ $color }}-500 h-2 rounded-full"
-                                                style="width: {{ $utilization }}%"></div>
-                                        </div>
-                                        <div class="text-xs text-gray-500 mt-1">{{ number_format($utilization, 1) }}%
-                                            utilized</div>
-                                    </div>
-                                @endforeach
-                                @if ($warehouses->count() > 5)
-                                    <div class="text-center pt-2">
-                                        <a href="#"
-                                            class="text-sm font-medium text-blue-600 hover:text-blue-500">View all
-                                            {{ $warehouses->count() }} warehouses</a>
-                                    </div>
-                                @endif
+                            <div class="grid grid-cols-1 gap-3">
+                                <button onclick="openCreateModal()"
+                                    class="flex items-center justify-center p-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg border border-blue-200 transition-colors duration-200">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Add New Warehouse
+                                </button>
+                                <a href="{{ route('admin.warehouses.export') }}"
+                                    class="flex items-center justify-center p-3 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg border border-green-200 transition-colors duration-200">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    Export to Excel
+                                </a>
+                                <button onclick="printWarehouseList()"
+                                    class="flex items-center justify-center p-3 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg border border-purple-200 transition-colors duration-200">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                                        </path>
+                                    </svg>
+                                    Print List
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -583,79 +579,38 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                        <input type="text" name="address"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <textarea name="address" rows="2"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
-                            <input type="text" name="city"
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Capacity (sqft)</label>
+                            <input type="number" name="capacity" step="0.01"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">State</label>
-                            <input type="text" name="state"
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Staff Count</label>
+                            <input type="number" name="staff_count"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Current Occupancy (sqft)</label>
+                            <input type="number" name="current_occupancy" step="0.01"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                            <select name="country"
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Manager</label>
+                            <select name="manager_id"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Select Country</option>
-                                <option value="Bangladesh">Bangladesh</option>
-                                <option value="India">India</option>
-                                <option value="USA">United States</option>
-                                <option value="UK">United Kingdom</option>
+                                <option value="">Select Manager</option>
+                                @foreach ($managers as $manager)
+                                    <option value="{{ $manager->id }}">{{ $manager->name }}</option>
+                                @endforeach
                             </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
-                            <input type="text" name="postal_code"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Contact Phone</label>
-                            <input type="tel" name="phone"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Total Capacity</label>
-                            <input type="number" name="capacity"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                            <input type="email" name="email"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
-
-                    <!-- Manager Information -->
-                    <div class="border-t border-gray-200 pt-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Manager Information</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Manager Name</label>
-                                <input type="text" name="manager_name"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Manager Phone</label>
-                                <input type="tel" name="manager_phone"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Manager Email</label>
-                                <input type="email" name="manager_email"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
                         </div>
                     </div>
 
@@ -665,7 +620,7 @@
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                     </div>
 
-                    <!-- Active Status - Using radio buttons instead of checkbox -->
+                    <!-- Active Status - Using radio buttons -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Active Status *</label>
                         <div class="flex items-center space-x-4">
@@ -680,13 +635,6 @@
                                 <span class="ml-2 text-sm text-gray-700">Inactive</span>
                             </label>
                         </div>
-                    </div>
-
-                    <!-- Default Warehouse -->
-                    <div class="flex items-center">
-                        <input type="checkbox" name="is_default" id="is_default" value="1"
-                            class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        <label for="is_default" class="ml-2 text-sm text-gray-700">Set as Default Warehouse</label>
                     </div>
                 </div>
 
@@ -770,29 +718,43 @@
 
         // View warehouse (placeholder)
         function viewWarehouse(id) {
-            // In real app, fetch warehouse details via AJAX
-            console.log('View warehouse:', id);
+            window.location.href = `/admin/warehouses/${id}`;
         }
 
         // Edit warehouse (placeholder)
         function editWarehouse(id) {
-            // In real app, fetch warehouse details via AJAX
-            console.log('Edit warehouse:', id);
+            window.location.href = `/admin/warehouses/${id}/edit`;
         }
 
         // Delete warehouse
         function deleteWarehouse(id) {
             const form = document.getElementById('deleteWarehouseForm');
-            form.action = `/warehouses/${id}`;
+            form.action = `/admin/warehouses/${id}`;
             document.getElementById('deleteConfirmationModal').classList.remove('hidden');
         }
 
         // Toggle warehouse status
         function toggleStatus(id) {
             if (confirm('Are you sure you want to change the warehouse status?')) {
-                // In real app, make AJAX call to update status
-                console.log('Toggle status for warehouse:', id);
-                location.reload(); // Reload to show updated status
+                fetch(`/admin/warehouses/${id}/toggle-status`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Error updating status');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error updating status');
+                    });
             }
         }
 
@@ -827,11 +789,11 @@
                         if (filterType === 'all') {
                             row.style.display = '';
                         } else if (filterType === 'active') {
-                            row.style.display = row.getAttribute('data-status') ===
-                                '1' ? '' : 'none';
+                            row.style.display = row.getAttribute('data-status') === '1' ?
+                                '' : 'none';
                         } else if (filterType === 'inactive') {
-                            row.style.display = row.getAttribute('data-status') ===
-                                '0' ? '' : 'none';
+                            row.style.display = row.getAttribute('data-status') === '0' ?
+                                '' : 'none';
                         } else if (filterType === 'high-capacity') {
                             row.style.display = row.getAttribute('data-capacity') ===
                                 'high-capacity' ? '' : 'none';
@@ -895,58 +857,12 @@
                     }
                 });
             }
-
-            // Form validation
-            // Add this to your existing JavaScript
-            document.addEventListener('DOMContentLoaded', function() {
-                const createForm = document.getElementById('createWarehouseForm');
-                if (createForm) {
-                    createForm.addEventListener('submit', function(e) {
-                        // Remove required attributes from non-required fields
-                        const requiredFields = ['name', 'code', 'status'];
-                        let isValid = true;
-
-                        requiredFields.forEach(fieldName => {
-                            const field = this.querySelector(`[name="${fieldName}"]`);
-                            if (field && !field.value && field.type !== 'radio') {
-                                isValid = false;
-                                field.style.borderColor = '#ef4444';
-                            }
-                        });
-
-                        // Check radio buttons for status
-                        const isActiveRadios = this.querySelectorAll('input[name="status"]');
-                        let isActiveChecked = false;
-                        isActiveRadios.forEach(radio => {
-                            if (radio.checked) isActiveChecked = true;
-                        });
-
-                        if (!isActiveChecked) {
-                            isValid = false;
-                            alert('Please select Active Status');
-                        }
-
-                        if (!isValid) {
-                            e.preventDefault();
-                            alert('Please fill in all required fields (*)');
-                        }
-                    });
-                }
-            });
-
-            // Animate progress bars
-            setTimeout(() => {
-                document.querySelectorAll('[class*="bg-"]').forEach(bar => {
-                    if (bar.style.width) {
-                        const width = bar.style.width;
-                        bar.style.width = '0';
-                        setTimeout(() => {
-                            bar.style.width = width;
-                        }, 100);
-                    }
-                });
-            }, 500);
         });
+
+        // Print warehouse list
+        function printWarehouseList() {
+            window.print();
+        }
 
         // Close modals on escape key
         document.addEventListener('keydown', function(event) {
@@ -958,28 +874,15 @@
         });
     </script>
 
-    @push('styles')
-        <style>
-            .warehouse-row:hover {
-                background-color: rgba(59, 130, 246, 0.05);
-            }
+    <style>
+        .warehouse-row:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
 
-            .progress-bar {
-                transition: width 1s ease-in-out;
+        @media print {
+            .no-print {
+                display: none !important;
             }
-
-            /* Hide scrollbar for Chrome, Safari and Opera */
-            .overflow-y-auto::-webkit-scrollbar {
-                display: none;
-            }
-
-            /* Hide scrollbar for IE, Edge and Firefox */
-            .overflow-y-auto {
-                -ms-overflow-style: none;
-                /* IE and Edge */
-                scrollbar-width: none;
-                /* Firefox */
-            }
-        </style>
-    @endpush
+        }
+    </style>
 @endpush

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\User;
 use App\Models\Admin\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,11 +16,36 @@ class WarehouseController extends Controller
      */
     public function index()
     {
-        $warehouses = Warehouse::with(['creator', 'updater'])
+        $warehouses = Warehouse::with(['manager'])
             ->latest()
             ->paginate(20);
 
-        return view('admin.warehouses.index', compact('warehouses'));
+        // Calculate statistics
+        $totalWarehouses = $warehouses->total();
+        $activeWarehouses = $warehouses->where('status', true)->count();
+        $activePercentage = $totalWarehouses > 0 ? round(($activeWarehouses / $totalWarehouses) * 100) : 0;
+        $totalCapacity = $warehouses->sum('capacity');
+        $totalStaff = $warehouses->sum('staff_count');
+        $avgStaffPerWarehouse = $totalWarehouses > 0 ? round($totalStaff / $totalWarehouses, 1) : 0;
+
+        // Calculate capacity utilization (if you have occupancy data)
+        $totalOccupancy = $warehouses->sum('current_occupancy');
+        $capacityUtilization = $totalCapacity > 0 ? round(($totalOccupancy / $totalCapacity) * 100) : 0;
+
+        $managers = Warehouse::with('manager')->get()->pluck('manager')->unique();
+
+
+        return view('admin.warehouses.index', compact(
+            'warehouses',
+            'managers',
+            'totalWarehouses',
+            'activeWarehouses',
+            'activePercentage',
+            'totalCapacity',
+            'totalStaff',
+            'avgStaffPerWarehouse',
+            'capacityUtilization'
+        ));
     }
 
     /**
@@ -50,12 +76,12 @@ class WarehouseController extends Controller
             'manager_phone' => 'nullable|string|max:20',
             'manager_email' => 'nullable|email|max:255',
             'capacity' => 'nullable|numeric|min:0',
-            'status' => 'required|in:active,inactive,maintenance',
+            'status' => 'required|integer|in:0,1',
             'is_default' => 'boolean',
             'notes' => 'nullable|string',
         ]);
 
-        DB::transaction(function () use ($validated) {
+        DB::transaction(function () use ($validated, $request) {
             // If this is set as default, remove default from others
             if ($request->is_default) {
                 Warehouse::where('is_default', true)->update(['is_default' => false]);
@@ -68,7 +94,7 @@ class WarehouseController extends Controller
             ]);
 
             // If no warehouse is default yet and this is active, make it default
-            if (!Warehouse::where('is_default', true)->exists() && $warehouse->status === 'active') {
+            if (!Warehouse::where('is_default', true)->exists() && $warehouse->status === '1') {
                 $warehouse->update(['is_default' => true]);
             }
         });
@@ -115,7 +141,7 @@ class WarehouseController extends Controller
             'manager_phone' => 'nullable|string|max:20',
             'manager_email' => 'nullable|email|max:255',
             'capacity' => 'nullable|numeric|min:0',
-            'status' => 'required|in:active,inactive,maintenance',
+            'status' => 'required|integer|in:0,1',
             'is_default' => 'boolean',
             'notes' => 'nullable|string',
         ]);
@@ -166,7 +192,7 @@ class WarehouseController extends Controller
      */
     public function toggleStatus(Request $request, Warehouse $warehouse)
     {
-        $newStatus = $warehouse->status === 'active' ? 'inactive' : 'active';
+        $newStatus = $warehouse->status === '1' ? '0' : '1';
 
         $warehouse->update([
             'status' => $newStatus,

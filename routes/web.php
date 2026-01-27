@@ -90,6 +90,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('branches/toggle-status/{id}', [BranchController::class, 'toggleStatus'])->name('branches.toggle-status');
         Route::get('branches/import', [BranchController::class, 'import'])->name('branches.import');
         Route::resource('warehouses', WarehouseController::class);
+        Route::get('warehouses/products', [WarehouseController::class, 'getProducts'])->name('warehouses.products');
+        Route::post('warehouses/{warehouse}/toggle-status', [WarehouseController::class, 'toggleStatus'])->name('warehouses.toggle-status');
+        Route::get('warehouses/export', [WarehouseController::class, 'export'])->name('warehouses.export');
         Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
         Route::get('/audit-logs/{id}', [AuditLogController::class, 'show'])->name('audit-logs.show');
 

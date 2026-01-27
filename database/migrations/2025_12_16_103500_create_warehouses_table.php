@@ -10,15 +10,16 @@ return new class extends Migration
     {
         Schema::create('warehouses', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('manager_id')->nullable()->constrained('users')->onDelete('set null');
             // $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
             $table->string('code')->unique();
-            $table->string('warehouse_name');
+            $table->string('name');
             $table->text('address')->nullable();
             $table->decimal('capacity', 15, 2)->nullable();
             $table->string('current_occupancy')->nullable();
             $table->string('staff_count')->nullable();
-            $table->foreignId('manager_id')->nullable()->constrained('users')->onDelete('set null');
             $table->boolean('status')->default(1);
+            $table->text('notes')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
