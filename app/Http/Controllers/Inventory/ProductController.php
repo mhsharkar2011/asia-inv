@@ -169,98 +169,59 @@ class ProductController extends Controller
     /**
      * Store a newly created product.
      */
+    // In your ProductController
     public function store(Request $request)
     {
-        // Validation
         $validated = $request->validate([
             'product_code' => 'required|unique:products,product_code',
-            'product_name' => 'required|max:255',
+            'product_name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'hs_code' => 'nullable|max:50',
-            'description' => 'nullable',
-            'unit_of_measure' => 'required|max:20',
-            'tax_rate' => 'required|numeric|min:0|max:100',
+            'hs_code' => 'nullable|string|max:50',
+            'description' => 'nullable|string',
+            'unit_of_measure' => 'required|string|max:10',
+            'tax_rate' => 'required|numeric',
             'purchase_price' => 'nullable|numeric|min:0',
             'selling_price' => 'nullable|numeric|min:0',
             'mrp' => 'nullable|numeric|min:0',
             'reorder_level' => 'required|integer|min:0',
             'min_stock' => 'required|integer|min:0',
             'max_stock' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
             'track_batch' => 'boolean',
             'track_expiry' => 'boolean',
             'track_serial' => 'boolean',
             'manage_stock' => 'boolean',
             'allow_backorder' => 'boolean',
             'allow_negative' => 'boolean',
-            'images' => 'nullable|array|max:5',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'image_order' => 'nullable|json',
+            'is_active' => 'boolean',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
 
-        // Handle image uploads
-        $imagePaths = [];
-        if ($request->hasFile('images')) {
-            $imageOrder = json_decode($request->input('image_order', '[]'), true);
-
-            // Sort images based on order
-            $images = [];
-            foreach ($request->file('images') as $index => $file) {
-                $images[] = [
-                    'file' => $file,
-                    'order' => array_search($index, $imageOrder) ?: $index
-                ];
-            }
-
-            // Sort by order
-            usort($images, function ($a, $b) {
-                return $a['order'] <=> $b['order'];
-            });
-
-            // Store images
-            foreach ($images as $imageData) {
-                $path = $imageData['file']->store('products/' . date('Y/m'), 'public');
-                $imagePaths[] = $path;
-            }
-        }
-
         // Create product
-        $productData = $validated;
-        $productData['company_id'] = Auth::user()->company_id;
-        $productData['created_by'] = Auth::id();
-        $productData['images'] = json_encode($imagePaths);
+        $product = Product::create($validated);
 
-        // Convert boolean fields
-        $productData['is_active'] = $request->boolean('is_active');
-        $productData['track_batch'] = $request->boolean('track_batch');
-        $productData['track_expiry'] = $request->boolean('track_expiry');
-        $productData['track_serial'] = $request->boolean('track_serial');
-        $productData['manage_stock'] = $request->boolean('manage_stock');
-        $productData['allow_backorder'] = $request->boolean('allow_backorder');
-        $productData['allow_negative'] = $request->boolean('allow_negative');
+        // Handle image uploads
+        if ($request->hasFile('images')) {
+            $imageOrder = 1;
+            foreach ($request->file('images') as $image) {
+                // Store image
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $imagePath = $image->storeAs('products', $imageName, 'public');
 
-        $product = Product::create($productData);
+                // Create product image record
+                $product->images()->create([
+                    'image_path' => $imagePath,
+                    'image_name' => $imageName,
+                    'is_primary' => ($imageOrder === 1), // First image is primary
+                    'display_order' => $imageOrder
+                ]);
 
-        // Log activity
-        activity()
-            ->causedBy(Auth::user())
-            ->performedOn($product)
-            ->withProperties([
-                'product_code' => $product->product_code,
-                'images_count' => count($imagePaths)
-            ])
-            ->log('created product');
-
-        if ($request->has('save_and_new')) {
-            return redirect()->route('inventory.products.create')
-                ->with('success', 'Product created successfully!')
-                ->with('productCode', $this->generateProductCode()); // Regenerate code for next product
+                $imageOrder++;
+            }
         }
 
         return redirect()->route('inventory.products.index')
-            ->with('success', 'Product created successfully!');
+            ->with('success', 'Product created successfully with ' . ($imageOrder - 1) . ' images.');
     }
-
     protected function generateProductCode()
     {
         $prefix = 'PROD-';

@@ -6,9 +6,10 @@ use Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Product extends Model
+class Product extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
@@ -51,11 +52,11 @@ class Product extends Model
         'track_batch' => 'boolean',
         'track_expiry' => 'boolean',
         'is_active' => 'boolean',
-        'images' =>'array',
+        'images' => 'array',
     ];
 
 
-     protected function images(): Attribute
+    protected function images(): Attribute
     {
         return Attribute::make(
             get: function ($value) {
@@ -214,5 +215,16 @@ class Product extends Model
     {
         $this->addMediaCollection('products')
             ->useDisk('public');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($product) {
+            if (auth()->check() && empty($product->company_id)) {
+                $product->company_id = auth()->user()->company_id;
+            }
+        });
     }
 }
