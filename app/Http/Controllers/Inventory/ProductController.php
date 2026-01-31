@@ -151,9 +151,9 @@ class ProductController extends Controller
     public function create()
     {
         // Permission already handled by middleware, but double check
-        // if (!auth()->user()->can('create products')) {
-        //     abort(403, 'You do not have permission to create products.');
-        // }
+        if (!auth()->user()->can('create products')) {
+            abort(403, 'You do not have permission to create products.');
+        }
 
         $companyId = Auth::user()->company_id;
 

@@ -205,8 +205,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
-                                            @if($product->image)
-                                                <img class="h-10 w-10 rounded-lg object-cover" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+                                            @if($product->images)
+                                                <img class="h-10 w-10 rounded-lg object-cover" src="{{ asset('storage/' . $product->images) }}" alt="{{ $product->name }}">
                                             @else
                                                 <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                                                     <i class="fas fa-box text-gray-400"></i>

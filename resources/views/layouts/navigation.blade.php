@@ -6,7 +6,7 @@
             <div class="flex items-center">
                 <!-- Logo -->
                 <div class="shrink-0">
-                    <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 group">
+                    <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
                         <div
                             class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                             <i class="fas fa-chart-network text-white text-lg"></i>
@@ -16,7 +16,7 @@
                                 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
                                 Asia Enterprise
                             </span>
-                            <span class="block text-xs text-gray-500 font-medium">Tally Pro</span>
+                            <span class="block text-xs text-gray-500 font-medium">Inventory System</span>
                         </div>
                     </a>
                 </div>

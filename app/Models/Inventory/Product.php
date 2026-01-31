@@ -62,8 +62,8 @@ class Product extends Model
                 if (!$value) return [];
 
                 $images = json_decode($value, true);
-                return array_map(function ($image) {
-                    return asset('storage/' . $image);
+                return array_map(function ($images) {
+                    return asset('storage/products/' . $images);
                 }, $images);
             }
         );
