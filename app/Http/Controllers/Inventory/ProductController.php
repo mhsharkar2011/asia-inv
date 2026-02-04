@@ -24,7 +24,7 @@ class ProductController extends Controller
         $sort = $request->get('sort', 'created_desc');
 
         // Start building the query
-        $query = Product::with('category')->where('company_id', $companyId);
+        $query = Product::with('category','productImages')->where('company_id', $companyId);
 
         // Apply search filter
         if ($search) {
@@ -193,10 +193,16 @@ class ProductController extends Controller
             'allow_backorder' => 'boolean',
             'allow_negative' => 'boolean',
             'is_active' => 'boolean',
+            // Don't validate images here since they go to separate table
+        ]);
+
+        // Validate images separately
+        $request->validate([
+            'images' => 'required|array|min:1|max:5',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
 
-        // Create product
+        // Create product WITHOUT images
         $product = Product::create($validated);
 
         // Handle image uploads
@@ -207,8 +213,10 @@ class ProductController extends Controller
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                 $imagePath = $image->storeAs('products', $imageName, 'public');
 
-                // Create product image record
-                $product->images()->create([
+                // Create product image record in product_images table
+                \App\Models\Inventory\ProductImage::create([
+                    'product_id' => $product->id,
+                    'company_id' => $product->company_id,
                     'image_path' => $imagePath,
                     'image_name' => $imageName,
                     'is_primary' => ($imageOrder === 1), // First image is primary
@@ -246,7 +254,7 @@ class ProductController extends Controller
 
         $companyId = Auth::user()->company_id;
 
-        $product = Product::with(['category', 'inventories.warehouse'])
+        $product = Product::with(['category','productImages', 'inventories.warehouse'])
             ->where('company_id', $companyId)
             ->findOrFail($id);
 

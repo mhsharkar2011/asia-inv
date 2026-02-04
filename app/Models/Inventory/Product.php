@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
+
 class Product extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
@@ -56,20 +57,11 @@ class Product extends Model implements HasMedia
     ];
 
 
-    protected function images(): Attribute
+    // app/Models/Inventory/Product.php
+    public function productImages()
     {
-        return Attribute::make(
-            get: function ($value) {
-                if (!$value) return [];
-
-                $images = json_decode($value, true);
-                return array_map(function ($images) {
-                    return asset('storage/products/' . $images);
-                }, $images);
-            }
-        );
+        return $this->hasMany(ProductImage::class);
     }
-
     /**
      * Get the inventories for the product.
      */

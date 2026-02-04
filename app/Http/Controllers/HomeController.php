@@ -25,7 +25,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $products = Product::with(['category', 'inventories'])
+        $products = Product::with(['category', 'inventories','productImages'])
             ->where('is_active', true)
             ->paginate(12);
 
