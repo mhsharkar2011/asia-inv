@@ -31,12 +31,19 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 */
 
-    Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/products/view/{product}', [HomeController::class, 'view'])->name('home.products.view');
+Route::get('/products/shop', [HomeController::class, 'shop'])->name('products.shop');
+Route::get('/products/notify', [HomeController::class, 'notify'])->name('product.notify');
+Route::get('/products/shop/{category}', [HomeController::class, 'category'])->name('shop.category');
+Route::get('/products/cart/add', [HomeController::class, 'cardAdd'])->name('cart.add');
+Route::get('product/cart/checkout', [HomeController::class, 'checkout'])->name('cart.checkout');
+
 
 // Public Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/auth', [HomeController::class, 'index'])->name('home');
-    Route::get('/products/view/{product}', [HomeController::class, 'view'])->name('home.products.view');
     // User profile routes
     Route::get('/profile/{user}/show', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/{user}/edit', [ProfileController::class, 'edit'])->name('profile.edit');

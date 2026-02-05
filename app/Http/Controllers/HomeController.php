@@ -33,6 +33,6 @@ class HomeController extends Controller
         // Eager load relationships for better performance
         $product->load(['category', 'productImages', 'inventories']);
 
-        return view('products.public-view', compact('product'));
+        return view('product-show', compact('product'));
     }
 }
