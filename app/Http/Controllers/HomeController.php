@@ -8,24 +8,9 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
     public function index()
     {
-        $products = Product::with(['category', 'inventories','productImages'])
+        $products = Product::with(['category', 'inventories', 'productImages'])
             ->where('is_active', true)
             ->paginate(12);
 
@@ -35,5 +20,19 @@ class HomeController extends Controller
         })->count();
 
         return view('home', compact('products', 'activeProducts', 'categoriesCount'));
+    }
+
+
+    public function view(Product $product)
+    {
+        // Check if product is active (optional, you can remove this if you want to show all)
+        if (!$product->is_active) {
+            abort(404, 'Product is not available');
+        }
+
+        // Eager load relationships for better performance
+        $product->load(['category', 'productImages', 'inventories']);
+
+        return view('products.public-view', compact('product'));
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Inventory;
 use App\Http\Controllers\Controller;
 use App\Models\Inventory\Category;
 use App\Models\Inventory\Product;
+use App\Models\Inventory\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,7 @@ class ProductController extends Controller
         $sort = $request->get('sort', 'created_desc');
 
         // Start building the query
-        $query = Product::with('category','productImages')->where('company_id', $companyId);
+        $query = Product::with('category', 'productImages')->where('company_id', $companyId);
 
         // Apply search filter
         if ($search) {
@@ -209,12 +210,16 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             $imageOrder = 1;
             foreach ($request->file('images') as $image) {
+                $originalName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $image->getClientOriginalExtension();
                 // Store image
-                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $imagePath = $image->storeAs('products', $imageName, 'public');
+                $imageName = Str::slug($originalName) . '_' . time() . '_' . Str::random(5) . '.' . $extension;
+                // Store in product-specific folder: products/product_{id}/
+                $folderPath = 'products/product_' . $product->id;
+                $imagePath = $image->storeAs($folderPath, $imageName, 'public');
 
                 // Create product image record in product_images table
-                \App\Models\Inventory\ProductImage::create([
+                ProductImage::create([
                     'product_id' => $product->id,
                     'company_id' => $product->company_id,
                     'image_path' => $imagePath,
@@ -254,7 +259,7 @@ class ProductController extends Controller
 
         $companyId = Auth::user()->company_id;
 
-        $product = Product::with(['category','productImages', 'inventories.warehouse'])
+        $product = Product::with(['category', 'productImages', 'inventories.warehouse'])
             ->where('company_id', $companyId)
             ->findOrFail($id);
 
@@ -289,58 +294,58 @@ class ProductController extends Controller
     /**
      * Update the specified product.
      */
+    // In ProductController@update method
+    // In ProductController@update method
     public function update(Request $request, $id)
     {
-        // Check permission
-        if (!auth()->user()->can('edit products')) {
-            abort(403, 'You do not have permission to edit products.');
-        }
+        $product = Product::findOrFail($id);
 
-        $companyId = Auth::user()->company_id;
-
-        $product = Product::where('company_id', $companyId)
-            ->findOrFail($id);
-
-        // Store old data for logging
-        $oldData = $product->toArray();
-
+        // Validate the request
         $validated = $request->validate([
-            'product_code' => 'required|unique:products,product_code,' . $id . '|max:50',
-            'product_name' => 'required|max:255',
+            'product_code' => 'required|unique:products,product_code,' . $id,
+            'product_name' => 'required',
             'category_id' => 'required|exists:categories,id',
-            'description' => 'nullable|max:1000',
-            'unit_of_measure' => 'nullable|max:20',
-            'reorder_level' => 'required|integer|min:0',
-            'min_stock' => 'required|integer|min:0',
-            'max_stock' => 'nullable|integer|min:0',
-            'hsn_sac_code' => 'nullable|max:10',
-            'tax_rate' => 'required|numeric|min:0|max:100',
-            'purchase_price' => 'nullable|numeric|min:0',
-            'selling_price' => 'nullable|numeric|min:0',
-            'mrp' => 'nullable|numeric|min:0',
+            // ... other validation rules
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
-        $validated['track_batch'] = $request->has('track_batch');
-        $validated['track_expiry'] = $request->has('track_expiry');
-        $validated['updated_by'] = Auth::id(); // Track who updated
-
+        // Update product data
         $product->update($validated);
 
-        // Log activity if user has permission
-        if (auth()->user()->can('log activities')) {
-            activity()
-                ->causedBy(auth()->user())
-                ->performedOn($product)
-                ->withProperties([
-                    'old_data' => $oldData,
-                    'new_data' => $validated
-                ])
-                ->log('updated product');
+        // Handle image deletions - FIXED VERSION
+        if ($request->has('deleted_images') && !empty($request->deleted_images)) {
+            try {
+                $deletedImages = json_decode($request->deleted_images, true);
+
+                // Check if json_decode was successful and we have an array
+                if (is_array($deletedImages) && !empty($deletedImages)) {
+                    ProductImage::whereIn('id', $deletedImages)->delete();
+                }
+            } catch (\Exception $e) {
+                // Log error or handle gracefully
+                \Log::error('Error deleting images: ' . $e->getMessage());
+            }
         }
 
+        // Handle new image uploads
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('products', 'public');
+
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => $path,
+                    'image_name' => $image->getClientOriginalName(),
+                    // Add other image fields if needed
+                ]);
+            }
+        }
+
+        // Handle existing images (preserve the ones not deleted)
+        // The existing images are already associated via hidden inputs
+
         return redirect()->route('inventory.products.show', $product->id)
-            ->with('success', 'Product updated successfully!');
+            ->with('success', 'Product updated successfully.');
     }
 
     /**

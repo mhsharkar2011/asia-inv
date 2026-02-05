@@ -31,9 +31,12 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 */
 
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+
 // Public Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/auth', [HomeController::class, 'index'])->name('home');
+    Route::get('/products/view/{product}', [HomeController::class, 'view'])->name('home.products.view');
     // User profile routes
     Route::get('/profile/{user}/show', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/{user}/edit', [ProfileController::class, 'edit'])->name('profile.edit');
