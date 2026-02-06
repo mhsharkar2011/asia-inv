@@ -6,6 +6,7 @@ use Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -61,6 +62,27 @@ class Product extends Model implements HasMedia
     public function productImages()
     {
         return $this->hasMany(ProductImage::class);
+    }
+
+    public function getFirstImageAttribute()
+    {
+        $image = $this->productImages->where('is_primary', 1)->first() ??
+            $this->productImages->first();
+
+        if (!$image) {
+            return asset('images/product-placeholder.jpg');
+        }
+
+        // Check different possible image fields
+        if ($image->image_path && Storage::exists($image->image_path)) {
+            return asset('storage/' . $image->image_path);
+        } elseif ($image->image_name && Storage::exists('products/' . $image->image_name)) {
+            return asset('storage/products/' . $image->image_name);
+        } elseif ($image->image && Storage::exists($image->image)) {
+            return asset('storage/' . $image->image);
+        }
+
+        return asset('images/product-placeholder.jpg');
     }
     /**
      * Get the inventories for the product.

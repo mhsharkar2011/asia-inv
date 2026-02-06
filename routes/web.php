@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\BranchController;
+use App\Http\Controllers\cartController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
@@ -33,12 +34,17 @@ use Illuminate\Support\Facades\Auth;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/products/view/{product}', [HomeController::class, 'show'])->name('home.products.show');
-Route::get('/products/shop', [HomeController::class, 'shop'])->name('products.shop');
+Route::get('/products/view/{product}', [HomeController::class, 'show'])->name('products.show');
+Route::get('/products/shop', [HomeController::class, 'shop'])->name('shop');
 Route::get('/products/notify', [HomeController::class, 'notify'])->name('product.notify');
 Route::get('/products/shop/{category}', [HomeController::class, 'category'])->name('shop.category');
 Route::get('/products/cart/add', [HomeController::class, 'cardAdd'])->name('cart.add');
 Route::get('product/cart/checkout', [HomeController::class, 'checkout'])->name('cart.checkout');
+Route::post('/cart/add', [cartController::class, 'add'])->name('cart.add');
+Route::get('/product/quickview', [ProductController::class, 'quickView'])->name('product.quickview');
+route::get('contact', function () {
+    return view('contact');
+})->name('contact');
 
 
 // Public Routes
