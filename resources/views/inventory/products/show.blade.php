@@ -80,9 +80,8 @@
                                 $images = $product->productImages;
                             } elseif (isset($product->image) && is_string($product->image) && !empty($product->image)) {
                                 // If there's a single image column in products table
-    $images = collect([(object) ['image_path' => $product->image]]);
+                                $images = collect([(object) ['image_path' => $product->image]]);
                             }
-
                             $hasImages = $images->isNotEmpty();
                         @endphp
 
@@ -93,11 +92,7 @@
                                     @if ($images->first())
                                         @php
                                             $firstImage = $images->first();
-                                            $mainImageUrl = isset($firstImage->image_path)
-                                                ? asset('storage/' . $firstImage->image_path)
-                                                : (isset($firstImage->image)
-                                                    ? asset('storage/' . $firstImage->image)
-                                                    : '');
+                                            $mainImageUrl = isset($firstImage->image_path) ? asset('storage/' . $firstImage->image_path) : (isset($firstImage->image) ? asset('storage/' . $firstImage->image) : '');
                                         @endphp
                                         <img id="mainImage" src="{{ $mainImageUrl }}" alt="{{ $product->product_name }}"
                                             class="w-full h-full object-contain p-4">
@@ -124,19 +119,13 @@
                                     <div class="grid grid-cols-4 md:grid-cols-6 gap-3">
                                         @foreach ($images as $index => $image)
                                             @php
-                                                $imageUrl = isset($image->image_path)
-                                                    ? asset('storage/' . $image->image_path)
-                                                    : (isset($image->image)
-                                                        ? asset('storage/' . $image->image)
-                                                        : '');
+                                                $imageUrl = isset($image->image_path) ? asset('storage/' . $image->image_path) : (isset($image->image)
+                                                        ? asset('storage/' . $image->image) : '');
                                             @endphp
                                             <button type="button" onclick="changeMainImage('{{ $imageUrl }}', this)"
                                                 class="thumbnail-btn relative h-20 bg-gray-100 rounded-lg border-2 border-transparent hover:border-blue-500 overflow-hidden group {{ $index === 0 ? 'border-blue-500' : '' }}">
-                                                <img src="{{ $imageUrl }}"
-                                                    alt="{{ $product->product_name }} - Image {{ $index + 1 }}"
-                                                    class="w-full h-full object-cover">
-                                                <div
-                                                    class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors">
+                                                <img src="{{ $imageUrl }}" alt="{{ $product->product_name }} - Image {{ $index + 1 }}"  class="w-full h-full object-cover">
+                                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors">
                                                 </div>
                                             </button>
                                         @endforeach
@@ -381,8 +370,7 @@
                             <!-- Selling Price -->
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600">Selling Price</span>
-                                <span
-                                    class="font-medium text-blue-600">৳{{ number_format($product->selling_price, 2) }}</span>
+                                <span class="font-medium text-blue-600">৳{{ number_format($product->selling_price, 2) }}</span>
                             </div>
 
                             <!-- MRP -->
