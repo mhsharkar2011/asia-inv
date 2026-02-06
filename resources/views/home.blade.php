@@ -429,7 +429,7 @@
 
                             <!-- Action Buttons -->
                             <div class="flex items-center space-x-3">
-                                <a href="{{ route('home.products.view', $product->id) }}"
+                                <a href="{{ route('home.products.show', $product->id) }}"
                                     class="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 group/view transition-all duration-200">
                                     <svg class="w-4 h-4 mr-2 text-gray-400 group-hover/view:text-blue-500 transition-colors"
                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
