@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 
@@ -298,92 +299,121 @@ class ProductController extends Controller
     // In ProductController@update method
     public function update(Request $request, $id)
     {
-        $product = Product::findOrFail($id);
+        $companyId = Auth::user()->company_id;
+        $product = Product::where('company_id', $companyId)->findOrFail($id);
 
         // Validate the request
         $validated = $request->validate([
             'product_code' => 'required|unique:products,product_code,' . $id,
-            'product_name' => 'required',
+            'product_name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            // ... other validation rules
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+            'hs_code' => 'nullable|string|max:50',
+            'description' => 'nullable|string',
+            'unit_of_measure' => 'required|string|max:10',
+            'tax_rate' => 'required|numeric',
+            'purchase_price' => 'nullable|numeric|min:0',
+            'selling_price' => 'nullable|numeric|min:0',
+            'mrp' => 'nullable|numeric|min:0',
+            'reorder_level' => 'required|integer|min:0',
+            'min_stock' => 'required|integer|min:0',
+            'max_stock' => 'nullable|integer|min:0',
+            'track_batch' => 'boolean',
+            'track_expiry' => 'boolean',
+            'track_serial' => 'boolean',
+            'manage_stock' => 'boolean',
+            'allow_backorder' => 'boolean',
+            'allow_negative' => 'boolean',
+            'is_active' => 'boolean',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max per image
         ]);
 
-        // Update product data
+        // Update product basic info
         $product->update($validated);
 
-        // Handle image deletions - FIXED VERSION
-        if ($request->has('deleted_images') && !empty($request->deleted_images)) {
-            try {
-                $deletedImages = json_decode($request->deleted_images, true);
+        // Handle image deletions
+        if ($request->has('deleted_images')) {
+            $deletedImageIds = json_decode($request->deleted_images, true) ?? [];
 
-                // Check if json_decode was successful and we have an array
-                if (is_array($deletedImages) && !empty($deletedImages)) {
-                    ProductImage::whereIn('id', $deletedImages)->delete();
+            if (!empty($deletedImageIds)) {
+                $imagesToDelete = ProductImage::where('product_id', $product->id)
+                    ->whereIn('id', $deletedImageIds)
+                    ->get();
+
+                foreach ($imagesToDelete as $image) {
+                    // Delete physical file from storage
+                    if (Storage::disk('public')->exists($image->image_path)) {
+                        Storage::disk('public')->delete($image->image_path);
+                    }
+                    // Delete database record
+                    $image->delete();
                 }
-            } catch (\Exception $e) {
-                // Log error or handle gracefully
-                \Log::error('Error deleting images: ' . $e->getMessage());
+
+                // If primary image was deleted, set a new primary
+                if ($deletedImageIds->contains($product->primary_image_id)) {
+                    $newPrimary = ProductImage::where('product_id', $product->id)
+                        ->orderBy('display_order')
+                        ->first();
+
+                    if ($newPrimary) {
+                        $newPrimary->update(['is_primary' => true]);
+                    }
+                }
+            }
+        }
+
+        // Handle image reordering
+        if ($request->has('image_order')) {
+            $imageOrder = json_decode($request->image_order, true) ?? [];
+
+            foreach ($imageOrder as $order => $imageId) {
+                ProductImage::where('id', $imageId)
+                    ->where('product_id', $product->id)
+                    ->update([
+                        'display_order' => $order + 1,
+                        'is_primary' => ($order === 0) // First image becomes primary
+                    ]);
             }
         }
 
         // Handle new image uploads
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
+            $existingImagesCount = ProductImage::where('product_id', $product->id)->count();
+            $uploadOrder = $existingImagesCount + 1;
 
+            foreach ($request->file('images') as $image) {
+                $originalName = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $image->getClientOriginalExtension();
+
+                // Store image
+                $imageName = Str::slug($originalName) . '_' . time() . '_' . Str::random(5) . '.' . $extension;
+                $folderPath = 'products/product_' . $product->id;
+                $imagePath = $image->storeAs($folderPath, $imageName, 'public');
+
+                // Create product image record
                 ProductImage::create([
                     'product_id' => $product->id,
-                    'image_path' => $path,
-                    'image_name' => $image->getClientOriginalName(),
-                    // Add other image fields if needed
+                    'company_id' => $companyId,
+                    'image_path' => $imagePath,
+                    'image_name' => $imageName,
+                    'is_primary' => ($uploadOrder === 1 && $existingImagesCount === 0), // Primary if first image
+                    'display_order' => $uploadOrder
                 ]);
+
+                $uploadOrder++;
             }
         }
 
-        // Handle existing images (preserve the ones not deleted)
-        // The existing images are already associated via hidden inputs
-
-        return redirect()->route('inventory.products.show', $product->id)
-            ->with('success', 'Product updated successfully.');
-    }
-
-    /**
-     * Remove the specified product.
-     */
-    public function destroy($id)
-    {
-        // Check permission
-        if (!auth()->user()->can('delete products')) {
-            abort(403, 'You do not have permission to delete products.');
-        }
-
-        $companyId = Auth::user()->company_id;
-
-        $product = Product::where('company_id', $companyId)
-            ->findOrFail($id);
-
-        // Check if product has inventory transactions
-        if ($product->inventories()->count() > 0) {
-            return redirect()->route('inventory.products.index')
-                ->with('error', 'Cannot delete product with existing inventory.');
-        }
-
-        // Store product data for logging
-        $productData = $product->toArray();
-
-        $product->delete();
-
-        // Log activity if user has permission
+        // Log activity
         if (auth()->user()->can('log activities')) {
             activity()
                 ->causedBy(auth()->user())
-                ->withProperties(['deleted_product' => $productData])
-                ->log('deleted product');
+                ->performedOn($product)
+                ->withProperties($validated)
+                ->log('updated product');
         }
 
-        return redirect()->route('inventory.products.index')
-            ->with('success', 'Product deleted successfully!');
+        return redirect()->route('inventory.products.show', $product->id)
+            ->with('success', 'Product updated successfully.');
     }
 
     /**
@@ -693,5 +723,350 @@ class ProductController extends Controller
         }
 
         return redirect()->back()->with('success', $message);
+    }
+
+
+
+    /**
+     * Delete a specific product image
+     */
+    public function deleteImage($id, $imageId)
+    {
+        $companyId = Auth::user()->company_id;
+
+        $product = Product::where('company_id', $companyId)->findOrFail($id);
+
+        $image = ProductImage::where('product_id', $product->id)
+            ->where('id', $imageId)
+            ->firstOrFail();
+
+        // Store image info for response
+        $imageInfo = [
+            'id' => $image->id,
+            'name' => $image->image_name,
+            'url' => asset('storage/' . $image->image_path)
+        ];
+
+        // Delete physical file
+        if (Storage::disk('public')->exists($image->image_path)) {
+            Storage::disk('public')->delete($image->image_path);
+        }
+
+        // Delete database record
+        $image->delete();
+
+        // If this was the primary image, set a new one
+        if ($image->is_primary) {
+            $newPrimary = ProductImage::where('product_id', $product->id)
+                ->orderBy('display_order')
+                ->first();
+
+            if ($newPrimary) {
+                $newPrimary->update(['is_primary' => true]);
+            }
+        }
+
+        // Log activity
+        if (auth()->user()->can('log activities')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($product)
+                ->withProperties(['deleted_image' => $imageInfo])
+                ->log('deleted product image');
+        }
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Image deleted successfully',
+                'deleted_image' => $imageInfo
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Image deleted successfully.');
+    }
+
+    /**
+     * Set an image as primary
+     */
+    public function setPrimaryImage($id, $imageId)
+    {
+        $companyId = Auth::user()->company_id;
+
+        $product = Product::where('company_id', $companyId)->findOrFail($id);
+
+        // First, unset all primary images for this product
+        ProductImage::where('product_id', $product->id)
+            ->update(['is_primary' => false]);
+
+        // Set the new primary image
+        $image = ProductImage::where('product_id', $product->id)
+            ->where('id', $imageId)
+            ->update(['is_primary' => true]);
+
+        // Log activity
+        if (auth()->user()->can('log activities')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($product)
+                ->withProperties(['primary_image_id' => $imageId])
+                ->log('set primary product image');
+        }
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Primary image updated successfully',
+                'primary_image_id' => $imageId
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Primary image updated successfully.');
+    }
+
+    /**
+     * Get product images for gallery (AJAX)
+     */
+    public function getImages($id)
+    {
+        $companyId = Auth::user()->company_id;
+
+        $product = Product::where('company_id', $companyId)->findOrFail($id);
+
+        $images = $product->productImages->map(function ($image) {
+            return [
+                'id' => $image->id,
+                'url' => asset('storage/' . $image->image_path),
+                'thumb' => $this->getThumbnailUrl($image->image_path),
+                'name' => $image->image_name,
+                'is_primary' => $image->is_primary,
+                'display_order' => $image->display_order,
+                'size' => Storage::disk('public')->size($image->image_path),
+                'created_at' => $image->created_at->format('Y-m-d H:i:s')
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'images' => $images,
+            'product_name' => $product->product_name
+        ]);
+    }
+
+    /**
+     * Generate thumbnail URL (helper method)
+     */
+    private function getThumbnailUrl($imagePath)
+    {
+        // You can implement image resizing/intervention image here
+        // For now, return the original image URL
+        return asset('storage/' . $imagePath);
+    }
+
+    /**
+     * View image in large modal
+     */
+    public function viewImage($id, $imageId)
+    {
+        $companyId = Auth::user()->company_id;
+
+        $product = Product::where('company_id', $companyId)->findOrFail($id);
+
+        $image = ProductImage::where('product_id', $product->id)
+            ->where('id', $imageId)
+            ->firstOrFail();
+
+        $imageData = [
+            'id' => $image->id,
+            'url' => asset('storage/' . $image->image_path),
+            'name' => $image->image_name,
+            'is_primary' => $image->is_primary,
+            'size' => $this->formatBytes(Storage::disk('public')->size($image->image_path)),
+            'uploaded' => $image->created_at->format('F j, Y, g:i a'),
+            'dimensions' => $this->getImageDimensions($image->image_path)
+        ];
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'image' => $imageData,
+                'product_name' => $product->product_name
+            ]);
+        }
+
+        // Return view for non-AJAX requests
+        return view('inventory.products.image-view', [
+            'product' => $product,
+            'image' => $imageData,
+            'otherImages' => $product->productImages()->where('id', '!=', $imageId)->get()
+        ]);
+    }
+
+    /**
+     * Helper: Format bytes to readable size
+     */
+    private function formatBytes($bytes, $precision = 2)
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= pow(1024, $pow);
+
+        return round($bytes, $precision) . ' ' . $units[$pow];
+    }
+
+    /**
+     * Helper: Get image dimensions
+     */
+    private function getImageDimensions($imagePath)
+    {
+        try {
+            $fullPath = storage_path('app/public/' . $imagePath);
+            if (file_exists($fullPath)) {
+                $size = getimagesize($fullPath);
+                return $size ? $size[0] . '×' . $size[1] : 'Unknown';
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to get image dimensions: ' . $e->getMessage());
+        }
+
+        return 'Unknown';
+    }
+
+    /**
+     * Remove the specified product with images.
+     */
+    public function destroy($id)
+    {
+        // Check permission
+        if (!auth()->user()->can('delete products')) {
+            abort(403, 'You do not have permission to delete products.');
+        }
+
+        $companyId = Auth::user()->company_id;
+
+        $product = Product::where('company_id', $companyId)
+            ->with('productImages')
+            ->findOrFail($id);
+
+        // Check if product has inventory transactions
+        if ($product->inventories()->count() > 0) {
+            return redirect()->route('inventory.products.index')
+                ->with('error', 'Cannot delete product with existing inventory.');
+        }
+
+        // Store product data for logging
+        $productData = $product->toArray();
+        $imagesData = $product->productImages->toArray();
+
+        // Delete all product images from storage
+        foreach ($product->productImages as $image) {
+            if (Storage::disk('public')->exists($image->image_path)) {
+                Storage::disk('public')->delete($image->image_path);
+            }
+        }
+
+        // Delete the product (this will cascade delete product_images records)
+        $product->delete();
+
+        // Log activity if user has permission
+        if (auth()->user()->can('log activities')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'deleted_product' => $productData,
+                    'deleted_images' => $imagesData
+                ])
+                ->log('deleted product with images');
+        }
+
+        return redirect()->route('inventory.products.index')
+            ->with('success', 'Product and all associated images deleted successfully!');
+    }
+
+    /**
+     * Bulk delete product images
+     */
+    public function bulkDeleteImages($id, Request $request)
+    {
+        $companyId = Auth::user()->company_id;
+
+        $product = Product::where('company_id', $companyId)->findOrFail($id);
+
+        $request->validate([
+            'image_ids' => 'required|array',
+            'image_ids.*' => 'exists:product_images,id,product_id,' . $product->id
+        ]);
+
+        $deletedImages = [];
+        $deletedCount = 0;
+
+        foreach ($request->image_ids as $imageId) {
+            $image = ProductImage::find($imageId);
+
+            if ($image) {
+                // Store info for logging
+                $deletedImages[] = [
+                    'id' => $image->id,
+                    'name' => $image->image_name,
+                    'path' => $image->image_path
+                ];
+
+                // Delete physical file
+                if (Storage::disk('public')->exists($image->image_path)) {
+                    Storage::disk('public')->delete($image->image_path);
+                }
+
+                // Delete database record
+                $image->delete();
+                $deletedCount++;
+            }
+        }
+
+        // Update primary image if needed
+        if ($deletedCount > 0) {
+            $remainingImages = ProductImage::where('product_id', $product->id)->count();
+
+            if ($remainingImages > 0) {
+                // Check if any primary image remains
+                $hasPrimary = ProductImage::where('product_id', $product->id)
+                    ->where('is_primary', true)
+                    ->exists();
+
+                if (!$hasPrimary) {
+                    $newPrimary = ProductImage::where('product_id', $product->id)
+                        ->orderBy('display_order')
+                        ->first();
+
+                    if ($newPrimary) {
+                        $newPrimary->update(['is_primary' => true]);
+                    }
+                }
+            }
+        }
+
+        // Log activity
+        if (auth()->user()->can('log activities')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($product)
+                ->withProperties([
+                    'deleted_images_count' => $deletedCount,
+                    'deleted_images' => $deletedImages
+                ])
+                ->log('bulk deleted product images');
+        }
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully deleted {$deletedCount} image(s).",
+                'deleted_count' => $deletedCount
+            ]);
+        }
+
+        return redirect()->back()
+            ->with('success', "Successfully deleted {$deletedCount} image(s).");
     }
 }

@@ -49,7 +49,6 @@ route::get('contact', function () {
 
 // Public Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
     // User profile routes
     Route::get('/profile/{user}/show', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/{user}/edit', [ProfileController::class, 'edit'])->name('profile.edit');
