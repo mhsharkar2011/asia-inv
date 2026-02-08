@@ -181,7 +181,7 @@
                                             required>
                                             @foreach ($statuses as $status)
                                                 <option value="{{ $status }}"
-                                                    {{ old('status', 'draft') == $status ? 'selected' : '' }}>
+                                                    {{ old('status', 'pending') == $status ? 'selected' : '' }}>
                                                     {{ ucfirst($status) }}
                                                 </option>
                                             @endforeach
@@ -245,7 +245,7 @@
                                             @foreach ($warehouses as $warehouse)
                                                 <option value="{{ $warehouse->id }}"
                                                     {{ old('warehouse_id') == $warehouse->id ? 'selected' : '' }}>
-                                                    {{ $warehouse->warehouse_name }}
+                                                    {{ $warehouse->name }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -259,6 +259,36 @@
                                 <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-5">
                                     <h3 class="text-sm font-bold text-gray-900 mb-4">Financial Information</h3>
                                     <div class="space-y-4">
+                                        <!-- Currency Selection -->
+                                        <div>
+                                            <label for="currency" class="block text-sm font-bold text-gray-700 mb-2">
+                                                Currency <span class="text-red-500">*</span>
+                                            </label>
+                                            <div class="relative">
+                                                <div
+                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <svg class="h-5 w-5 text-gray-400" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </div>
+                                                <select name="currency" id="currency"
+                                                    class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 @error('currency') border-red-300 @enderror"
+                                                    required>
+                                                    @foreach ($currencies as $currency)
+                                                        <option value="{{ $currency }}"
+                                                            {{ old('currency') == $currency ? 'selected' : '' }}>
+                                                            {{ $currency }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                @error('currency')
+                                                    <div class="mt-1 text-sm text-red-600">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
                                         <!-- Total Amount -->
                                         <div>
                                             <label for="total_amount"
@@ -268,16 +298,21 @@
                                             <div class="relative">
                                                 <div
                                                     class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500">$</span>
+                                                    <span class="text-gray-500" id="currency_symbol">$</span>
                                                 </div>
-                                                <input type="number" step="0.01" name="total_amount"
-                                                    id="total_amount" value="{{ old('total_amount', 0) }}"
+                                                <input type="number" name="total_amount" id="total_amount"
+                                                    value="{{ old('total_amount', '0.00') }}"
                                                     class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 @error('total_amount') border-red-300 @enderror"
-                                                    required>
+                                                    data-field="amount" required>
+                                                <input type="hidden" name="total_amount_raw" id="total_amount_raw"
+                                                    value="{{ old('total_amount_raw', '0.00') }}">
                                                 @error('total_amount')
                                                     <div class="mt-1 text-sm text-red-600">{{ $message }}</div>
                                                 @enderror
                                             </div>
+                                            <p class="mt-1 text-xs text-gray-500">
+                                                Enter amount in decimal format (e.g., 1000.50)
+                                            </p>
                                         </div>
 
                                         <!-- Tax Amount -->
@@ -288,13 +323,38 @@
                                             <div class="relative">
                                                 <div
                                                     class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500">$</span>
+                                                    <span class="text-gray-500" id="currency_symbol_tax">$</span>
                                                 </div>
-                                                <input type="number" step="0.01" name="tax_amount" id="tax_amount"
-                                                    value="{{ old('tax_amount', 0) }}"
+                                                <input type="number" name="tax_amount" id="tax_amount"
+                                                    value="{{ old('tax_amount', '0.00') }}"
                                                     class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 @error('tax_amount') border-red-300 @enderror"
-                                                    required>
+                                                    data-field="amount" required>
+                                                <input type="hidden" name="tax_amount_raw" id="tax_amount_raw"
+                                                    value="{{ old('tax_amount_raw', '0.00') }}">
                                                 @error('tax_amount')
+                                                    <div class="mt-1 text-sm text-red-600">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <!-- Shipping Cost -->
+                                        <div>
+                                            <label for="shipping_cost"
+                                                class="block text-sm font-medium text-gray-700 mb-1">
+                                                Shipping Cost <span class="text-red-500">*</span>
+                                            </label>
+                                            <div class="relative">
+                                                <div
+                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <span class="text-gray-500" id="currency_symbol_shipping">$</span>
+                                                </div>
+                                                <input type="number" name="shipping_cost" id="shipping_cost"
+                                                    value="{{ old('shipping_cost', '0.00') }}"
+                                                    class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 @error('shipping_cost') border-red-300 @enderror"
+                                                    data-field="amount" required>
+                                                <input type="hidden" name="shipping_cost_raw" id="shipping_cost_raw"
+                                                    value="{{ old('shipping_cost_raw', '0.00') }}">
+                                                @error('shipping_cost')
                                                     <div class="mt-1 text-sm text-red-600">{{ $message }}</div>
                                                 @enderror
                                             </div>
@@ -308,12 +368,14 @@
                                             <div class="relative">
                                                 <div
                                                     class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500">$</span>
+                                                    <span class="text-gray-500" id="currency_symbol_discount">$</span>
                                                 </div>
-                                                <input type="number" step="0.01" name="discount" id="discount"
-                                                    value="{{ old('discount', 0) }}"
+                                                <input type="number" name="discount" id="discount"
+                                                    value="{{ old('discount', '0.00') }}"
                                                     class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 @error('discount') border-red-300 @enderror"
-                                                    required>
+                                                    data-field="amount" required>
+                                                <input type="hidden" name="discount_raw" id="discount_raw"
+                                                    value="{{ old('discount_raw', '0.00') }}">
                                                 @error('discount')
                                                     <div class="mt-1 text-sm text-red-600">{{ $message }}</div>
                                                 @enderror
@@ -329,18 +391,20 @@
                                             <div class="relative">
                                                 <div
                                                     class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500">$</span>
+                                                    <span class="text-gray-500" id="currency_symbol_final">$</span>
                                                 </div>
-                                                <input type="number" step="0.01" name="final_amount"
-                                                    id="final_amount" value="{{ old('final_amount', 0) }}"
+                                                <input type="number" name="final_amount" id="final_amount"
+                                                    value="{{ old('final_amount', '0.00') }}"
                                                     class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 @error('final_amount') border-red-300 @enderror"
-                                                    required readonly>
+                                                    data-field="amount" required readonly>
+                                                <input type="hidden" name="final_amount_raw" id="final_amount_raw"
+                                                    value="{{ old('final_amount_raw', '0.00') }}">
                                                 @error('final_amount')
                                                     <div class="mt-1 text-sm text-red-600">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                             <p class="mt-1 text-xs text-gray-500">
-                                                Calculated automatically: Total + Tax - Discount
+                                                Calculated automatically: Total + Tax + Shipping - Discount
                                             </p>
                                         </div>
                                     </div>
@@ -399,33 +463,82 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('purchaseOrderForm');
-            const totalInput = document.getElementById('total_amount');
-            const taxInput = document.getElementById('tax_amount');
-            const discountInput = document.getElementById('discount');
-            const finalInput = document.getElementById('final_amount');
-            const orderDateInput = document.getElementById('order_date');
-            const deliveryDateInput = document.getElementById('expected_delivery_date');
+            const currencySelect = document.getElementById('currency');
+            const currencySymbols = document.querySelectorAll('[id^="currency_symbol"]');
+
+            // Currency symbols mapping
+            const currencySymbolMap = {
+                'USD': '$',
+                'EUR': '€',
+                'GBP': '£',
+                'JPY': '¥',
+                'INR': '₹'
+            };
+
+            // Format number to currency
+            function formatCurrency(value, currency = 'USD') {
+                const num = parseFloat(value) || 0;
+                return new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(num);
+            }
+
+            // Parse currency string to number
+            function parseCurrency(value) {
+                return parseFloat(value.replace(/[^0-9.-]+/g, "")) || 0;
+            }
+
+            // Update currency symbols
+            function updateCurrencySymbols() {
+                const currency = currencySelect.value;
+                const symbol = currencySymbolMap[currency] || '$';
+
+                currencySymbols.forEach(el => {
+                    el.textContent = symbol;
+                });
+            }
 
             // Auto-calculate final amount
             function calculateFinalAmount() {
-                const total = parseFloat(totalInput.value) || 0;
-                const tax = parseFloat(taxInput.value) || 0;
-                const discount = parseFloat(discountInput.value) || 0;
-                const final = total + tax - discount;
-                finalInput.value = final.toFixed(2);
+                const total = parseCurrency(document.getElementById('total_amount').value);
+                const tax = parseCurrency(document.getElementById('tax_amount').value);
+                const shipping = parseCurrency(document.getElementById('shipping_cost').value);
+                const discount = parseCurrency(document.getElementById('discount').value);
+                const final = total + tax + shipping - discount;
+
+                const formattedFinal = formatCurrency(final);
+                document.getElementById('final_amount').value = formattedFinal;
+                document.getElementById('final_amount_raw').value = final.toFixed(2);
             }
 
-            // Add event listeners for calculation
-            [totalInput, taxInput, discountInput].forEach(input => {
-                input.addEventListener('input', calculateFinalAmount);
-            });
+            // Format input on blur
+            function formatInput(input) {
+                const value = parseCurrency(input.value);
+                const formatted = formatCurrency(value);
+                input.value = formatted;
+
+                // Update hidden raw value
+                const rawInput = document.getElementById(input.id + '_raw');
+                if (rawInput) {
+                    rawInput.value = value.toFixed(2);
+                }
+            }
+
+            // Parse input on focus
+            function parseInput(input) {
+                const value = parseCurrency(input.value);
+                input.value = value > 0 ? value.toString() : '';
+            }
 
             // Set minimum dates
             const today = new Date().toISOString().split('T')[0];
+            const orderDateInput = document.getElementById('order_date');
+            const deliveryDateInput = document.getElementById('expected_delivery_date');
+
             orderDateInput.min = today;
             deliveryDateInput.min = today;
 
-            // Set default date values if not set
             if (!orderDateInput.value) {
                 orderDateInput.value = today;
             }
@@ -438,12 +551,54 @@
                 }
             });
 
-            // Initial calculation
+            // Event listeners for currency inputs
+            const amountInputs = document.querySelectorAll('input[data-field="amount"]');
+            amountInputs.forEach(input => {
+                // Format on blur
+                input.addEventListener('blur', function() {
+                    formatInput(this);
+                    calculateFinalAmount();
+                });
+
+                // Parse on focus
+                input.addEventListener('focus', function() {
+                    parseInput(this);
+                });
+
+                // Calculate on input change
+                input.addEventListener('input', calculateFinalAmount);
+            });
+
+            // Currency change listener
+            currencySelect.addEventListener('change', updateCurrencySymbols);
+
+            // Initial setup
+            updateCurrencySymbols();
+
+            // Format initial values
+            amountInputs.forEach(input => {
+                if (input.value) {
+                    formatInput(input);
+                }
+            });
+
+            // Calculate initial final amount
             calculateFinalAmount();
 
             // Form validation
             if (form) {
                 form.addEventListener('submit', function(e) {
+                    // Convert all currency inputs to raw values before submit
+                    amountInputs.forEach(input => {
+                        if (!input.readOnly) {
+                            const value = parseCurrency(input.value);
+                            const rawInput = document.getElementById(input.id + '_raw');
+                            if (rawInput) {
+                                rawInput.value = value.toFixed(2);
+                            }
+                        }
+                    });
+
                     const requiredFields = form.querySelectorAll('input[required], select[required]');
                     let isValid = true;
                     let firstInvalidField = null;
@@ -458,6 +613,18 @@
                         }
                     });
 
+                    // Validate currency amounts are positive numbers
+                    amountInputs.forEach(input => {
+                        const value = parseCurrency(input.value);
+                        if (value < 0) {
+                            isValid = false;
+                            input.classList.add('border-red-300');
+                            if (!firstInvalidField) {
+                                firstInvalidField = input;
+                            }
+                        }
+                    });
+
                     if (!isValid) {
                         e.preventDefault();
 
@@ -465,7 +632,8 @@
                         const errorDiv = document.createElement('div');
                         errorDiv.className =
                             'mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700';
-                        errorDiv.innerHTML = '<strong>Please fill in all required fields.</strong>';
+                        errorDiv.innerHTML =
+                            '<strong>Please fill in all required fields with valid values.</strong>';
 
                         const firstChild = form.querySelector('.space-y-6');
                         if (firstChild) {
@@ -500,17 +668,174 @@
             if (firstInput) {
                 firstInput.focus();
             }
+        });
 
-            // Format currency inputs on blur
-            const currencyInputs = [totalInput, taxInput, discountInput];
-            currencyInputs.forEach(input => {
-                input.addEventListener('blur', function() {
-                    const value = parseFloat(this.value);
-                    if (!isNaN(value)) {
-                        this.value = value.toFixed(2);
+        // Additional script for dynamic currency symbol updates and auto-calculation of final amount
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('purchaseOrderForm');
+            const currencySelect = document.getElementById('currency');
+            const currencySymbols = document.querySelectorAll('[id^="currency_symbol"]');
+
+            // Comprehensive currency symbols mapping
+            const currencySymbolMap = {
+                'USD': '$', // US Dollar
+                'EUR': '€', // Euro
+                'GBP': '£', // British Pound
+                'JPY': '¥', // Japanese Yen
+                'INR': '₹', // Indian Rupee
+                'AUD': 'A$', // Australian Dollar
+                'CAD': 'C$', // Canadian Dollar
+                'CHF': 'CHF', // Swiss Franc
+                'CNY': '¥', // Chinese Yuan
+                'HKD': 'HK$', // Hong Kong Dollar
+                'SGD': 'S$', // Singapore Dollar
+                'KRW': '₩', // South Korean Won
+                'BRL': 'R$', // Brazilian Real
+                'RUB': '₽', // Russian Ruble
+                'ZAR': 'R', // South African Rand
+                'TRY': '₺', // Turkish Lira
+                'MXN': 'Mex$', // Mexican Peso
+                'AED': 'د.إ', // UAE Dirham
+                'SAR': '﷼', // Saudi Riyal
+                'MYR': 'RM', // Malaysian Ringgit
+                'THB': '฿', // Thai Baht
+                'IDR': 'Rp', // Indonesian Rupiah
+                'PHP': '₱', // Philippine Peso
+                'VND': '₫', // Vietnamese Dong
+                'PKR': '₨', // Pakistani Rupee
+                'BDT': '৳', // Bangladeshi Taka
+                'EGP': 'E£', // Egyptian Pound
+                'NGN': '₦', // Nigerian Naira
+                'KES': 'KSh', // Kenyan Shilling
+                'GHS': 'GH₵', // Ghanaian Cedi
+            };
+
+            // Format number to currency
+            function formatCurrency(value) {
+                const num = parseFloat(value) || 0;
+                return new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(num);
+            }
+
+            // Parse currency string to number
+            function parseCurrency(value) {
+                return parseFloat(value.replace(/[^0-9.-]+/g, "")) || 0;
+            }
+
+            // Update all currency symbols on the page
+            function updateCurrencySymbols() {
+                const currency = currencySelect.value;
+                const symbol = currencySymbolMap[currency] || '$';
+
+                console.log('Updating currency symbols to:', symbol);
+
+                // Update all currency symbol spans
+                currencySymbols.forEach(el => {
+                    el.textContent = symbol;
+                    console.log('Updated element:', el.id, 'to', symbol);
+                });
+
+                // Reformat all currency inputs with new symbol
+                amountInputs.forEach(input => {
+                    if (input.value) {
+                        formatInput(input);
                     }
                 });
+
+                calculateFinalAmount();
+            }
+
+            // Auto-calculate final amount
+            function calculateFinalAmount() {
+                const total = parseCurrency(document.getElementById('total_amount').value);
+                const tax = parseCurrency(document.getElementById('tax_amount').value);
+                const shipping = parseCurrency(document.getElementById('shipping_cost').value);
+                const discount = parseCurrency(document.getElementById('discount').value);
+                const final = total + tax + shipping - discount;
+
+                const formattedFinal = formatCurrency(final);
+                document.getElementById('final_amount').value = formattedFinal;
+                document.getElementById('final_amount_raw').value = final.toFixed(2);
+            }
+
+            // Format input on blur
+            function formatInput(input) {
+                const value = parseCurrency(input.value);
+                const formatted = formatCurrency(value);
+                input.value = formatted;
+
+                // Update hidden raw value
+                const rawInput = document.getElementById(input.id + '_raw');
+                if (rawInput) {
+                    rawInput.value = value.toFixed(2);
+                }
+            }
+
+            // Parse input on focus
+            function parseInput(input) {
+                const value = parseCurrency(input.value);
+                input.value = value > 0 ? value.toString() : '';
+            }
+
+            // Get all amount inputs
+            const amountInputs = document.querySelectorAll('input[data-field="amount"]');
+
+            // Set minimum dates
+            const today = new Date().toISOString().split('T')[0];
+            const orderDateInput = document.getElementById('order_date');
+            const deliveryDateInput = document.getElementById('expected_delivery_date');
+
+            orderDateInput.min = today;
+            deliveryDateInput.min = today;
+
+            if (!orderDateInput.value) {
+                orderDateInput.value = today;
+            }
+
+            // Prevent delivery date before order date
+            orderDateInput.addEventListener('change', function() {
+                deliveryDateInput.min = this.value;
+                if (deliveryDateInput.value && deliveryDateInput.value < this.value) {
+                    deliveryDateInput.value = this.value;
+                }
             });
+
+            // Event listeners for currency inputs
+            amountInputs.forEach(input => {
+                // Format on blur
+                input.addEventListener('blur', function() {
+                    formatInput(this);
+                    calculateFinalAmount();
+                });
+
+                // Parse on focus
+                input.addEventListener('focus', function() {
+                    parseInput(this);
+                });
+
+                // Calculate on input change
+                input.addEventListener('input', calculateFinalAmount);
+            });
+
+            // Currency change listener
+            currencySelect.addEventListener('change', updateCurrencySymbols);
+
+            // Initial setup
+            updateCurrencySymbols();
+
+            // Format initial values
+            amountInputs.forEach(input => {
+                if (input.value) {
+                    formatInput(input);
+                }
+            });
+
+            // Calculate initial final amount
+            calculateFinalAmount();
+
+            // ... rest of your existing form validation code
         });
     </script>
 @endpush
@@ -552,6 +877,12 @@
         select::-webkit-scrollbar-thumb {
             background-color: rgba(156, 163, 175, 0.5);
             border-radius: 3px;
+        }
+
+        /* Currency input styling */
+        input[data-field="amount"] {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
         }
     </style>
 @endpush

@@ -183,35 +183,6 @@
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
-
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Customer *</label>
-                                        <select name="customer_id" id="customerSelect"
-                                            class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('id') border-red-300 @enderror {{ $salesOrder->status != 'draft' ? 'bg-gray-50' : '' }}"
-                                            {{ $salesOrder->status != 'draft' ? 'disabled' : 'required' }}>
-                                            <option value="">Select Customer</option>
-                                            @foreach ($customers as $customer)
-                                                <option value="{{ $customer->customer_id }}"
-                                                    {{ old('id', $salesOrder->id) == $customer->customer_id ? 'selected' : '' }}
-                                                    data-address="{{ $customer->address ?? '' }}"
-                                                    data-phone="{{ $customer->phone ?? '' }}"
-                                                    data-email="{{ $customer->email ?? '' }}">
-                                                    {{ $customer->name }}
-                                                    @if ($customer->name)
-                                                        ({{ $customer->name }})
-                                                    @endif
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @if ($salesOrder->status != 'draft')
-                                            <input type="hidden" name="customer_id"
-                                                value="{{ $salesOrder->id }}">
-                                        @endif
-                                        @error('id')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Date *</label>
                                         <input type="date" name="delivery_date"
@@ -226,7 +197,7 @@
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Sales Person</label>
                                         <input type="text" name="sales_person"
-                                            value="{{ old('sales_person', $salesOrder->sales_person) }}"
+                                            value="{{ old('sales_person', $salesOrder->sales_person) }}" readonly
                                             class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('sales_person') border-red-300 @enderror {{ $salesOrder->status != 'draft' ? 'bg-gray-50' : '' }}"
                                             {{ $salesOrder->status != 'draft' ? 'readonly' : '' }}>
                                         @error('sales_person')
@@ -234,7 +205,7 @@
                                         @enderror
                                     </div>
 
-                                    <div>
+                                    <div class="md:col-span-2">
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Reference
                                             Number</label>
                                         <input type="text" name="reference_number"
@@ -857,16 +828,12 @@
                                     <h2 class="text-lg font-semibold text-white">Customer Details</h2>
                                 </div>
                             </div>
-                            <div class="p-6">
+                            <div class="p-3">
                                 <div id="customerDetails" class="space-y-3">
                                     <div>
-                                        <p class="text-sm font-medium text-gray-900">
+                                        <p class="text-sm font-semibold text-gray-500">
                                             {{ $salesOrder->customer->name }}</p>
-                                        @if ($salesOrder->customer->name)
-                                            <p class="text-xs text-gray-600 mt-1"><span
-                                                    class="font-medium">Company:</span>
-                                                {{ $salesOrder->customer->name }}</p>
-                                        @endif
+
                                     </div>
                                     @if ($salesOrder->customer->email)
                                         <div class="flex items-start space-x-2">
@@ -1284,12 +1251,12 @@
                 if (elements.form) {
                     elements.form.addEventListener('submit', function(e) {
                         // Validate customer selection
-                        if (!elements.customerSelect || !elements.customerSelect.value) {
-                            e.preventDefault();
-                            alert('Please select a customer');
-                            elements.customerSelect.focus();
-                            return false;
-                        }
+                    //     if (!elements.customerSelect || !elements.customerSelect.value) {
+                    //         e.preventDefault();
+                    //         alert('Please select a customer');
+                    //         elements.customerSelect.focus();
+                    //         return false;
+                    //     }
 
                         // For draft orders, validate items
                         if (isDraft) {
