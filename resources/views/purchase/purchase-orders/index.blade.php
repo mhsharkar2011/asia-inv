@@ -260,7 +260,7 @@
                 </div>
 
                 <!-- Purchase Orders Grid -->
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-auto">
                     <!-- Table Header -->
                     <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                         <div class="flex items-center justify-between">
