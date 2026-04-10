@@ -134,11 +134,13 @@
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <!-- Roles Field -->
-                                    <div class="mb-3">
-                                        <label for="roles" class="form-label required">Roles</label>
+                                    <div>
+                                        <label for="roles" class="block text-sm font-medium text-gray-700 mb-1">
+                                            Roles <span class="text-red-500">*</span>
+                                        </label>
                                         <select name="roles[]" id="roles"
-                                            class="form-control select2 @error('roles') is-invalid @enderror" multiple
-                                            required>
+                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('roles') border-red-500 @enderror"
+                                            multiple required>
                                             @foreach ($roles as $role)
                                                 <option value="{{ $role->name }}"
                                                     {{ in_array($role->name, old('roles', [])) ? 'selected' : '' }}>
@@ -147,15 +149,18 @@
                                             @endforeach
                                         </select>
                                         @error('roles')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
+                                        <p class="mt-1 text-xs text-gray-500">Hold Ctrl/Cmd to select multiple roles</p>
                                     </div>
 
                                     <!-- Permissions Field (Optional) -->
-                                    <div class="mb-3">
-                                        <label for="permissions" class="form-label">Direct Permissions</label>
+                                    <div>
+                                        <label for="permissions" class="block text-sm font-medium text-gray-700 mb-1">
+                                            Direct Permissions
+                                        </label>
                                         <select name="permissions[]" id="permissions"
-                                            class="form-control select2 @error('permissions') is-invalid @enderror"
+                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('permissions') border-red-500 @enderror"
                                             multiple>
                                             @foreach ($permissions as $group => $groupPermissions)
                                                 <optgroup label="{{ ucfirst($group) }}">
@@ -169,8 +174,9 @@
                                             @endforeach
                                         </select>
                                         @error('permissions')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
+                                        <p class="mt-1 text-xs text-gray-500">Additional permissions beyond role</p>
                                     </div>
 
                                     <!-- Company -->
@@ -192,9 +198,7 @@
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <!-- Branch -->
                                     <div>
                                         <label for="branch_id" class="block text-sm font-medium text-gray-700 mb-1">
@@ -205,6 +209,7 @@
                                             <option value="">Select Branch</option>
                                             @foreach ($branches ?? [] as $branch)
                                                 <option value="{{ $branch->id }}"
+                                                    data-company-id="{{ $branch->company_id }}"
                                                     {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
                                                     {{ $branch->name }}
                                                 </option>
@@ -214,7 +219,9 @@
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
+                                </div>
 
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <!-- Language Preference -->
                                     <div>
                                         <label for="language_preference"
@@ -352,8 +359,8 @@
 @endsection
 
 @push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
+        /* Custom Select2 Styles */
         .select2-container--default .select2-selection--multiple {
             border: 1px solid #d1d5db;
             border-radius: 0.5rem;
@@ -379,151 +386,196 @@
             border-color: #3b82f6;
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 @endpush
 
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Initialize Select2 for roles
-            $('#roles').select2({
-                placeholder: 'Select roles',
-                allowClear: true,
-                width: '100%'
-            });
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Store all branches data
+    const allBranches = @json($branches ?? []);
+    const companySelect = document.getElementById('company_id');
+    const branchSelect = document.getElementById('branch_id');
+    const rolesSelect = document.getElementById('roles');
+    const permissionsSelect = document.getElementById('permissions');
+    const languageSelect = document.getElementById('language_preference');
 
-            // Initialize Select2 for company (if exists)
-            if ($('#company_id').length) {
-                $('#company_id').select2({
-                    placeholder: 'Select company',
-                    allowClear: true,
-                    width: '100%'
-                });
-            }
-
-            // Initialize Select2 for branch (if exists)
-            if ($('#branch_id').length) {
-                $('#branch_id').select2({
-                    placeholder: 'Select branch',
-                    allowClear: true,
-                    width: '100%'
-                });
-            }
-
-            // Initialize Select2 for language preference
-            $('#language_preference').select2({
-                placeholder: 'Select language',
-                allowClear: false,
-                width: '100%'
-            });
-
-            // Optional: Load branches based on company selection
-            $('#company_id').change(function() {
-                var companyId = $(this).val();
-                var branchSelect = $('#branch_id');
-
-                if (companyId) {
-                    // Clear current options
-                    branchSelect.empty();
-                    branchSelect.append('<option value="">Loading branches...</option>');
-
-                    // AJAX call to load branches
-                    $.ajax({
-                        url: '{{ route('admin.branches.by-company') }}',
-                        method: 'GET',
-                        data: {
-                            company_id: companyId
-                        },
-                        success: function(response) {
-                            branchSelect.empty();
-                            branchSelect.append('<option value="">Select Branch</option>');
-
-                            if (response.length > 0) {
-                                $.each(response, function(index, branch) {
-                                    branchSelect.append('<option value="' + branch.id +
-                                        '">' + branch.name + '</option>');
-                                });
-                                branchSelect.prop('disabled', false);
-                            } else {
-                                branchSelect.append(
-                                    '<option value="">No branches available</option>');
-                                branchSelect.prop('disabled', true);
-                            }
-
-                            // Restore selected value if exists in old input
-                            var oldBranchId = '{{ old('branch_id') }}';
-                            if (oldBranchId) {
-                                branchSelect.val(oldBranchId).trigger('change');
-                            }
-                        },
-                        error: function() {
-                            branchSelect.empty();
-                            branchSelect.append(
-                                '<option value="">Error loading branches</option>');
-                            branchSelect.prop('disabled', true);
-                        }
-                    });
-                } else {
-                    branchSelect.empty();
-                    branchSelect.append('<option value="">Select Branch</option>');
-                    branchSelect.val('').trigger('change');
-
-                    // Load all branches if no company selected
-                    @if (isset($branches) && count($branches) > 0)
-                        @foreach ($branches as $branch)
-                            branchSelect.append(
-                                '<option value="{{ $branch->id }}">{{ $branch->name }}</option>');
-                        @endforeach
-                    @endif
-
-                    branchSelect.prop('disabled', false);
-                }
-            });
-
-            // Trigger company change on page load if company is selected
-            @if (old('company_id'))
-                $('#company_id').trigger('change');
-            @endif
+    // Initialize Select2 for roles if element exists
+    if (rolesSelect) {
+        $(rolesSelect).select2({
+            placeholder: 'Select roles',
+            allowClear: true,
+            width: '100%'
         });
+    }
 
-        // Image preview functionality
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
+    // Initialize Select2 for permissions if element exists
+    if (permissionsSelect) {
+        $(permissionsSelect).select2({
+            placeholder: 'Select permissions',
+            allowClear: true,
+            width: '100%'
+        });
+    }
 
-                reader.onload = function(e) {
-                    $('#preview').attr('src', e.target.result);
-                    $('#imagePreview').removeClass('hidden');
-                }
+    // Initialize Select2 for language preference
+    if (languageSelect) {
+        $(languageSelect).select2({
+            placeholder: 'Select language',
+            allowClear: false,
+            width: '100%'
+        });
+    }
 
-                reader.readAsDataURL(input.files[0]);
+    // Function to filter branches based on selected company
+    function filterBranches() {
+        const selectedCompanyId = companySelect ? companySelect.value : '';
 
-                // Update file name display
-                var fileName = input.files[0].name;
-                $('label[for="avatar"]').html(
-                    '<svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>' +
-                    fileName);
+        // Clear current branch options
+        branchSelect.innerHTML = '<option value="">Select Branch</option>';
+
+        if (selectedCompanyId) {
+            // Filter branches that belong to the selected company
+            const filteredBranches = allBranches.filter(branch => branch.company_id == selectedCompanyId);
+
+            if (filteredBranches.length > 0) {
+                filteredBranches.forEach(branch => {
+                    const option = document.createElement('option');
+                    option.value = branch.id;
+                    option.textContent = branch.name;
+                    branchSelect.appendChild(option);
+                });
+                branchSelect.disabled = false;
+            } else {
+                branchSelect.innerHTML = '<option value="">No branches available for this company</option>';
+                branchSelect.disabled = true;
             }
+        } else {
+            // Show all branches if no company selected
+            allBranches.forEach(branch => {
+                const option = document.createElement('option');
+                option.value = branch.id;
+                option.textContent = branch.name;
+                branchSelect.appendChild(option);
+            });
+            branchSelect.disabled = false;
         }
 
-        // Form validation
-        $('form').submit(function(e) {
-            var password = $('#password').val();
-            var confirmPassword = $('#password_confirmation').val();
+        // Restore old selected value if exists
+        const oldBranchId = '{{ old('branch_id') }}';
+        if (oldBranchId) {
+            branchSelect.value = oldBranchId;
+        }
 
-            if (password !== confirmPassword) {
-                e.preventDefault();
-                alert('Passwords do not match!');
-                $('#password').focus();
+        // Trigger Select2 update if initialized
+        if ($(branchSelect).hasClass('select2-hidden-accessible')) {
+            $(branchSelect).trigger('change');
+        }
+    }
+
+    // Add event listener to company select
+    if (companySelect) {
+        companySelect.addEventListener('change', filterBranches);
+
+        // Initialize Select2 for company
+        $(companySelect).select2({
+            placeholder: 'Select company',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // Initialize Select2 for branch
+        $(branchSelect).select2({
+            placeholder: 'Select branch',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // Trigger filter on page load if company is selected
+        if (companySelect.value) {
+            filterBranches();
+        } else {
+            // Initial load - show all branches
+            filterBranches();
+        }
+    }
+
+    // Image preview functionality
+    window.previewImage = function(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                const preview = document.getElementById('preview');
+                const imagePreview = document.getElementById('imagePreview');
+                if (preview && imagePreview) {
+                    preview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                }
             }
 
-            // Password strength validation
-            if (password.length < 8) {
+            reader.readAsDataURL(input.files[0]);
+
+            // Update file name display
+            var fileName = input.files[0].name;
+            const avatarLabel = document.querySelector('label[for="avatar"]');
+            if (avatarLabel) {
+                avatarLabel.innerHTML = '<svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>' + fileName;
+            }
+        }
+    }
+
+    // Form validation
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('password_confirmation');
+            const roles = document.getElementById('roles');
+
+            if (password && confirmPassword) {
+                // Check if passwords match
+                if (password.value !== confirmPassword.value) {
+                    e.preventDefault();
+                    alert('Passwords do not match!');
+                    password.focus();
+                    return false;
+                }
+
+                // Check password length
+                if (password.value.length < 8) {
+                    e.preventDefault();
+                    alert('Password must be at least 8 characters long!');
+                    password.focus();
+                    return false;
+                }
+            }
+
+            // Check if at least one role is selected
+            if (roles && roles.selectedOptions.length === 0) {
                 e.preventDefault();
-                alert('Password must be at least 8 characters long!');
-                $('#password').focus();
+                alert('Please select at least one role for the user!');
+                roles.focus();
+                return false;
             }
         });
-    </script>
+    }
+});
+</script>
 @endpush

@@ -159,6 +159,91 @@
                                 </div>
                             </div>
 
+                            <!-- User Assignment -->
+                            <div class="mb-8">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                                    <svg class="w-5 h-5 inline mr-2 text-blue-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                    User Assignment
+                                </h3>
+
+                                <div class="space-y-4">
+                                    <!-- Company Owner/Admin -->
+                                    <div>
+                                        <label for="owner_id" class="block text-sm font-medium text-gray-700 mb-1">
+                                            Company Owner/Admin
+                                        </label>
+                                        <select id="owner_id" name="owner_id"
+                                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('owner_id') border-red-500 @enderror">
+                                            <option value="">Select Owner/Admin</option>
+                                            @foreach ($users ?? [] as $user)
+                                                <option value="{{ $user->id }}"
+                                                    {{ old('owner_id', $Company->owner_id) == $user->id ? 'selected' : '' }}>
+                                                    {{ $user->name }} ({{ $user->email }})
+                                                    @if ($user->roles->isNotEmpty())
+                                                        - {{ $user->roles->first()->name }}
+                                                    @endif
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('owner_id')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                        <p class="mt-1 text-xs text-gray-500">
+                                            Select the user who will be the primary contact/owner for this company
+                                        </p>
+                                    </div>
+
+                                    <!-- Assigned Users (Multiple) -->
+                                    <div>
+                                        <label for="assigned_users" class="block text-sm font-medium text-gray-700 mb-1">
+                                            Assigned Users
+                                        </label>
+                                        <select id="assigned_users" name="assigned_users[]" multiple
+                                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('assigned_users') border-red-500 @enderror"
+                                            size="5">
+                                            @foreach ($users ?? [] as $user)
+                                                <option value="{{ $user->id }}"
+                                                    {{ in_array($user->id, old('assigned_users', $assignedUserIds ?? [])) ? 'selected' : '' }}>
+                                                    {{ $user->name }} ({{ $user->email }})
+                                                    @if ($user->roles->isNotEmpty())
+                                                        - {{ $user->roles->first()->name }}
+                                                    @endif
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('assigned_users')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                        <p class="mt-1 text-xs text-gray-500">
+                                            Hold Ctrl/Cmd to select multiple users who belong to this company
+                                        </p>
+                                    </div>
+
+                                    <!-- Search Users -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Search Users
+                                        </label>
+                                        <div class="relative">
+                                            <input type="text" id="userSearch"
+                                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                placeholder="Type to search users...">
+                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Company Details -->
                             <div class="mb-8">
                                 <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
@@ -196,28 +281,22 @@
                                             <option value="">Select Range</option>
                                             <option value="1-10"
                                                 {{ old('employee_count', $Company->employee_count) == '1-10' ? 'selected' : '' }}>
-                                                1-10 Employees
-                                            </option>
+                                                1-10 Employees</option>
                                             <option value="11-50"
                                                 {{ old('employee_count', $Company->employee_count) == '11-50' ? 'selected' : '' }}>
-                                                11-50 Employees
-                                            </option>
+                                                11-50 Employees</option>
                                             <option value="51-200"
                                                 {{ old('employee_count', $Company->employee_count) == '51-200' ? 'selected' : '' }}>
-                                                51-200 Employees
-                                            </option>
+                                                51-200 Employees</option>
                                             <option value="201-500"
                                                 {{ old('employee_count', $Company->employee_count) == '201-500' ? 'selected' : '' }}>
-                                                201-500 Employees
-                                            </option>
+                                                201-500 Employees</option>
                                             <option value="501-1000"
                                                 {{ old('employee_count', $Company->employee_count) == '501-1000' ? 'selected' : '' }}>
-                                                501-1000 Employees
-                                            </option>
+                                                501-1000 Employees</option>
                                             <option value="1000+"
                                                 {{ old('employee_count', $Company->employee_count) == '1000+' ? 'selected' : '' }}>
-                                                1000+ Employees
-                                            </option>
+                                                1000+ Employees</option>
                                         </select>
                                         @error('employee_count')
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -607,8 +686,7 @@
                         Cancel
                     </button>
 
-                    <form action="{{ route('admin.companies.destroy', $Company) }}" method="POST"
-                        class="inline">
+                    <form action="{{ route('admin.companies.destroy', $Company) }}" method="POST" class="inline">
                         @csrf
                         @method('DELETE')
                         <button type="submit"
@@ -642,8 +720,45 @@
             }
         });
 
-        // Phone number formatting
+        // Search users functionality
         document.addEventListener('DOMContentLoaded', function() {
+            const userSearch = document.getElementById('userSearch');
+            const assignedUsersSelect = document.getElementById('assigned_users');
+            const ownerSelect = document.getElementById('owner_id');
+
+            if (userSearch && assignedUsersSelect) {
+                const allOptions = Array.from(assignedUsersSelect.options);
+
+                userSearch.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+
+                    // Filter assigned users select
+                    allOptions.forEach(option => {
+                        const text = option.text.toLowerCase();
+                        if (text.includes(searchTerm)) {
+                            option.style.display = '';
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    });
+
+                    // Filter owner select if exists
+                    if (ownerSelect) {
+                        const ownerOptions = Array.from(ownerSelect.options);
+                        ownerOptions.forEach(option => {
+                            if (option.value === '') return;
+                            const text = option.text.toLowerCase();
+                            if (text.includes(searchTerm)) {
+                                option.style.display = '';
+                            } else {
+                                option.style.display = 'none';
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Phone number formatting
             const phoneInput = document.getElementById('phone');
             if (phoneInput) {
                 phoneInput.addEventListener('input', function(e) {
@@ -682,7 +797,6 @@
                         // Preview the image (optional enhancement)
                         const reader = new FileReader();
                         reader.onload = function(e) {
-                            // You could add a preview here if needed
                             console.log('Image loaded:', e.target.result);
                         };
                         reader.readAsDataURL(file);
@@ -780,33 +894,81 @@
 
                 return true;
             }
+
+            // Quick select/deselect buttons for assigned users
+            const assignedUsersContainer = document.getElementById('assigned_users')?.parentElement;
+            if (assignedUsersContainer) {
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'flex space-x-2 mt-2 mb-2';
+                buttonContainer.innerHTML = `
+                    <button type="button" onclick="selectAllUsers()" class="text-xs text-blue-600 hover:text-blue-800">Select All</button>
+                    <span class="text-gray-300">|</span>
+                    <button type="button" onclick="deselectAllUsers()" class="text-xs text-gray-600 hover:text-gray-800">Deselect All</button>
+                `;
+                assignedUsersContainer.insertBefore(buttonContainer, assignedUsersSelect);
+            }
         });
+
+        function selectAllUsers() {
+            const select = document.getElementById('assigned_users');
+            if (select) {
+                Array.from(select.options).forEach(option => {
+                    if (option.style.display !== 'none') {
+                        option.selected = true;
+                    }
+                });
+            }
+        }
+
+        function deselectAllUsers() {
+            const select = document.getElementById('assigned_users');
+            if (select) {
+                Array.from(select.options).forEach(option => {
+                    option.selected = false;
+                });
+            }
+        }
     </script>
+@endpush
 
-    @push('styles')
-        <style>
-            /* Custom scrollbar for better UX */
-            textarea::-webkit-scrollbar {
-                width: 8px;
-            }
+@push('styles')
+    <style>
+        /* Custom scrollbar for better UX */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
 
-            textarea::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 4px;
-            }
+        textarea::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
 
-            textarea::-webkit-scrollbar-thumb {
-                background: #888;
-                border-radius: 4px;
-            }
+        textarea::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
 
-            textarea::-webkit-scrollbar-thumb:hover {
-                background: #555;
-            }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
 
-            /* Smooth transitions */
-            * {
-                transition: background-color 0.2s ease, border-color 0.2s ease;
-            }
-        </style>
-    @endpush
+        /* Smooth transitions */
+        * {
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        /* Multiple select styling */
+        select[multiple] {
+            min-height: 120px;
+        }
+
+        select[multiple] option {
+            padding: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        select[multiple] option:hover {
+            background-color: #e0e7ff;
+        }
+    </style>
+@endpush

@@ -25,7 +25,13 @@ class User extends Authenticatable
         'email_verified_at',
         'last_login_at',
         'language_preference',
-        'created_by'
+        'created_by',
+        'updated_by',
+        'company_id',
+        'branch_id',
+        'department_id',
+        'username',
+
     ];
 
     protected $hidden = [

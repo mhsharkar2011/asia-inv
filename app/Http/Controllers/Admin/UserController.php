@@ -115,6 +115,9 @@ class UserController extends Controller
 
             // Get all roles for filter dropdown
             $roles = Role::orderBy('name')->pluck('name', 'name')->toArray();
+            // Get companies and branches
+            $companies = Company::orderBy('name')->get();
+            $branches = Branch::orderBy('name')->get();
 
             return view('admin.users.index', compact(
                 'users',
@@ -127,7 +130,9 @@ class UserController extends Controller
                 'activeUsersPercentage',
                 'adminPercentage',
                 'unverifiedPercentage',
-                'roles'
+                'roles',
+                'companies',
+                'branches'
             ));
         } catch (\Exception $e) {
             Log::error('UserController index error: ' . $e->getMessage());
@@ -142,11 +147,14 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::orderBy('name')->get();
+        // Get companies and branches
+        $companies = Company::orderBy('name')->get();
+        $branches = Branch::orderBy('name')->get();
         $permissions = Permission::orderBy('name')->get()->groupBy(function ($permission) {
             return explode('.', $permission->name)[0] ?? 'general';
         });
 
-        return view('admin.users.create', compact('roles', 'permissions'));
+        return view('admin.users.create', compact('roles', 'companies', 'branches', 'permissions'));
     }
 
     /**
@@ -155,18 +163,23 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
-            // Validation rules
+            // Validation rules - ADDED missing fields
             $rules = [
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
+                // 'username' => 'nullable|string|max:255|unique:users,username',
                 'phone' => 'nullable|string|max:20',
+                'address' => 'nullable|string|max:500',
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:1024',
                 'is_active' => 'boolean',
                 'roles' => 'required|array|min:1',
                 'roles.*' => 'exists:roles,name',
                 'permissions' => 'nullable|array',
-                'permissions.*' => 'exists:permissions,name'
+                'permissions.*' => 'exists:permissions,name',
+                'company_id' => 'nullable|exists:companies,id',
+                'branch_id' => 'nullable|exists:branches,id',
+                'language_preference' => 'nullable|string|in:en,es,fr,de,zh',
             ];
 
             $validated = $request->validate($rules);
@@ -177,14 +190,32 @@ class UserController extends Controller
                 $avatarPath = $request->file('avatar')->store('avatars', 'public');
             }
 
-            // Create user
+            // Generate username if not provided
+            $username = $validated['username'] ?? null;
+            if (!$username) {
+                $username = explode('@', $validated['email'])[0];
+                // Make sure username is unique
+                $baseUsername = $username;
+                $counter = 1;
+                while (User::where('username', $username)->exists()) {
+                    $username = $baseUsername . $counter;
+                    $counter++;
+                }
+            }
+
+            // Create user - ADDED missing fields
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
+                // 'username' => $username,
                 'phone' => $validated['phone'] ?? null,
+                'address' => $validated['address'] ?? null,
                 'password' => Hash::make($validated['password']),
                 'avatar' => $avatarPath,
                 'is_active' => $request->boolean('is_active', true),
+                'company_id' => $validated['company_id'] ?? null,
+                'branch_id' => $validated['branch_id'] ?? null,
+                'language_preference' => $validated['language_preference'] ?? 'en',
                 'email_verified_at' => now(),
                 'created_by' => Auth::id()
             ]);
@@ -195,6 +226,12 @@ class UserController extends Controller
             // Assign direct permissions if provided
             if (!empty($validated['permissions'])) {
                 $user->syncPermissions($validated['permissions']);
+            }
+
+            // Send welcome email if requested
+            if ($request->boolean('send_welcome_email')) {
+                // Add your welcome email logic here
+                // Mail::to($user->email)->send(new WelcomeEmail($user, $request->password));
             }
 
             // Log activity
@@ -216,6 +253,7 @@ class UserController extends Controller
                 ->withInput();
         }
     }
+
 
     /**
      * Display the specified user
@@ -278,11 +316,12 @@ class UserController extends Controller
                     ->with('error', 'You cannot edit your own profile from here.');
             }
 
-            // Validation rules
+            // Validation rules - FIXED branch_id and ADDED missing fields
             $rules = [
                 'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+                // 'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
                 'phone' => 'nullable|string|max:20',
+                'address' => 'nullable|string|max:500',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:1024',
                 'remove_avatar' => 'boolean',
                 'password' => 'nullable|min:8|confirmed',
@@ -292,8 +331,14 @@ class UserController extends Controller
                 'permissions' => 'nullable|array',
                 'permissions.*' => 'exists:permissions,name',
                 'company_id' => 'nullable|exists:companies,id',
-                'id' => 'nullable|exists:branches,id',
+                'branch_id' => 'nullable|exists:branches,id', // FIXED: Changed from 'id' to 'branch_id'
+                'language_preference' => 'nullable|string|in:en,es,fr,de,zh',
             ];
+
+            // Only validate email if it's being changed and not commented out
+            if ($request->has('email') && $request->email !== $user->email) {
+                $rules['email'] = 'required|string|email|max:255|unique:users,email,' . $user->id;
+            }
 
             $validated = $request->validate($rules);
 
@@ -322,11 +367,18 @@ class UserController extends Controller
             // Handle checkbox
             $validated['is_active'] = $request->has('is_active') && $request->boolean('is_active');
 
+            // Remove email from validated if not changed
+            if (!isset($validated['email']) || $validated['email'] === $user->email) {
+                unset($validated['email']);
+            }
+
             // Update user
             $user->update($validated);
 
             // Assign roles using Spatie
-            $user->syncRoles($validated['roles']);
+            if (isset($validated['roles'])) {
+                $user->syncRoles($validated['roles']);
+            }
 
             // Assign direct permissions
             if (!empty($validated['permissions'])) {
@@ -335,9 +387,20 @@ class UserController extends Controller
                 $user->syncPermissions([]);
             }
 
+            // Log activity
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($user)
+                ->log('updated user');
+
             return redirect()->route('admin.users.show', $user)
                 ->with('success', 'User updated successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
         } catch (\Exception $e) {
+            Log::error('UserController update error: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'Error updating user: ' . $e->getMessage())
                 ->withInput();
