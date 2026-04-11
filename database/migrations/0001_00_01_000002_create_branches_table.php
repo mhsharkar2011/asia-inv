@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('contact_person')->nullable();
             $table->string('designation')->nullable();
             $table->string('email')->nullable();
-            $table->string('phone')->nullable()->comment('Primary phone number');
-            $table->string('mobile_phone')->nullable()->comment('Mobile phone number');
+            $table->string('primary_phone')->nullable()->comment('Primary phone number');
+            $table->string('secondary_phone')->nullable()->comment('Secondary phone number');
             $table->string('address')->nullable()->default('Dhaka, Bangladesh');
             $table->string('postal_area')->nullable()->default('Dhaka');
             $table->string('postal_code')->nullable()->default('1000');

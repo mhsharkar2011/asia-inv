@@ -14,6 +14,8 @@ return new class extends Migration
             $table->foreignId('branch_id')->nullable()->constrained('branches');
             $table->foreignId('department_id')->nullable()->constrained('departments');
             $table->string('name');
+            $table->string('username')->unique()->nullable();
+            $table->string('two_factor_enabled')->default(false);
             $table->string('email')->unique();
             $table->string('password');
             $table->string('phone')->nullable();

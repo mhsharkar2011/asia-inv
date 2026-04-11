@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->foreignId('updated_by')->constrained('users')->onDelete('cascade');
 
             // Contact information
             $table->string('logo')->nullable();
@@ -42,7 +44,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique(['company_id','code']);
+            $table->unique(['company_id', 'code']);
 
             // Indexes
             $table->index(['company_id', 'code']);
