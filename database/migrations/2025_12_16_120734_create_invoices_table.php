@@ -32,6 +32,7 @@ return new class extends Migration
             $table->string('description');
             $table->decimal('quantity', 10, 2);
             $table->decimal('unit_price', 12, 2);
+            $table->decimal('tax_amount', 12, 2);
             $table->decimal('total', 12, 2);
             $table->decimal('tax_rate', 5, 2)->default(0);
             $table->timestamps();

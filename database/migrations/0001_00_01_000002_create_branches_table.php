@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('branches', function (Blueprint $table) {
             $table->id();
             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            $table->foreignId('manager_id')->constrained('users')->onDelete('cascade');
             $table->string('code')->unique()->comment('Branch identifier e.g., BRN001');
             $table->string('name');
             $table->string('type')->default('retail')->comment('retail, warehouse, office, factory, etc.');
