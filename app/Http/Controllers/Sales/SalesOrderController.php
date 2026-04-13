@@ -93,8 +93,8 @@ class SalesOrderController extends Controller
             'delivery_date' => 'required|date|after_or_equal:order_date',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|numeric|min:0.0001',
-            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.quantity' => 'required|numeric|min:0.0001|max:999999.999',
+            'items.*.unit_price' => 'required|numeric|min:0|max:999999.999',
             'items.*.discount' => 'nullable|numeric|min:0|max:100',
             'tax_rate' => 'nullable|numeric|min:0|max:100',
             'shipping_charges' => 'nullable|numeric|min:0',
@@ -180,7 +180,7 @@ class SalesOrderController extends Controller
                 'payment_status' => $request->payment_status ?? 'pending',
                 'due_date' => $request->due_date,
                 'status' => $status,
-                'tax_rate' => $request->tax_rate ?? 15,
+                'tax_rate' => $request->tax_rate ?? 5,
                 'shipping_charges' => $request->shipping_charges ?? 0,
                 'adjustment' => $request->adjustment ?? 0,
                 'notes' => $request->notes,
@@ -348,10 +348,10 @@ class SalesOrderController extends Controller
 
         // For draft orders, allow full editing
         $validator = Validator::make($request->all(), [
-            'customer_id' => 'required|exists:customers,id',
+            // 'customer_id' => 'required|exists:customers,id',
             'order_date' => 'required|date',
             'delivery_date' => 'required|date|after_or_equal:order_date',
-            'sales_person' => 'nullable|string|max:255',
+            // 'sales_person' => 'nullable|string|max:255',
             'reference_number' => 'nullable|string|max:255',
             'shipping_address' => 'nullable|string',
             'billing_address' => 'nullable|string',
@@ -383,10 +383,10 @@ class SalesOrderController extends Controller
         try {
             // Update sales order details
             $salesOrder->update([
-                'customer_id' => $request->customer_id,
+                // 'customer_id' => $request->customer_id,
                 'order_date' => $request->order_date,
                 'delivery_date' => $request->delivery_date,
-                'sales_person' => $request->sales_person,
+                // 'sales_person' => $request->sales_person,
                 'reference_number' => $request->reference_number,
                 'shipping_address' => $request->shipping_address,
                 'billing_address' => $request->billing_address,

@@ -43,7 +43,8 @@
 
             <!-- Form Content -->
             <div class="p-6">
-                <form action="{{ route('inventory.products.update', $product->id) }}" method="POST" id="productForm">
+                <form action="{{ route('inventory.products.update', $product->id) }}" method="POST" id="productForm"
+                    enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -54,6 +55,93 @@
                             <div>
                                 <h3 class="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">Basic
                                     Information</h3>
+
+                                <!-- Product Images Section -->
+                                <div class="mb-6">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Product Images
+                                    </label>
+
+                                    @php
+                                        // Get existing images - check different possible sources
+                                        $existingImages = [];
+                                        if (
+                                            isset($product->images) &&
+                                            $product->images instanceof \Illuminate\Database\Eloquent\Collection
+                                        ) {
+                                            $existingImages = $product->images;
+                                        } elseif (
+                                            isset($product->productImages) &&
+                                            $product->productImages instanceof \Illuminate\Database\Eloquent\Collection
+                                        ) {
+                                            $existingImages = $product->productImages;
+                                        }
+                                    @endphp
+
+                                    <!-- Image Upload Area -->
+                                    <div class="mb-4">
+                                        <div class="flex items-center justify-center w-full">
+                                            <label for="images"
+                                                class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                    <svg class="w-8 h-8 mb-3 text-gray-400" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                    </svg>
+                                                    <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Click
+                                                            to upload</span> or drag and drop</p>
+                                                    <p class="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                                                </div>
+                                                <input id="images" name="images[]" type="file" class="hidden" multiple
+                                                    accept="image/*">
+                                            </label>
+                                        </div>
+                                        <p class="mt-2 text-sm text-gray-500">Upload multiple images for the product</p>
+                                    </div>
+
+                                    <!-- Image Preview Container -->
+                                    <div id="imagePreviewContainer"
+                                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-3">
+                                        <!-- Existing Images -->
+                                        @if (count($existingImages) > 0)
+                                            @foreach ($existingImages as $image)
+                                                @php
+                                                    $imageUrl = isset($image->image_path)
+                                                        ? asset('storage/' . $image->image_path)
+                                                        : (isset($image->image)
+                                                            ? asset('storage/' . $image->image)
+                                                            : '');
+                                                @endphp
+                                                <div class="relative group" data-image-id="{{ $image->id }}">
+                                                    <div
+                                                        class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                                                        <img src="{{ $imageUrl }}" alt="Product Image"
+                                                            class="w-full h-full object-cover">
+                                                        <div
+                                                            class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                            <button type="button"
+                                                                onclick="deleteExistingImage('{{ $image->id }}', this)"
+                                                                class="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                    viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <input type="hidden" name="existing_images[]"
+                                                        value="{{ $image->id }}">
+                                                </div>
+                                            @endforeach
+                                        @endif
+                                    </div>
+
+                                    <!-- Hidden input for deleted images -->
+                                    <input type="hidden" id="deletedImages" name="deleted_images" value="">
+                                </div>
 
                                 <!-- Product Code -->
                                 <div class="mb-4">
@@ -317,11 +405,11 @@
                                     </label>
                                     <select id="status" name="is_active" required
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('status') border-red-500 @enderror">
-                                        <option value="active"
-                                            {{ old('status', $product->is_active ? 'active' : 'inactive') == 'active' ? 'selected' : '' }}>
+                                        <option value="1"
+                                            {{ old('is_active', $product->is_active) == 1 ? 'selected' : '' }}>
                                             Active</option>
-                                        <option value="inactive"
-                                            {{ old('status', $product->is_active ? 'active' : 'inactive') == 'inactive' ? 'selected' : '' }}>
+                                        <option value="0"
+                                            {{ old('is_active', $product->is_active) == 0 ? 'selected' : '' }}>
                                             Inactive</option>
                                     </select>
                                     @error('status')
@@ -433,117 +521,6 @@
                 </form>
             </div>
         </div>
-
-        <!-- Bottom Information Cards -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Stock Value Card -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Stock Value Calculation</h3>
-                </div>
-                <div class="p-6">
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Current Stock:</span>
-                            <span class="font-medium text-gray-900">{{ $product->stock_quantity ?? 0 }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Cost Price:</span>
-                            <span
-                                class="font-medium text-gray-900">৳{{ number_format($product->purchase_price ?? 0, 2) }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Selling Price:</span>
-                            <span
-                                class="font-medium text-gray-900">৳{{ number_format($product->selling_price ?? 0, 2) }}</span>
-                        </div>
-                        <div class="pt-4 border-t border-gray-200">
-                            <div class="flex justify-between items-center">
-                                <span class="font-semibold text-gray-900">Stock Value (at cost):</span>
-                                <span class="text-lg font-bold text-blue-600">
-                                    ৳{{ number_format(($product->stock_quantity ?? 0) * ($product->purchase_price ?? 0), 2) }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Product Details Card -->
-            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Product Details</h3>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Left Column -->
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-500">Product Code:</span>
-                                <span class="text-sm text-gray-900">{{ $product->product_code }}</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-500">Created:</span>
-                                <span class="text-sm text-gray-900">{{ $product->created_at->format('d M, Y') }}</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-500">Last Updated:</span>
-                                <span
-                                    class="text-sm text-gray-900">{{ $product->updated_at->format('d M, Y h:i A') }}</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-500">Track Batch:</span>
-                                <span class="text-sm">
-                                    @if ($product->track_batch)
-                                        <span
-                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Yes</span>
-                                    @else
-                                        <span
-                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">No</span>
-                                    @endif
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Right Column -->
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-500">Serial No:</span>
-                                <span class="text-sm text-gray-900">{{ $product->serial_no ?? 'N/A' }}</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-500">Tax Rate:</span>
-                                <span class="text-sm text-gray-900">{{ $product->tax_rate ?? 0 }}%</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-500">Track Expiry:</span>
-                                <span class="text-sm">
-                                    @if ($product->track_expiry)
-                                        <span
-                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Yes</span>
-                                    @else
-                                        <span
-                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">No</span>
-                                    @endif
-                                </span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-500">Status:</span>
-                                <span class="text-sm">
-                                    @if ($product->is_active)
-                                        <span
-                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
-                                    @else
-                                        <span
-                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Inactive</span>
-                                    @endif
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
@@ -555,7 +532,8 @@
             </div>
             <div class="p-6">
                 <p class="text-gray-700 mb-4">Are you sure you want to delete product
-                    <strong>{{ $product->product_name }}</strong>?</p>
+                    <strong>{{ $product->product_name }}</strong>?
+                </p>
                 <p class="text-sm text-red-600 mb-4">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -664,6 +642,139 @@
 
 @push('scripts')
     <script>
+        // Image Upload and Preview Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('images');
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const deletedImagesInput = document.getElementById('deletedImages');
+            let deletedImages = [];
+
+            // Handle image selection
+            if (imageInput) {
+                imageInput.addEventListener('change', function(e) {
+                    const files = Array.from(e.target.files);
+
+                    files.forEach(file => {
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+
+                            reader.onload = function(e) {
+                                const previewId = 'preview-' + Date.now() + '-' + Math.random()
+                                    .toString(36).substr(2, 9);
+
+                                const previewItem = document.createElement('div');
+                                previewItem.className = 'relative group';
+                                previewItem.id = previewId;
+
+                                previewItem.innerHTML = `
+                                    <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                                        <img src="${e.target.result}"
+                                             alt="Preview"
+                                             class="w-full h-full object-cover">
+                                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                            <button type="button"
+                                                    onclick="removeImagePreview('${previewId}')"
+                                                    class="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+
+                                previewContainer.appendChild(previewItem);
+                            };
+
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                });
+            }
+
+            // Delete existing image
+            window.deleteExistingImage = function(imageId, button) {
+                if (confirm('Are you sure you want to delete this image?')) {
+                    // Add to deleted images array
+                    deletedImages.push(imageId);
+                    deletedImagesInput.value = JSON.stringify(deletedImages);
+
+                    // Remove the image element from DOM
+                    const imageElement = button.closest('[data-image-id]');
+                    if (imageElement) {
+                        imageElement.remove();
+                    }
+
+                    // Show success message
+                    showToast('Image marked for deletion. Save the product to confirm.', 'info');
+                }
+            };
+
+            // Remove image preview
+            window.removeImagePreview = function(previewId) {
+                const previewElement = document.getElementById(previewId);
+                if (previewElement) {
+                    previewElement.remove();
+
+                    // Remove from file input (optional)
+                    // This is complex due to browser security restrictions
+                }
+            };
+
+            // Toast notification
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
+                    type === 'success' ? 'bg-green-600' : 'bg-blue-600'
+                }`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                setTimeout(() => toast.remove(), 3000);
+            }
+
+            // Drag and drop functionality
+            const dropArea = document.querySelector('label[for="images"]');
+
+            if (dropArea) {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, preventDefaults, false);
+                });
+
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, highlight, false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, unhighlight, false);
+                });
+
+                function highlight() {
+                    dropArea.classList.add('border-blue-500', 'bg-blue-50');
+                }
+
+                function unhighlight() {
+                    dropArea.classList.remove('border-blue-500', 'bg-blue-50');
+                }
+
+                dropArea.addEventListener('drop', handleDrop, false);
+
+                function handleDrop(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+
+                    // Simulate file input change
+                    imageInput.files = files;
+                    imageInput.dispatchEvent(new Event('change'));
+                }
+            }
+        });
+
         // Modal Functions
         function openDeleteModal() {
             document.getElementById('deleteModal').classList.remove('hidden');
@@ -791,4 +902,55 @@
             }
         });
     </script>
+@endpush
+
+@push('styles')
+    <style>
+        /* Image Preview Styles */
+        .image-preview-item {
+            transition: all 0.3s ease;
+        }
+
+        .image-preview-item:hover {
+            transform: scale(1.05);
+        }
+
+        /* Drag and Drop Styles */
+        .drop-area {
+            transition: all 0.3s ease;
+        }
+
+        .drop-area.drag-over {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        /* Image Loading Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        #imagePreviewContainer img {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        /* Responsive Image Grid */
+        @media (max-width: 640px) {
+            #imagePreviewContainer {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 641px) and (max-width: 768px) {
+            #imagePreviewContainer {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
 @endpush

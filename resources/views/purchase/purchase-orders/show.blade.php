@@ -93,7 +93,7 @@
                                         <span>Warehouse</span>
                                     </div>
                                     <p class="text-lg font-semibold text-gray-900">
-                                        {{ $purchaseOrder->warehouse->warehouse_name ?? 'N/A' }}</p>
+                                        {{ $purchaseOrder->warehouse->name ?? 'N/A' }}</p>
                                 </div>
 
                                 <!-- Status -->

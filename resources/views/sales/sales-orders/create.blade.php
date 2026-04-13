@@ -7,7 +7,7 @@
     <div class="min-h-screen bg-gray-50 py-6">
         <!-- Error Display -->
         @if ($errors->any())
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-6">
+            <div class="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8 mb-6">
                 <div class="rounded-lg bg-red-50 p-4 border border-red-200 shadow-sm">
                     <div class="flex">
                         <div class="flex-shrink-0">
@@ -42,8 +42,8 @@
         @endif
 
         <!-- Header -->
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="mb-8">
+        <div class="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
+            <div class="mb-4">
                 <nav class="flex mb-4" aria-label="Breadcrumb">
                     <ol class="flex items-center space-x-2 text-sm">
                         <li>
@@ -89,7 +89,7 @@
                                     d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
                                     clip-rule="evenodd" />
                             </svg>
-                            Cancel
+                            Back
                         </a>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
         <form action="{{ route('sales.sales-orders.store') }}" method="POST" id="salesOrderForm">
             @csrf
 
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
                 <div class="lg:grid lg:grid-cols-12 lg:gap-8">
                     <!-- Left Column -->
                     <div class="lg:col-span-8 space-y-6">
@@ -239,7 +239,7 @@
 
                         <!-- Order Items -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-cyan-600 to-cyan-700">
+                            <div class="px-6 py-2 border-b border-gray-200 bg-gradient-to-r from-cyan-600 to-cyan-700">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
                                         <svg class="h-6 w-6 text-white mr-3" viewBox="0 0 24 24" fill="currentColor">
@@ -271,25 +271,25 @@
                                         <thead class="bg-gray-50">
                                             <tr>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     #</th>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Product *</th>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Quantity *</th>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Unit Price *</th>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Discount %</th>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Amount</th>
                                                 <th scope="col"
-                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 </th>
                                             </tr>
                                         </thead>
@@ -307,9 +307,9 @@
 
                                             @foreach ($oldItems as $index => $item)
                                                 <tr class="item-row hover:bg-gray-50 transition-colors duration-150">
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <td class="px-2 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         {{ $loop->iteration }}</td>
-                                                    <td class="px-6 py-4">
+                                                    <td class="px-2 py-4">
                                                         <div>
                                                             <select name="items[{{ $index }}][product_id]"
                                                                 class="product-select w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm @error('items.' . $index . '.product_id') border-red-300 @enderror"
@@ -335,7 +335,7 @@
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td class="px-6 py-4">
+                                                    <td class="px-2 py-4">
                                                         <div class="relative">
                                                             <input type="number"
                                                                 name="items[{{ $index }}][quantity]"
@@ -353,7 +353,7 @@
                                                             <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                                         @enderror
                                                     </td>
-                                                    <td class="px-6 py-4">
+                                                    <td class="px-2 py-4">
                                                         <div class="relative">
                                                             <div
                                                                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -370,7 +370,7 @@
                                                             <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                                         @enderror
                                                     </td>
-                                                    <td class="px-6 py-4">
+                                                    <td class="px-2 py-4">
                                                         <div class="relative">
                                                             <input type="number"
                                                                 name="items[{{ $index }}][discount]"
@@ -384,7 +384,7 @@
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td class="px-6 py-4">
+                                                    <td class="px-2 py-4">
                                                         <div class="relative">
                                                             <div
                                                                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -398,7 +398,7 @@
                                                                 class="item-amount-hidden" value="0">
                                                         </div>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                         @if ($loop->first)
                                                             <button type="button"
                                                                 class="remove-item text-red-400 hover:text-red-600 opacity-50 cursor-not-allowed"
@@ -428,10 +428,10 @@
                                         <tfoot class="bg-gray-50 border-t border-gray-200">
                                             <tr>
                                                 <td colspan="5"
-                                                    class="px-6 py-3 text-right text-sm font-medium text-gray-900">
+                                                    class="px-2 py-3 text-right text-sm font-medium text-gray-900">
                                                     Subtotal:
                                                 </td>
-                                                <td class="px-6 py-3">
+                                                <td class="px-2 py-3">
                                                     <div class="relative">
                                                         <div
                                                             class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -448,10 +448,10 @@
                                             </tr>
                                             <tr>
                                                 <td colspan="5"
-                                                    class="px-6 py-3 text-right text-sm font-medium text-gray-900">
+                                                    class="px-2 py-3 text-right text-sm font-medium text-gray-900">
                                                     Discount:
                                                 </td>
-                                                <td class="px-6 py-3">
+                                                <td class="px-2 py-3">
                                                     <div class="relative">
                                                         <div
                                                             class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -468,10 +468,10 @@
                                             </tr>
                                             <tr>
                                                 <td colspan="5"
-                                                    class="px-6 py-3 text-right text-sm font-medium text-gray-900">
+                                                    class="px-2 py-3 text-right text-sm font-medium text-gray-900">
                                                     Taxable Amount:
                                                 </td>
-                                                <td class="px-6 py-3">
+                                                <td class="px-2 py-3">
                                                     <div class="relative">
                                                         <div
                                                             class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -488,7 +488,7 @@
                                             </tr>
                                             <tr>
                                                 <td colspan="5"
-                                                    class="px-6 py-3 text-right text-sm font-medium text-gray-900">
+                                                    class="px-2 py-3 text-right text-sm font-medium text-gray-900">
                                                     <div class="flex items-center justify-end space-x-2">
                                                         <label for="taxRate" class="text-sm">Tax %:</label>
                                                         <input type="number" name="tax_rate" id="taxRate"
@@ -500,7 +500,7 @@
                                                         @enderror
                                                     </div>
                                                 </td>
-                                                <td class="px-6 py-3">
+                                                <td class="px-2 py-3">
                                                     <div class="relative">
                                                         <div
                                                             class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -517,10 +517,10 @@
                                             </tr>
                                             <tr>
                                                 <td colspan="5"
-                                                    class="px-6 py-3 text-right text-sm font-medium text-gray-900">
+                                                    class="px-2 py-3 text-right text-sm font-medium text-gray-900">
                                                     Shipping Charges:
                                                 </td>
-                                                <td class="px-6 py-3">
+                                                <td class="px-2 py-3">
                                                     <div class="relative">
                                                         <div
                                                             class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -540,10 +540,10 @@
                                             </tr>
                                             <tr>
                                                 <td colspan="5"
-                                                    class="px-6 py-3 text-right text-sm font-medium text-gray-900">
+                                                    class="px-2 py-3 text-right text-sm font-medium text-gray-900">
                                                     Adjustment:
                                                 </td>
-                                                <td class="px-6 py-3">
+                                                <td class="px-2 py-3">
                                                     <div class="relative">
                                                         <div
                                                             class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -559,10 +559,10 @@
                                             </tr>
                                             <tr class="bg-gray-100">
                                                 <td colspan="5"
-                                                    class="px-6 py-3 text-right text-sm font-bold text-gray-900">
+                                                    class="px-2 py-3 text-right text-sm font-bold text-gray-900">
                                                     Total Amount:
                                                 </td>
-                                                <td class="px-6 py-3">
+                                                <td class="px-2 py-3">
                                                     <div class="relative">
                                                         <div
                                                             class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

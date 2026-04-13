@@ -11,14 +11,15 @@ return new class extends Migration
         Schema::create('branches', function (Blueprint $table) {
             $table->id();
             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            $table->foreignId('manager_id')->constrained('users')->onDelete('cascade');
             $table->string('code')->unique()->comment('Branch identifier e.g., BRN001');
             $table->string('name');
             $table->string('type')->default('retail')->comment('retail, warehouse, office, factory, etc.');
             $table->string('contact_person')->nullable();
             $table->string('designation')->nullable();
             $table->string('email')->nullable();
-            $table->string('phone')->nullable()->comment('Primary phone number');
-            $table->string('mobile_phone')->nullable()->comment('Mobile phone number');
+            $table->string('primary_phone')->nullable()->comment('Primary phone number');
+            $table->string('secondary_phone')->nullable()->comment('Secondary phone number');
             $table->string('address')->nullable()->default('Dhaka, Bangladesh');
             $table->string('postal_area')->nullable()->default('Dhaka');
             $table->string('postal_code')->nullable()->default('1000');

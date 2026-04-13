@@ -17,8 +17,10 @@ return new class extends Migration
             $table->date('order_date');
             $table->date('expected_delivery_date')->nullable();
             $table->enum('status', ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'])->default('pending');
+            $table->string('currency', 3)->default('BDT');
             $table->decimal('total_amount', 15, 2)->default(0);
             $table->decimal('tax_amount', 15, 2)->default(0);
+            $table->decimal('shipping_cost', 15, 2)->default(0);
             $table->decimal('discount', 15, 2)->default(0);
             $table->decimal('final_amount', 15, 2)->default(0);
             $table->text('notes')->nullable();

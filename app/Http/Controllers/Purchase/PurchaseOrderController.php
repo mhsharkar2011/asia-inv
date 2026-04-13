@@ -90,13 +90,14 @@ class PurchaseOrderController extends Controller
         $companies = Company::where('type', 'company')->get();
         $suppliers = Company::where('type', 'supplier')->get();
         $warehouses = Warehouse::all();
-        $statuses = ['draft', 'pending', 'partial', 'completed', 'cancelled'];
+        $statuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+        $currencies = ['BDT', 'USD'];
 
         // Generate PO number
         $lastPO = PurchaseOrder::latest()->first();
         $poNumber = 'PO-' . str_pad(($lastPO ? $lastPO->id + 1 : 1), 6, '0', STR_PAD_LEFT);
 
-        return view('purchase.purchase-orders.create', compact('companies', 'suppliers', 'warehouses', 'statuses', 'poNumber'));
+        return view('purchase.purchase-orders.create', compact('companies', 'suppliers', 'warehouses', 'statuses','currencies', 'poNumber'));
     }
 
     public function store(PurchaseOrderRequest $request)
@@ -124,7 +125,7 @@ class PurchaseOrderController extends Controller
         $companies = Company::all();
         $suppliers = Company::where('type', 'supplier')->get();
         $warehouses = Warehouse::all();
-        $statuses = ['draft', 'pending', 'partial', 'completed', 'cancelled'];
+        $statuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 
         return view('purchase.purchase-orders.edit', compact('purchaseOrder', 'companies', 'suppliers', 'warehouses', 'statuses'));
     }

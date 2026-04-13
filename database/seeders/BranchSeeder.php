@@ -41,7 +41,7 @@ class BranchSeeder extends Seeder
             ]);
 
             // Create retail branches
-            for ($i = 1; $i <= 3; $i++) {
+            for ($i = 1; $i <= 2; $i++) {
                 $cities = ['Chittagong', 'Khulna', 'Rajshahi', 'Sylhet', 'Barisal'];
 
                 Branch::create([

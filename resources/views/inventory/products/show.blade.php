@@ -55,8 +55,109 @@
 
         <!-- Main Content Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Left Column - Product Information -->
+            <!-- Left Column - Product Images & Information -->
             <div class="lg:col-span-2 space-y-6">
+                <!-- Product Images Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900">Product Images</h2>
+                    </div>
+                    <div class="p-6">
+                        @php
+                            // Handle image display - check different possible image sources
+                            $images = collect();
+
+                            // Check if images is a relationship
+                            if (
+                                isset($product->images) &&
+                                $product->images instanceof \Illuminate\Database\Eloquent\Collection
+                            ) {
+                                $images = $product->images;
+                            } elseif (
+                                isset($product->productImages) &&
+                                $product->productImages instanceof \Illuminate\Database\Eloquent\Collection
+                            ) {
+                                $images = $product->productImages;
+                            } elseif (isset($product->image) && is_string($product->image) && !empty($product->image)) {
+                                // If there's a single image column in products table
+                                $images = collect([(object) ['image_path' => $product->image]]);
+                            }
+                            $hasImages = $images->isNotEmpty();
+                        @endphp
+
+                        @if ($hasImages)
+                            <!-- Main Image Display -->
+                            <div class="mb-6">
+                                <div class="relative w-full h-64 md:h-80 bg-gray-100 rounded-lg overflow-hidden">
+                                    @if ($images->first())
+                                        @php
+                                            $firstImage = $images->first();
+                                            $mainImageUrl = isset($firstImage->image_path) ? asset('storage/' . $firstImage->image_path) : (isset($firstImage->image) ? asset('storage/' . $firstImage->image) : '');
+                                        @endphp
+                                        <img id="mainImage" src="{{ $mainImageUrl }}" alt="{{ $product->product_name }}"
+                                            class="w-full h-full object-contain p-4">
+                                    @endif
+                                    <div class="absolute bottom-4 right-4">
+                                        <span
+                                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-black/70 text-white">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                </path>
+                                            </svg>
+                                            {{ $images->count() }} image{{ $images->count() > 1 ? 's' : '' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Thumbnail Images -->
+                            @if ($images->count() > 1)
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-700 mb-3">Other Images</h3>
+                                    <div class="grid grid-cols-4 md:grid-cols-6 gap-3">
+                                        @foreach ($images as $index => $image)
+                                            @php
+                                                $imageUrl = isset($image->image_path) ? asset('storage/' . $image->image_path) : (isset($image->image)
+                                                        ? asset('storage/' . $image->image) : '');
+                                            @endphp
+                                            <button type="button" onclick="changeMainImage('{{ $imageUrl }}', this)"
+                                                class="thumbnail-btn relative h-20 bg-gray-100 rounded-lg border-2 border-transparent hover:border-blue-500 overflow-hidden group {{ $index === 0 ? 'border-blue-500' : '' }}">
+                                                <img src="{{ $imageUrl }}" alt="{{ $product->product_name }} - Image {{ $index + 1 }}"  class="w-full h-full object-cover">
+                                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors">
+                                                </div>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        @else
+                            <!-- No Images Placeholder -->
+                            <div class="text-center py-12">
+                                <div class="mx-auto h-32 w-32 text-gray-300 mb-4">
+                                    <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">No product images</h3>
+                                <p class="text-gray-500 mb-4">Add images to showcase your product</p>
+                                <a href="{{ route('inventory.products.edit', $product->id) }}#images"
+                                    class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                    Add Images
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
                 <!-- Product Information Card -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200">
                     <div class="px-6 py-4 border-b border-gray-200">
@@ -248,57 +349,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Tracking Information -->
-                @if ($product->track_batch || $product->track_expiry)
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-                        <div class="px-6 py-4 border-b border-gray-200">
-                            <h2 class="text-lg font-semibold text-gray-900">Tracking Information</h2>
-                        </div>
-                        <div class="p-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                @if ($product->track_batch)
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0">
-                                            <div class="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
-                                                <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h3 class="text-sm font-semibold text-gray-900">Batch Tracking</h3>
-                                            <p class="mt-1 text-sm text-gray-500">This product tracks batch numbers for
-                                                better inventory management.</p>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                @if ($product->track_expiry)
-                                    <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0">
-                                            <div
-                                                class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                                                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h3 class="text-sm font-semibold text-gray-900">Expiry Tracking</h3>
-                                            <p class="mt-1 text-sm text-gray-500">This product tracks expiry dates to
-                                                prevent selling expired items.</p>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @endif
             </div>
 
             <!-- Right Column - Pricing & Actions -->
@@ -320,8 +370,7 @@
                             <!-- Selling Price -->
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600">Selling Price</span>
-                                <span
-                                    class="font-medium text-blue-600">৳{{ number_format($product->selling_price, 2) }}</span>
+                                <span class="font-medium text-blue-600">৳{{ number_format($product->selling_price, 2) }}</span>
                             </div>
 
                             <!-- MRP -->
@@ -390,6 +439,17 @@
                                 Create Purchase Order
                             </a>
 
+                            <!-- Manage Images -->
+                            <a href="{{ route('inventory.products.edit', $product->id) }}#images"
+                                class="w-full inline-flex items-center justify-center px-4 py-2.5 border border-purple-300 text-purple-700 text-sm font-medium rounded-lg bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                Manage Images
+                            </a>
+
                             <!-- Toggle Status -->
                             <form action="{{ route('inventory.products.toggle-status', $product->id) }}" method="POST"
                                 class="w-full">
@@ -431,7 +491,8 @@
             </div>
             <div class="p-6">
                 <p class="text-gray-700 mb-4">Are you sure you want to delete product
-                    <strong>{{ $product->product_name }}</strong>?</p>
+                    <strong>{{ $product->product_name }}</strong>?
+                </p>
                 <p class="text-sm text-red-600 mb-6">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -547,6 +608,46 @@
             document.body.classList.remove('overflow-hidden');
         }
 
+        // Image Gallery Functions
+        function changeMainImage(imageUrl, clickedElement) {
+            // Update main image
+            const mainImage = document.getElementById('mainImage');
+            if (mainImage) {
+                mainImage.src = imageUrl;
+            }
+
+            // Update active thumbnail
+            document.querySelectorAll('.thumbnail-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500');
+                btn.classList.add('border-transparent');
+            });
+
+            if (clickedElement) {
+                clickedElement.classList.remove('border-transparent');
+                clickedElement.classList.add('border-blue-500');
+            }
+        }
+
+        // Image preview on hover (optional)
+        document.addEventListener('DOMContentLoaded', function() {
+            const thumbnails = document.querySelectorAll('.thumbnail-btn img');
+            const mainImage = document.getElementById('mainImage');
+
+            thumbnails.forEach(thumbnail => {
+                thumbnail.addEventListener('mouseenter', function() {
+                    const tempSrc = mainImage.src;
+                    mainImage.src = this.src;
+                    mainImage.dataset.original = tempSrc;
+                });
+
+                thumbnail.addEventListener('mouseleave', function() {
+                    if (mainImage.dataset.original) {
+                        mainImage.src = mainImage.dataset.original;
+                    }
+                });
+            });
+        });
+
         // Close modals on background click
         document.getElementById('deleteModal')?.addEventListener('click', function(e) {
             if (e.target === this) closeDeleteModal();
@@ -586,4 +687,37 @@
             }
         });
     </script>
+@endpush
+
+@push('styles')
+    <style>
+        /* Custom styles for image gallery */
+        .thumbnail-btn {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .thumbnail-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .thumbnail-btn.active {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Image loading animation */
+        #mainImage {
+            transition: opacity 0.3s ease;
+        }
+
+        #mainImage.loading {
+            opacity: 0.5;
+        }
+
+        /* Responsive image gallery */
+        @media (max-width: 640px) {
+            .thumbnail-btn {
+                height: 60px;
+            }
+        }
+    </style>
 @endpush

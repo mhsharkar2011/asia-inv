@@ -49,6 +49,36 @@
                 <input type="hidden" name="final_amount" id="final_amount"
                     value="{{ old('final_amount', $purchaseOrder->final_amount) }}">
 
+                <!-- Error summary at the top -->
+                @if ($errors->has('final_amount') || $errors->has('total_amount') || $errors->has('tax_amount'))
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.98-.833-2.732 0L4.342 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">Financial Calculation Errors</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <ul class="list-disc pl-5 space-y-1">
+                                        @error('final_amount')
+                                            <li>{{ $message }}</li>
+                                        @enderror
+                                        @error('total_amount')
+                                            <li>{{ $message }}</li>
+                                        @enderror
+                                        @error('tax_amount')
+                                            <li>{{ $message }}</li>
+                                        @enderror
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left Column -->
                     <div class="space-y-6">
@@ -138,39 +168,31 @@
                             <div class="p-6 space-y-4">
                                 <!-- Status -->
                                 <div>
-                                    <label for="status" class="block text-sm font-medium text-gray-700 mb-1">
+                                    <label for="status" class="block text-sm font-bold text-gray-700 mb-2">
                                         Status <span class="text-red-500">*</span>
                                     </label>
-                                    <select id="status" name="status"
-                                        class="w-full px-3 py-2 border @error('status') border-red-500 @else border-gray-300 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                        required>
-                                        <option value="">Select Status</option>
-                                        <option value="pending"
-                                            {{ old('status', $purchaseOrder->status) == 'pending' ? 'selected' : '' }}>
-                                            Pending</option>
-                                        <option value="confirmed"
-                                            {{ old('status', $purchaseOrder->status) == 'confirmed' ? 'selected' : '' }}>
-                                            Confirmed</option>
-                                        <option value="processing"
-                                            {{ old('status', $purchaseOrder->status) == 'processing' ? 'selected' : '' }}>
-                                            Processing</option>
-                                        <option value="shipped"
-                                            {{ old('status', $purchaseOrder->status) == 'shipped' ? 'selected' : '' }}>
-                                            Shipped</option>
-                                        <option value="delivered"
-                                            {{ old('status', $purchaseOrder->status) == 'delivered' ? 'selected' : '' }}>
-                                            Delivered</option>
-                                        <option value="cancelled"
-                                            {{ old('status', $purchaseOrder->status) == 'cancelled' ? 'selected' : '' }}>
-                                            Cancelled</option>
-                                    </select>
-                                    @error('status')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                    @if ($errors->has('status') && str_contains($errors->first('status'), 'invalid'))
-                                        <p class="mt-1 text-sm text-amber-600">Please select a valid status from the
-                                            dropdown.</p>
-                                    @endif
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <select name="status" id="status"
+                                            class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 @error('status') border-red-300 @enderror"
+                                            required>
+                                            @foreach ($statuses as $status)
+                                                <option value="{{ $status }}"
+                                                    {{ old('status', $purchaseOrder->status ?? '') == $status ? 'selected' : '' }}>
+                                                    {{ ucfirst($status) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('status')
+                                            <div class="mt-1 text-sm text-red-600">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <!-- Payment Status -->
@@ -265,7 +287,7 @@
                                         @foreach ($warehouses as $warehouse)
                                             <option value="{{ $warehouse->id }}"
                                                 {{ old('warehouse_id', $purchaseOrder->warehouse_id) == $warehouse->id ? 'selected' : '' }}>
-                                                {{ $warehouse->warehouse_name }}
+                                                {{ $warehouse->name }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -296,14 +318,39 @@
                                 <h2 class="text-lg font-semibold text-gray-900">Financial Details</h2>
                             </div>
                             <div class="p-6 space-y-4">
+                                <!-- Display calculated amounts -->
+                                <div class="grid grid-cols-2 gap-4 mb-4 p-4 bg-blue-50 rounded-lg">
+                                    <div class="text-sm">
+                                        <div class="text-gray-600">Subtotal:</div>
+                                        <div id="display_subtotal" class="font-semibold text-gray-900">
+                                            {{ $purchaseOrder->currency_symbol ?? '৳' }}{{ number_format($purchaseOrder->total_amount, 2) }}
+                                        </div>
+                                    </div>
+                                    <div class="text-sm">
+                                        <div class="text-gray-600">Tax Amount:</div>
+                                        <div id="display_tax" class="font-semibold text-gray-900">
+                                            {{ $purchaseOrder->currency_symbol ?? '৳' }}{{ number_format($purchaseOrder->tax_amount, 2) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-span-2 pt-4 border-t border-blue-100">
+                                        <div class="text-sm">
+                                            <div class="text-gray-600">Final Amount:</div>
+                                            <div id="display_final" class="text-lg font-bold text-blue-700">
+                                                {{ $purchaseOrder->currency_symbol ?? '৳' }}{{ number_format($purchaseOrder->final_amount, 2) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Discount -->
                                 <div>
                                     <label for="discount" class="block text-sm font-medium text-gray-700 mb-1">
-                                        Discount ($)
+                                        Discount ({{ $purchaseOrder->currency_symbol ?? '৳' }})
                                     </label>
                                     <input type="number" id="discount" name="discount" step="0.01" min="0"
                                         value="{{ old('discount', $purchaseOrder->discount) }}"
                                         class="w-full px-3 py-2 border @error('discount') border-red-500 @else border-gray-300 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                                    <div class="mt-1 text-xs text-gray-500" id="discount_warning"></div>
                                     @error('discount')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
@@ -325,7 +372,7 @@
                                 <!-- Shipping Cost -->
                                 <div>
                                     <label for="shipping_cost" class="block text-sm font-medium text-gray-700 mb-1">
-                                        Shipping Cost ($)
+                                        Shipping Cost ({{ $purchaseOrder->currency_symbol ?? '৳' }})
                                     </label>
                                     <input type="number" id="shipping_cost" name="shipping_cost" step="0.01"
                                         min="0" value="{{ old('shipping_cost', $purchaseOrder->shipping_cost) }}"
@@ -342,15 +389,12 @@
                                     </label>
                                     <select id="currency" name="currency"
                                         class="w-full px-3 py-2 border @error('currency') border-red-500 @else border-gray-300 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                                        <option value="BDT"
+                                            {{ old('currency', $purchaseOrder->currency ?? 'BDT') == 'BDT' ? 'selected' : '' }}>
+                                            BDT (৳)</option>
                                         <option value="USD"
                                             {{ old('currency', $purchaseOrder->currency ?? 'USD') == 'USD' ? 'selected' : '' }}>
                                             USD ($)</option>
-                                        <option value="EUR"
-                                            {{ old('currency', $purchaseOrder->currency ?? 'USD') == 'EUR' ? 'selected' : '' }}>
-                                            EUR (€)</option>
-                                        <option value="GBP"
-                                            {{ old('currency', $purchaseOrder->currency ?? 'USD') == 'GBP' ? 'selected' : '' }}>
-                                            GBP (£)</option>
                                     </select>
                                     @error('currency')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -388,7 +432,7 @@
                             class="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200">
                             Cancel
                         </a>
-                        <button type="submit"
+                        <button type="submit" id="submitBtn"
                             class="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
                             Update Purchase Order
                         </button>
@@ -400,6 +444,54 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Get form and inputs
+            const form = document.getElementById('purchaseOrderForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const discountInput = document.getElementById('discount');
+            const taxRateInput = document.getElementById('tax_rate');
+            const shippingCostInput = document.getElementById('shipping_cost');
+            const taxAmountInput = document.getElementById('tax_amount');
+            const finalAmountInput = document.getElementById('final_amount');
+            const totalAmountInput = document.getElementById('total_amount');
+            const discountWarning = document.getElementById('discount_warning');
+
+            // Display elements
+            const displaySubtotal = document.getElementById('display_subtotal');
+            const displayTax = document.getElementById('display_tax');
+            const displayFinal = document.getElementById('display_final');
+
+            // Currency symbol mapping
+            const currencySymbols = {
+                'BDT': '৳',
+                'USD': '$'
+            };
+
+            // Get current currency
+            const currencySelect = document.getElementById('currency');
+            let currentCurrency = currencySelect.value;
+            let currentSymbol = currencySymbols[currentCurrency] || '৳';
+
+            // Update currency symbol when currency changes
+            currencySelect.addEventListener('change', function() {
+                currentCurrency = this.value;
+                currentSymbol = currencySymbols[currentCurrency] || '৳';
+                updateCurrencySymbols();
+                calculateTotals();
+            });
+
+            function updateCurrencySymbols() {
+                // Update all currency labels
+                const discountLabel = discountInput.previousElementSibling;
+                const shippingLabel = shippingCostInput.previousElementSibling;
+
+                if (discountLabel && discountLabel.tagName === 'LABEL') {
+                    discountLabel.textContent = `Discount (${currentSymbol})`;
+                }
+                if (shippingLabel && shippingLabel.tagName === 'LABEL') {
+                    shippingLabel.textContent = `Shipping Cost (${currentSymbol})`;
+                }
+            }
+
             // Auto-format date inputs
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('order_date').max = today;
@@ -417,31 +509,49 @@
                 expectedDateInput.min = orderDateInput.value;
             }
 
-            // Auto-calculate financial amounts
-            const discountInput = document.getElementById('discount');
-            const taxRateInput = document.getElementById('tax_rate');
-            const shippingCostInput = document.getElementById('shipping_cost');
-            const taxAmountInput = document.getElementById('tax_amount');
-            const finalAmountInput = document.getElementById('final_amount');
-            const totalAmountInput = document.getElementById('total_amount');
-
-            // Function to calculate totals
+            // Function to calculate totals with validation
             function calculateTotals() {
                 const discount = parseFloat(discountInput.value) || 0;
                 const taxRate = parseFloat(taxRateInput.value) || 0;
                 const shipping = parseFloat(shippingCostInput.value) || 0;
-
-                // For now, use the existing total amount from hidden field
-                // In a real app, you would calculate based on order items
                 const subtotal = parseFloat(totalAmountInput.value) || 0;
+
+                // Validate discount doesn't exceed subtotal + shipping
+                const maxDiscount = subtotal + shipping;
+                let adjustedDiscount = discount;
+
+                if (discount > maxDiscount) {
+                    adjustedDiscount = maxDiscount;
+                    discountWarning.textContent =
+                        `Warning: Discount cannot exceed ${currentSymbol}${maxDiscount.toFixed(2)} (subtotal + shipping). Will be adjusted to ${currentSymbol}${maxDiscount.toFixed(2)}.`;
+                    discountWarning.className = 'mt-1 text-xs text-red-600';
+                    discountInput.value = maxDiscount.toFixed(2);
+                } else {
+                    discountWarning.textContent = '';
+                    discountWarning.className = 'mt-1 text-xs text-gray-500';
+                }
 
                 // Calculate tax amount
                 const taxAmount = (subtotal * taxRate) / 100;
                 taxAmountInput.value = taxAmount.toFixed(2);
 
-                // Calculate final amount
-                const finalAmount = subtotal + taxAmount + shipping - discount;
-                finalAmountInput.value = finalAmount.toFixed(2);
+                // Calculate final amount with validation
+                const finalAmount = subtotal + taxAmount + shipping - adjustedDiscount;
+
+                // Ensure final amount is not negative
+                if (finalAmount < 0) {
+                    finalAmountInput.value = '0.00';
+                    displayFinal.innerHTML =
+                        `<span class="text-red-600">${currentSymbol}0.00 (Negative amount prevented)</span>`;
+                } else {
+                    finalAmountInput.value = finalAmount.toFixed(2);
+                    displayFinal.innerHTML =
+                        `<span class="text-blue-700">${currentSymbol}${finalAmount.toFixed(2)}</span>`;
+                }
+
+                // Update display values
+                displaySubtotal.textContent = `${currentSymbol}${subtotal.toFixed(2)}`;
+                displayTax.textContent = `${currentSymbol}${taxAmount.toFixed(2)}`;
             }
 
             // Add event listeners for financial calculations
@@ -450,7 +560,46 @@
                 input.addEventListener('change', calculateTotals);
             });
 
-            // Initial calculation
+            // Validate form before submission
+            form.addEventListener('submit', function(e) {
+                // Calculate totals one last time
+                calculateTotals();
+
+                // Get final amount
+                const finalAmount = parseFloat(finalAmountInput.value) || 0;
+
+                // Check if final amount is negative or zero
+                if (finalAmount < 0) {
+                    e.preventDefault();
+                    alert(
+                        'Error: Final amount cannot be negative. Please adjust the discount, tax rate, or shipping cost.');
+                    finalAmountInput.focus();
+                    return false;
+                }
+
+                if (finalAmount === 0) {
+                    const confirmation = confirm(
+                        'Final amount is zero. Are you sure you want to save this purchase order?');
+                    if (!confirmation) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+
+                // Disable submit button to prevent double submission
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Updating...
+                `;
+
+                return true;
+            });
+
+            // Initial calculation and currency symbol update
+            updateCurrencySymbols();
             calculateTotals();
         });
     </script>

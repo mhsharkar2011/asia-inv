@@ -15,6 +15,7 @@ class BrandSeeder extends Seeder
         Brand::query()->delete();
 
         $companies = Company::all();
+        $userId = 1; // Assuming admin user ID is 1 for created_by and updated_by
 
         // Common brands that might exist in multiple companies
         $commonBrands = [
@@ -130,8 +131,8 @@ class BrandSeeder extends Seeder
                     'country_of_origin' => $brandData['country_of_origin'],
                     'slug' => $brandData['slug'] . '-' . $company->id, // Make slug company-specific
                     'is_active' => true,
-                    'created_by' => 1,
-                    'updated_by' => 1,
+                    'created_by' => $userId,
+                    'updated_by' => $userId,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -152,8 +153,8 @@ class BrandSeeder extends Seeder
                         'country_of_origin' => $brand['country'],
                         'slug' => $brand['slug'] . '-' . $company->id,
                         'is_active' => true,
-                        'created_by' => 1,
-                        'updated_by' => 1,
+                        'created_by' => $userId,
+                        'updated_by' => $userId,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
@@ -173,8 +174,8 @@ class BrandSeeder extends Seeder
                         'country_of_origin' => $brand['country'],
                         'slug' => $brand['slug'] . '-' . $company->id,
                         'is_active' => true,
-                        'created_by' => 1,
-                        'updated_by' => 1,
+                        'created_by' => $userId,
+                        'updated_by' => $userId,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
@@ -194,8 +195,8 @@ class BrandSeeder extends Seeder
                         'country_of_origin' => $brand['country'],
                         'slug' => $brand['slug'] . '-' . $company->id,
                         'is_active' => true,
-                        'created_by' => 1,
-                        'updated_by' => 1,
+                        'created_by' => $userId,
+                        'updated_by' => $userId,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
@@ -235,8 +236,8 @@ class BrandSeeder extends Seeder
                     'country_of_origin' => $brand['country'],
                     'slug' => $brand['slug'] . '-' . $company->id,
                     'is_active' => true,
-                    'created_by' => 1,
-                    'updated_by' => 1,
+                    'created_by' => $userId,
+                    'updated_by' => $userId,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

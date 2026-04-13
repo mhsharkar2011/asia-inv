@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
             $table->foreignId('parent_id')->nullable()->constrained('departments')->onDelete('set null');
+            $table->foreignId('manager_id')->nullable();
             $table->string('code')->unique()->comment('Department code e.g., DEPT001');
             $table->string('name');
             $table->string('email')->nullable();

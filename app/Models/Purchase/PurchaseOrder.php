@@ -25,6 +25,7 @@ class PurchaseOrder extends Model
         'status',
         'total_amount',
         'tax_amount',
+        'shipping_cost',
         'discount',
         'final_amount',
         'notes'

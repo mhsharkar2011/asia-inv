@@ -326,13 +326,13 @@
                                                 <!-- Product Images Section -->
                                                 <div class="space-y-4">
                                                     <label class="block text-sm font-medium text-gray-900">
-                                                        Product Images
+                                                        Product Images <span class="text-red-500">*</span>
+                                                        <span class="text-xs text-gray-500 font-normal">(At least 1 image required)</span>
                                                     </label>
                                                     <div id="imageUploadArea"
                                                         class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors duration-200 bg-gradient-to-br from-gray-50 to-white">
                                                         <input type="file" id="imageInput" name="images[]" multiple
-                                                            accept="image/*" class="hidden"
-                                                            onchange="handleImageSelect(event)">
+                                                            accept="image/*" class="hidden">
 
                                                         <div class="space-y-4">
                                                             <div
@@ -350,8 +350,7 @@
                                                                 <p class="text-xs text-gray-500 mt-1">PNG, JPG, WEBP up to 2MB
                                                                     each (Max 5 images)</p>
                                                             </div>
-                                                            <button type="button"
-                                                                onclick="document.getElementById('imageInput').click()"
+                                                            <button type="button" id="selectImagesButton"
                                                                 class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500
                                                                            text-white font-medium rounded-lg hover:from-blue-600 hover:to-indigo-600
                                                                            transition-all duration-200 shadow-sm hover:shadow-md">
@@ -369,6 +368,17 @@
                                                     <div id="imagePreviewContainer"
                                                         class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                                                         <!-- Preview images will be added here dynamically -->
+                                                    </div>
+
+                                                    <!-- Upload Progress -->
+                                                    <div id="uploadProgress" class="hidden">
+                                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                            <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                                        </div>
+                                                        <div class="flex justify-between text-xs text-gray-600 mt-1">
+                                                            <span id="progressText">Uploading...</span>
+                                                            <span id="progressPercentage">0%</span>
+                                                        </div>
                                                     </div>
 
                                                     <!-- Max Images Warning -->
@@ -865,241 +875,457 @@
 
 @push('scripts')
     <script>
-        let selectedImages = [];
-        const maxImages = 5;
+        class ImageUploadHandler {
+            constructor() {
+                this.selectedImages = [];
+                this.maxImages = 5;
+                this.imageOrder = [];
+                this.init();
+            }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize drop zone
-            const dropZone = document.getElementById('imageUploadArea');
-            const imageInput = document.getElementById('imageInput');
+            init() {
+                this.setupEventListeners();
+                this.setupDragAndDrop();
+            }
 
-            // Drag and drop functionality
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, preventDefaults, false);
-            });
+            setupEventListeners() {
+                // Image input change event
+                const imageInput = document.getElementById('imageInput');
+                if (imageInput) {
+                    imageInput.addEventListener('change', (e) => this.handleImageSelect(e));
+                }
 
-            function preventDefaults(e) {
+                // Select images button
+                const selectImagesButton = document.getElementById('selectImagesButton');
+                if (selectImagesButton) {
+                    selectImagesButton.addEventListener('click', () => {
+                        document.getElementById('imageInput').click();
+                    });
+                }
+            }
+
+            setupDragAndDrop() {
+                const dropZone = document.getElementById('imageUploadArea');
+                if (!dropZone) return;
+
+                // Prevent default drag behaviors
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, this.preventDefaults, false);
+                });
+
+                // Highlight drop zone when dragging
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, this.highlight, false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, this.unhighlight, false);
+                });
+
+                // Handle drop
+                dropZone.addEventListener('drop', this.handleDrop.bind(this), false);
+            }
+
+            preventDefaults(e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
 
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, highlight, false);
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, unhighlight, false);
-            });
-
-            function highlight() {
-                dropZone.classList.add('drop-zone-active');
+            highlight() {
+                const dropZone = document.getElementById('imageUploadArea');
+                if (dropZone) {
+                    dropZone.classList.add('drop-zone-active');
+                }
             }
 
-            function unhighlight() {
-                dropZone.classList.remove('drop-zone-active');
+            unhighlight() {
+                const dropZone = document.getElementById('imageUploadArea');
+                if (dropZone) {
+                    dropZone.classList.remove('drop-zone-active');
+                }
             }
 
-            // Handle drop
-            dropZone.addEventListener('drop', handleDrop, false);
-
-            function handleDrop(e) {
+            handleDrop(e) {
                 const dt = e.dataTransfer;
                 const files = dt.files;
-                handleFiles(files);
+                this.handleFiles(files);
             }
 
-            // Make drop zone clickable
-            dropZone.addEventListener('click', function(e) {
-                if (e.target !== this && !e.target.closest('button')) {
+            handleImageSelect(event) {
+                const files = event.target.files;
+                this.handleFiles(files);
+                // Reset input to allow selecting same file again
+                event.target.value = '';
+            }
+
+            handleFiles(files) {
+                if (this.selectedImages.length + files.length > this.maxImages) {
+                    this.showMaxImagesWarning();
                     return;
                 }
-                imageInput.click();
-            });
-        });
 
-        function handleImageSelect(event) {
-            const files = event.target.files;
-            handleFiles(files);
-            // Reset input to allow selecting same file again
-            event.target.value = '';
-        }
+                const validFiles = Array.from(files).filter(file => {
+                    // Validate file type
+                    if (!file.type.match('image.*')) {
+                        this.showNotification('Only image files are allowed', 'error');
+                        return false;
+                    }
 
-        function handleFiles(files) {
-            if (selectedImages.length + files.length > maxImages) {
-                showMaxImagesWarning();
-                return;
-            }
+                    // Validate file size (2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        this.showNotification(`File ${file.name} exceeds 2MB limit`, 'error');
+                        return false;
+                    }
 
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
+                    return true;
+                });
 
-                // Validate file type
-                if (!file.type.match('image.*')) {
-                    showNotification('Only image files are allowed', 'error');
-                    continue;
-                }
-
-                // Validate file size (2MB)
-                if (file.size > 2 * 1024 * 1024) {
-                    showNotification(`File ${file.name} exceeds 2MB limit`, 'error');
-                    continue;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const image = {
-                        id: Date.now() + i,
-                        file: file,
-                        preview: e.target.result,
-                        name: file.name,
-                        size: formatFileSize(file.size)
+                validFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const image = {
+                            id: Date.now() + index,
+                            file: file,
+                            preview: e.target.result,
+                            name: file.name,
+                            size: this.formatFileSize(file.size),
+                            order: this.selectedImages.length
+                        };
+                        this.selectedImages.push(image);
+                        this.addImagePreview(image);
                     };
-                    selectedImages.push(image);
-                    addImagePreview(image);
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function addImagePreview(image) {
-            const container = document.getElementById('imagePreviewContainer');
-            const maxImagesWarning = document.getElementById('maxImagesWarning');
-
-            if (selectedImages.length >= maxImages) {
-                maxImagesWarning.classList.remove('hidden');
+                    reader.readAsDataURL(file);
+                });
             }
 
-            const previewDiv = document.createElement('div');
-            previewDiv.className =
-                'image-preview-item group relative bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200';
-            previewDiv.setAttribute('data-id', image.id);
+            addImagePreview(image) {
+                const container = document.getElementById('imagePreviewContainer');
+                const maxImagesWarning = document.getElementById('maxImagesWarning');
 
-            // Determine order number
-            const order = selectedImages.indexOf(image) + 1;
+                if (!container) return;
 
-            previewDiv.innerHTML = `
-                <div class="aspect-square overflow-hidden bg-gray-100">
-                    <img src="${image.preview}" alt="Preview" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
-                </div>
-                <div class="image-order-badge">${order}</div>
-                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                    <div class="flex space-x-2">
-                        <button type="button" onclick="removeImage(${image.id})" class="remove-image-btn">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                    <p class="text-xs text-white truncate">${image.name}</p>
-                    <p class="text-xs text-gray-300">${image.size}</p>
-                </div>
-            `;
-
-            container.appendChild(previewDiv);
-            updateImageOrderBadges();
-        }
-
-        function removeImage(id) {
-            const index = selectedImages.findIndex(img => img.id === id);
-            if (index > -1) {
-                selectedImages.splice(index, 1);
-            }
-
-            const preview = document.querySelector(`[data-id="${id}"]`);
-            if (preview) {
-                preview.remove();
-            }
-
-            const maxImagesWarning = document.getElementById('maxImagesWarning');
-            if (selectedImages.length < maxImages) {
-                maxImagesWarning.classList.add('hidden');
-            }
-
-            updateImageOrderBadges();
-        }
-
-        function updateImageOrderBadges() {
-            const previews = document.querySelectorAll('.image-preview-item');
-            previews.forEach((preview, index) => {
-                const badge = preview.querySelector('.image-order-badge');
-                if (badge) {
-                    badge.textContent = index + 1;
+                if (this.selectedImages.length >= this.maxImages) {
+                    maxImagesWarning?.classList.remove('hidden');
                 }
-            });
-        }
 
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
+                const previewDiv = document.createElement('div');
+                previewDiv.className = 'image-preview-item group relative bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200';
+                previewDiv.setAttribute('data-id', image.id);
+                previewDiv.draggable = true;
 
-        function showMaxImagesWarning() {
-            const maxImagesWarning = document.getElementById('maxImagesWarning');
-            maxImagesWarning.classList.remove('hidden');
+                // Set order number
+                const order = this.selectedImages.indexOf(image) + 1;
 
-            setTimeout(() => {
-                maxImagesWarning.classList.add('hidden');
-            }, 3000);
-        }
+                previewDiv.innerHTML = `
+                    <div class="aspect-square overflow-hidden bg-gray-100">
+                        <img src="${image.preview}" alt="Preview" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
+                    </div>
+                    <div class="image-order-badge">${order}</div>
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <div class="flex space-x-2">
+                            <button type="button" data-image-id="${image.id}" class="remove-image-btn">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                        <p class="text-xs text-white truncate">${image.name}</p>
+                        <p class="text-xs text-gray-300">${image.size}</p>
+                    </div>
+                `;
 
-        // Update form submission to handle images
-        document.getElementById('productForm')?.addEventListener('submit', function(e) {
-            // Validate images count
-            if (selectedImages.length === 0) {
-                showNotification('Please upload at least one product image', 'error');
-                e.preventDefault();
-                return;
+                // Add drag and drop for reordering
+                previewDiv.addEventListener('dragstart', this.handleDragStart.bind(this));
+                previewDiv.addEventListener('dragover', this.handleDragOver.bind(this));
+                previewDiv.addEventListener('drop', this.handleDropReorder.bind(this));
+                previewDiv.addEventListener('dragend', this.handleDragEnd.bind(this));
+
+                // Add remove button event
+                const removeBtn = previewDiv.querySelector('.remove-image-btn');
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const imageId = parseInt(e.target.closest('.remove-image-btn').getAttribute('data-image-id'));
+                        this.removeImage(imageId);
+                    });
+                }
+
+                container.appendChild(previewDiv);
+                this.updateImageOrderBadges();
             }
 
-            // Add hidden input for image order
-            const imageOrderInput = document.createElement('input');
-            imageOrderInput.type = 'hidden';
-            imageOrderInput.name = 'image_order';
-            imageOrderInput.value = JSON.stringify(selectedImages.map(img => img.id));
-            this.appendChild(imageOrderInput);
+            removeImage(id) {
+                const index = this.selectedImages.findIndex(img => img.id === id);
+                if (index > -1) {
+                    this.selectedImages.splice(index, 1);
+                }
+
+                const preview = document.querySelector(`[data-id="${id}"]`);
+                if (preview) {
+                    preview.remove();
+                }
+
+                const maxImagesWarning = document.getElementById('maxImagesWarning');
+                if (maxImagesWarning && this.selectedImages.length < this.maxImages) {
+                    maxImagesWarning.classList.add('hidden');
+                }
+
+                this.updateImageOrderBadges();
+            }
+
+            handleDragStart(e) {
+                e.dataTransfer.setData('text/plain', e.target.getAttribute('data-id'));
+                e.target.classList.add('dragging');
+            }
+
+            handleDragOver(e) {
+                e.preventDefault();
+            }
+
+            handleDropReorder(e) {
+                e.preventDefault();
+                const draggedId = e.dataTransfer.getData('text/plain');
+                const targetElement = e.target.closest('.image-preview-item');
+                if (!targetElement) return;
+
+                const targetId = targetElement.getAttribute('data-id');
+
+                if (draggedId === targetId) return;
+
+                const draggedIndex = this.selectedImages.findIndex(img => img.id == draggedId);
+                const targetIndex = this.selectedImages.findIndex(img => img.id == targetId);
+
+                // Reorder images array
+                const [draggedItem] = this.selectedImages.splice(draggedIndex, 1);
+                this.selectedImages.splice(targetIndex, 0, draggedItem);
+
+                // Reorder DOM elements
+                const container = document.getElementById('imagePreviewContainer');
+                const draggedElement = document.querySelector(`[data-id="${draggedId}"]`);
+
+                if (draggedIndex < targetIndex) {
+                    container.insertBefore(draggedElement, targetElement.nextSibling);
+                } else {
+                    container.insertBefore(draggedElement, targetElement);
+                }
+
+                this.updateImageOrderBadges();
+            }
+
+            handleDragEnd(e) {
+                e.target.classList.remove('dragging');
+            }
+
+            updateImageOrderBadges() {
+                const previews = document.querySelectorAll('.image-preview-item');
+                previews.forEach((preview, index) => {
+                    const badge = preview.querySelector('.image-order-badge');
+                    if (badge) {
+                        badge.textContent = index + 1;
+                    }
+                });
+            }
+
+            prepareFormData() {
+                // Create hidden input for each image file
+                const form = document.getElementById('productForm');
+
+                // Remove existing image file inputs
+                const existingInputs = form.querySelectorAll('input[name^="images"]');
+                existingInputs.forEach(input => input.remove());
+
+                // Add new file inputs
+                this.selectedImages.forEach((image, index) => {
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.name = `images[]`;
+                    fileInput.style.display = 'none';
+
+                    // Create a new FileList (we need to use DataTransfer to simulate file input)
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(image.file);
+
+                    // Create a new input with the file
+                    const newInput = document.createElement('input');
+                    newInput.type = 'file';
+                    newInput.name = `images[]`;
+                    newInput.style.display = 'none';
+                    newInput.files = dataTransfer.files;
+
+                    form.appendChild(newInput);
+                });
+
+                return true;
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            showMaxImagesWarning() {
+                const maxImagesWarning = document.getElementById('maxImagesWarning');
+                if (maxImagesWarning) {
+                    maxImagesWarning.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        maxImagesWarning.classList.add('hidden');
+                    }, 3000);
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                // Remove existing notifications
+                const existing = document.querySelectorAll('.custom-notification');
+                existing.forEach(el => el.remove());
+
+                // Create notification
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-lg custom-notification
+                    ${type === 'success' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' :
+                      type === 'error' ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white' :
+                      'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'}`;
+
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${type === 'success' ?
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />' :
+                                type === 'error' ?
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />' :
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                        </svg>
+                        <span>${message}</span>
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => notification.remove(), 300);
+                }, 5000);
+            }
+
+            validateImages() {
+                if (this.selectedImages.length === 0) {
+                    this.showNotification('Please upload at least one product image', 'error');
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        // Initialize image handler when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize image handler
+            window.imageHandler = new ImageUploadHandler();
+
+            // Handle form submission
+            const productForm = document.getElementById('productForm');
+            if (productForm) {
+                productForm.addEventListener('submit', function(e) {
+                    // Validate images
+                    if (!window.imageHandler.validateImages()) {
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    // Prepare form data with images
+                    if (!window.imageHandler.prepareFormData()) {
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    // Show upload progress
+                    const uploadProgress = document.getElementById('uploadProgress');
+                    const progressBar = document.getElementById('progressBar');
+                    const progressText = document.getElementById('progressText');
+                    const progressPercentage = document.getElementById('progressPercentage');
+
+                    if (uploadProgress) {
+                        uploadProgress.classList.remove('hidden');
+                        progressText.textContent = 'Uploading images...';
+                    }
+
+                    // Simulate upload progress (in real app, this would be handled by XHR)
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 10;
+                        if (progressBar) progressBar.style.width = progress + '%';
+                        if (progressPercentage) progressPercentage.textContent = progress + '%';
+
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            if (progressText) progressText.textContent = 'Processing...';
+                        }
+                    }, 100);
+                });
+            }
+
+            // Price validation
+            const purchasePrice = document.getElementById('purchase_price');
+            const sellingPrice = document.getElementById('selling_price');
+            const mrp = document.getElementById('mrp');
+            const priceAlert = document.getElementById('priceAlert');
+            const priceAlertMessage = document.getElementById('priceAlertMessage');
+
+            if (purchasePrice && sellingPrice && mrp && priceAlert && priceAlertMessage) {
+                function validatePrices() {
+                    const purchase = parseFloat(purchasePrice.value) || 0;
+                    const selling = parseFloat(sellingPrice.value) || 0;
+                    const maxRetail = parseFloat(mrp.value) || 0;
+
+                    if (purchase > selling && selling > 0) {
+                        priceAlertMessage.textContent = 'Purchase price should not be higher than selling price';
+                        priceAlert.classList.remove('hidden');
+                    } else if (selling > maxRetail && maxRetail > 0) {
+                        priceAlertMessage.textContent = 'Selling price should not be higher than MRP';
+                        priceAlert.classList.remove('hidden');
+                    } else {
+                        priceAlert.classList.add('hidden');
+                    }
+                }
+
+                [purchasePrice, sellingPrice, mrp].forEach(input => {
+                    input.addEventListener('input', validatePrices);
+                });
+            }
         });
 
-        // Permission-based UI modifications
-        // ... keep your existing permission and validation code ...
-
-        function showNotification(message, type = 'info') {
-            // Remove existing notifications
-            const existing = document.querySelectorAll('.custom-notification');
-            existing.forEach(el => el.remove());
-
-            // Create notification
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-lg custom-notification
-            ${type === 'success' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' :
-              type === 'error' ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white' :
-              'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'}`;
-
-            notification.innerHTML = `
-            <div class="flex items-center">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    ${type === 'success' ?
-                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />' :
-                        type === 'error' ?
-                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />' :
-                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'}
-                </svg>
-                <span>${message}</span>
-            </div>
-        `;
-
-            document.body.appendChild(notification);
-
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => notification.remove(), 300);
-            }, 5000);
+        // Function to regenerate product code
+        function regenerateProductCode() {
+            fetch('{{ route("inventory.products.generate-code") }}')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.code) {
+                        const productCodeInput = document.getElementById('product_code');
+                        if (productCodeInput) {
+                            productCodeInput.value = data.code;
+                        }
+                        if (window.imageHandler) {
+                            window.imageHandler.showNotification('New product code generated', 'success');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (window.imageHandler) {
+                        window.imageHandler.showNotification('Failed to generate product code', 'error');
+                    }
+                });
         }
     </script>
 @endpush

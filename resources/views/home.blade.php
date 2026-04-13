@@ -4,80 +4,363 @@
 
 @section('content')
     <!-- Hero Section with Modern Gradient -->
-    <div class="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-        <div
-            class="absolute inset-0 bg-[linear-gradient(to_right,#f0f9ff_1px,transparent_1px),linear-gradient(to_bottom,#f0f9ff_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20">
-        </div>
+   <div class="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <!-- Background Grid Pattern -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#f0f9ff_1px,transparent_1px),linear-gradient(to_bottom,#f0f9ff_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20"></div>
 
-        <!-- Animated Circles -->
-        <div
-            class="absolute top-10 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse">
-        </div>
-        <div
-            class="absolute bottom-10 right-10 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000">
-        </div>
-        <div
-            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse animation-delay-4000">
-        </div>
+    <!-- Animated Circles -->
+    <div class="absolute top-10 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+    <div class="absolute bottom-10 right-10 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse animation-delay-4000"></div>
 
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
-            <div class="text-center">
-                <span
-                    class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mb-6 animate-fade-in-up">
-                    <svg class="w-4 h-4 mr-2 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                    Premium Quality Products
-                </span>
-
-                <h1
-                    class="text-5xl sm:text-6xl md:text-7xl font-bold text-gray-900 tracking-tight mb-6 animate-fade-in-up animation-delay-200">
-                    Your One-Stop
-                    <span
-                        class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 animate-gradient">
-                        Business Solution
-                    </span>
-                </h1>
-
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-10 animate-fade-in-up animation-delay-400">
-                    Streamline your operations with our comprehensive inventory management system.
-                    From procurement to sales, we've got you covered.
-                </p>
-
-                <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-600">
-                    <a href="#featured-products"
-                        class="group relative inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 hover:from-blue-700 hover:to-indigo-700">
-                        <svg class="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                            </path>
-                        </svg>
-                        Explore Products
-                        <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
-
-                    <a href="{{ route('dashboard') }}"
-                        class="group inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-blue-600 bg-white border-2 border-blue-200 rounded-xl shadow-sm hover:shadow-md hover:border-blue-300 hover:bg-blue-50 transform transition-all duration-300">
-                        <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                            </path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        Dashboard Access
-                    </a>
+    <!-- Slider Container -->
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+        <!-- Slider Wrapper -->
+        <div class="relative overflow-hidden rounded-3xl bg-white/80 backdrop-blur-sm shadow-2xl">
+            <!-- Slides Container -->
+            <div class="flex transition-transform duration-700 ease-in-out" id="slider-container">
+                <!-- Slide 1 -->
+                <div class="min-w-full px-8 sm:px-16 py-16 lg:py-24">
+                    <div class="grid lg:grid-cols-2 gap-12 items-center">
+                        <div class="animate-fade-in-up">
+                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mb-6">
+                                <svg class="w-4 h-4 mr-2 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                                Premium Quality Products
+                            </span>
+                            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 tracking-tight mb-6">
+                                Your One-Stop
+                                <span class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
+                                    Business Solution
+                                </span>
+                            </h1>
+                            <p class="text-lg text-gray-600 mb-10">
+                                Streamline your operations with our comprehensive inventory management system.
+                                From procurement to sales, we've got you covered.
+                            </p>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <a href="#featured-products" class="group relative inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300">
+                                    Explore Products
+                                    <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                    </svg>
+                                </a>
+                                <a href="{{ route('dashboard') }}" class="group inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-blue-600 bg-white border-2 border-blue-200 rounded-xl shadow-sm hover:shadow-md hover:border-blue-300 hover:bg-blue-50 transform transition-all duration-300">
+                                    Dashboard Access
+                                </a>
+                            </div>
+                        </div>
+                        <div class="hidden lg:block">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-xl opacity-30"></div>
+                                <div class="relative bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-xl p-8 border border-gray-100">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="bg-blue-50 p-4 rounded-xl">
+                                            <div class="text-3xl font-bold text-blue-600">98%</div>
+                                            <div class="text-sm text-gray-600">Customer Satisfaction</div>
+                                        </div>
+                                        <div class="bg-indigo-50 p-4 rounded-xl">
+                                            <div class="text-3xl font-bold text-indigo-600">24/7</div>
+                                            <div class="text-sm text-gray-600">Support Available</div>
+                                        </div>
+                                        <div class="bg-purple-50 p-4 rounded-xl">
+                                            <div class="text-3xl font-bold text-purple-600">50+</div>
+                                            <div class="text-sm text-gray-600">Integrations</div>
+                                        </div>
+                                        <div class="bg-blue-50 p-4 rounded-xl">
+                                            <div class="text-3xl font-bold text-blue-600">10K+</div>
+                                            <div class="text-sm text-gray-600">Active Users</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Slide 2 -->
+                <div class="min-w-full px-8 sm:px-16 py-16 lg:py-24">
+                    <div class="grid lg:grid-cols-2 gap-12 items-center">
+                        <div class="animate-fade-in-up">
+                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800 mb-6">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Smart Analytics
+                            </span>
+                            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 tracking-tight mb-6">
+                                Real-Time
+                                <span class="block text-transparent bg-clip-text bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600">
+                                    Business Insights
+                                </span>
+                            </h1>
+                            <p class="text-lg text-gray-600 mb-10">
+                                Make data-driven decisions with our advanced analytics dashboard.
+                                Track performance, forecast trends, and optimize your operations.
+                            </p>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <a href="#analytics" class="group relative inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300">
+                                    View Analytics
+                                    <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </a>
+                                <a href="#" class="group inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-green-600 bg-white border-2 border-green-200 rounded-xl shadow-sm hover:shadow-md hover:border-green-300 hover:bg-green-50 transform transition-all duration-300">
+                                    Try Demo
+                                </a>
+                            </div>
+                        </div>
+                        <div class="hidden lg:block">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl blur-xl opacity-30"></div>
+                                <div class="relative bg-gradient-to-br from-white to-green-50 rounded-2xl shadow-xl p-8 border border-gray-100">
+                                    <div class="space-y-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-600">Monthly Growth</span>
+                                            <span class="font-bold text-green-600">+24.5%</span>
+                                        </div>
+                                        <div class="h-2 bg-green-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full w-3/4"></div>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-600">Revenue Target</span>
+                                            <span class="font-bold text-green-600">85%</span>
+                                        </div>
+                                        <div class="h-2 bg-green-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full w-4/5"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3 -->
+                <div class="min-w-full px-8 sm:px-16 py-16 lg:py-24">
+                    <div class="grid lg:grid-cols-2 gap-12 items-center">
+                        <div class="animate-fade-in-up">
+                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-orange-100 text-orange-800 mb-6">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Time-Saving
+                            </span>
+                            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 tracking-tight mb-6">
+                                Automated
+                                <span class="block text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600">
+                                    Workflow Solutions
+                                </span>
+                            </h1>
+                            <p class="text-lg text-gray-600 mb-10">
+                                Automate repetitive tasks and focus on what matters most.
+                                Our intelligent workflow system saves you hours every week.
+                            </p>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <a href="#automation" class="group relative inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-gradient-to-r from-orange-600 to-amber-600 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300">
+                                    Explore Features
+                                    <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </a>
+                                <a href="#" class="group inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-orange-600 bg-white border-2 border-orange-200 rounded-xl shadow-sm hover:shadow-md hover:border-orange-300 hover:bg-orange-50 transform transition-all duration-300">
+                                    View Pricing
+                                </a>
+                            </div>
+                        </div>
+                        <div class="hidden lg:block">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-2xl blur-xl opacity-30"></div>
+                                <div class="relative bg-gradient-to-br from-white to-orange-50 rounded-2xl shadow-xl p-8 border border-gray-100">
+                                    <div class="space-y-6">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-semibold text-gray-900">Auto-Inventory</div>
+                                                <div class="text-sm text-gray-600">Real-time tracking</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-semibold text-gray-900">Smart Reports</div>
+                                                <div class="text-sm text-gray-600">Customizable templates</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Arrows -->
+            <button id="prev-slide" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-300 hover:scale-110 z-10">
+                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            <button id="next-slide" class="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-300 hover:scale-110 z-10">
+                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+
+            <!-- Dots Navigation -->
+            <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+                <button class="slide-dot w-3 h-3 rounded-full bg-white/80 hover:bg-white transition-all duration-300" data-slide="0"></button>
+                <button class="slide-dot w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-all duration-300" data-slide="1"></button>
+                <button class="slide-dot w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-all duration-300" data-slide="2"></button>
+            </div>
+
+            <!-- Auto-play Indicator -->
+            <div class="absolute top-6 right-6 flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm text-gray-600">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span>Auto-play</span>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Add these styles for animations -->
+<style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes spinSlow {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .animate-spin-slow {
+        animation: spinSlow 3s linear infinite;
+    }
+
+    .animation-delay-2000 {
+        animation-delay: 2s;
+    }
+
+    .animation-delay-4000 {
+        animation-delay: 4s;
+    }
+
+    .slide-active {
+        background-color: white !important;
+        transform: scale(1.1);
+    }
+</style>
+
+<!-- JavaScript for Slider Functionality -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sliderContainer = document.getElementById('slider-container');
+        const slides = sliderContainer.children;
+        const prevButton = document.getElementById('prev-slide');
+        const nextButton = document.getElementById('next-slide');
+        const dots = document.querySelectorAll('.slide-dot');
+
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+        let autoPlayInterval;
+
+        function updateSlider() {
+            // Move slider container
+            sliderContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+            // Update dots
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('slide-active', index === currentSlide);
+                dot.style.backgroundColor = index === currentSlide ? 'white' : 'rgba(255, 255, 255, 0.5)';
+                dot.style.transform = index === currentSlide ? 'scale(1.1)' : 'scale(1)';
+            });
+
+            // Animate current slide content
+            const currentContent = slides[currentSlide].querySelector('.animate-fade-in-up');
+            if (currentContent) {
+                currentContent.style.animation = 'none';
+                setTimeout(() => {
+                    currentContent.style.animation = 'fadeInUp 0.6s ease-out';
+                }, 10);
+            }
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlider();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlider();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlider();
+        }
+
+        // Event listeners
+        prevButton.addEventListener('click', prevSlide);
+        nextButton.addEventListener('click', nextSlide);
+
+        dots.forEach(dot => {
+            dot.addEventListener('click', function() {
+                goToSlide(parseInt(this.dataset.slide));
+            });
+        });
+
+        // Auto-play functionality
+        function startAutoPlay() {
+            autoPlayInterval = setInterval(nextSlide, 5000);
+        }
+
+        function stopAutoPlay() {
+            clearInterval(autoPlayInterval);
+        }
+
+        // Start auto-play
+        startAutoPlay();
+
+        // Pause on hover
+        sliderContainer.parentElement.addEventListener('mouseenter', stopAutoPlay);
+        sliderContainer.parentElement.addEventListener('mouseleave', startAutoPlay);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === 'ArrowRight') nextSlide();
+        });
+
+        // Initialize slider
+        updateSlider();
+    });
+</script>
 
     <!-- Categories Section -->
     <div id="categories" class="relative bg-white py-20">
@@ -90,6 +373,7 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
                 @foreach ([['name' => 'Electronics', 'icon' => '💻', 'count' => 45, 'color' => 'blue', 'bg' => 'from-blue-500 to-blue-600'], ['name' => 'Clothing', 'icon' => '👕', 'count' => 78, 'color' => 'purple', 'bg' => 'from-purple-500 to-purple-600'], ['name' => 'Home & Living', 'icon' => '🏠', 'count' => 32, 'color' => 'green', 'bg' => 'from-emerald-500 to-emerald-600'], ['name' => 'Office Supplies', 'icon' => '📎', 'count' => 56, 'color' => 'amber', 'bg' => 'from-amber-500 to-amber-600']] as $category)
                     <a href="{{ route('inventory.products.index') }}?category={{ $category['name'] }}"
                         class="group relative bg-white p-6 rounded-2xl border border-gray-200 hover:border-transparent hover:shadow-2xl hover:-translate-y-2 transform transition-all duration-300 overflow-hidden">
@@ -249,13 +533,17 @@
                         // Stock percentage for progress bar
                         $maxStock = max($product->reorder_level * 3 ?? 30, $totalStock);
                         $stockPercentage = $totalStock > 0 ? min(100, ($totalStock / $maxStock) * 100) : 0;
+
+                        // Get first product image or use placeholder
+                        $productImage = $product->productImages->where('is_primary', true)->first() ?? $product->productImages->first();
+                        $imageUrl = $productImage ? asset('storage/' . $productImage->image_path) : null;
                     @endphp
 
                     <div class="product-card group bg-white rounded-2xl border border-gray-200 hover:border-blue-300 overflow-hidden hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
                         data-status="{{ $status }}" data-stock="{{ $totalStock }}"
                         data-new="{{ $product->created_at->gt(now()->subDays(7)) ? 'true' : 'false' }}">
 
-                        <!-- Product Image/Icon Area -->
+                        <!-- Product Image Area -->
                         <div class="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
                             <!-- Status Badge -->
                             <div class="absolute top-4 left-4 z-20">
@@ -282,36 +570,71 @@
                                 </div>
                             @endif
 
-                            <!-- Product Icon -->
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <div
-                                    class="w-32 h-32 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 group-hover:from-blue-200 group-hover:to-blue-100 flex items-center justify-center transform group-hover:scale-110 transition-all duration-500">
-                                    @switch($product->category->category_name ?? 'General')
-                                        @case('Electronics')
-                                            💻
-                                        @break
+                            <!-- Product Image -->
+                            <div class="relative w-full h-full">
+                                @if ($imageUrl)
+                                    <img src="{{ $imageUrl }}" alt="{{ $product->product_name }}" loading="lazy"
+                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                @else
+                                    <!-- Fallback with category icon -->
+                                    <div
+                                        class="absolute inset-0 flex items-center justify-center bg-gradient-to-br
+                                        @switch($product->category->category_name ?? 'General')
+                                            @case('Electronics') from-blue-100 to-cyan-100 @break
+                                            @case('Clothing') from-purple-100 to-pink-100 @break
+                                            @case('Home & Living') from-emerald-100 to-teal-100 @break
+                                            @case('Office Supplies') from-amber-100 to-orange-100 @break
+                                            @default from-gray-100 to-gray-200
+                                        @endswitch">
+                                        <div class="text-center">
+                                            <div class="text-5xl mb-2">
+                                                @switch($product->category->category_name ?? 'General')
+                                                    @case('Electronics')
+                                                        💻
+                                                    @break
 
-                                        @case('Clothing')
-                                            👕
-                                        @break
+                                                    @case('Clothing')
+                                                        👕
+                                                    @break
 
-                                        @case('Home & Living')
-                                            🏠
-                                        @break
+                                                    @case('Home & Living')
+                                                        🏠
+                                                    @break
 
-                                        @case('Office Supplies')
-                                            📎
-                                        @break
+                                                    @case('Office Supplies')
+                                                        📎
+                                                    @break
 
-                                        @default
-                                            📦
-                                    @endswitch
-                                </div>
+                                                    @default
+                                                        📦
+                                                @endswitch
+                                            </div>
+                                            <div class="text-sm font-medium text-gray-600">{{ $product->product_name }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Image Count Badge (if multiple images) -->
+                                @if ($product->productImages->count() > 1)
+                                    <div class="absolute bottom-4 right-4 z-20">
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-black/70 text-white">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                </path>
+                                            </svg>
+                                            {{ $product->productImages->count() }}
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
 
                             <!-- Hover Overlay -->
                             <div
-                                class="absolute inset-0 bg-gradient-to-t from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             </div>
                         </div>
 
@@ -389,7 +712,7 @@
 
                             <!-- Action Buttons -->
                             <div class="flex items-center space-x-3">
-                                <a href="{{ route('inventory.products.show', $product->id) }}"
+                                <a href="{{ route('products.show', $product->id) }}"
                                     class="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 group/view transition-all duration-200">
                                     <svg class="w-4 h-4 mr-2 text-gray-400 group-hover/view:text-blue-500 transition-colors"
                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -672,7 +995,7 @@
             `;
                     button.classList.remove('from-blue-600', 'to-blue-700', 'hover:from-blue-700', 'hover:to-blue-800');
                     button.classList.add('from-green-600', 'to-green-700', 'hover:from-green-700',
-                    'hover:to-green-800');
+                        'hover:to-green-800');
 
                     // Show success toast
                     showToast('Stock added successfully! Inventory updated.', 'success');
@@ -954,6 +1277,23 @@
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     background-clip: text;
+                }
+
+                /* Image Loading */
+                .image-placeholder {
+                    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                    background-size: 200% 100%;
+                    animation: loading 1.5s infinite;
+                }
+
+                @keyframes loading {
+                    0% {
+                        background-position: 200% 0;
+                    }
+
+                    100% {
+                        background-position: -200% 0;
+                    }
                 }
             </style>
         @endpush

@@ -6,9 +6,12 @@ use Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Product extends Model
+
+class Product extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
@@ -51,24 +54,36 @@ class Product extends Model
         'track_batch' => 'boolean',
         'track_expiry' => 'boolean',
         'is_active' => 'boolean',
-        'images' =>'array',
+        'images' => 'array',
     ];
 
 
-     protected function images(): Attribute
+    // app/Models/Inventory/Product.php
+    public function productImages()
     {
-        return Attribute::make(
-            get: function ($value) {
-                if (!$value) return [];
-
-                $images = json_decode($value, true);
-                return array_map(function ($images) {
-                    return asset('storage/products/' . $images);
-                }, $images);
-            }
-        );
+        return $this->hasMany(ProductImage::class);
     }
 
+    public function getFirstImageAttribute()
+    {
+        $image = $this->productImages->where('is_primary', 1)->first() ??
+            $this->productImages->first();
+
+        if (!$image) {
+            return asset('images/product-placeholder.jpg');
+        }
+
+        // Check different possible image fields
+        if ($image->image_path && Storage::exists($image->image_path)) {
+            return asset('storage/' . $image->image_path);
+        } elseif ($image->image_name && Storage::exists('products/' . $image->image_name)) {
+            return asset('storage/products/' . $image->image_name);
+        } elseif ($image->image && Storage::exists($image->image)) {
+            return asset('storage/' . $image->image);
+        }
+
+        return asset('images/product-placeholder.jpg');
+    }
     /**
      * Get the inventories for the product.
      */
@@ -214,5 +229,16 @@ class Product extends Model
     {
         $this->addMediaCollection('products')
             ->useDisk('public');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($product) {
+            if (auth()->check() && empty($product->company_id)) {
+                $product->company_id = auth()->user()->company_id;
+            }
+        });
     }
 }

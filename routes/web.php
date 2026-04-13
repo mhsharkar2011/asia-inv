@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\BranchController;
+use App\Http\Controllers\cartController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
@@ -31,9 +32,21 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 */
 
+
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/products/view/{product}', [HomeController::class, 'show'])->name('products.show');
+Route::get('/products/shop', [HomeController::class, 'shop'])->name('shop');
+Route::get('/products/notify', [HomeController::class, 'notify'])->name('product.notify');
+Route::get('/products/shop/{category}', [HomeController::class, 'category'])->name('shop.category');
+Route::get('/products/cart/add', [HomeController::class, 'cardAdd'])->name('cart.add');
+Route::get('/product/quickview', [ProductController::class, 'quickView'])->name('product.quickview');
+route::get('contact', function () {
+    return view('contact');
+})->name('contact');
+
+
 // Public Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
     // User profile routes
     Route::get('/profile/{user}/show', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/{user}/edit', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -174,5 +187,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('inventory', [ReportController::class, 'inventory'])->name('inventory');
         Route::get('financial', [ReportController::class, 'financial'])->name('financial');
         Route::get('purchases', [ReportController::class, 'purchases'])->name('purchases');
+    });
+
+    // Cart Routes
+    Route::prefix('cart')->name('cart.')->group(function () {
+        Route::get('/', [CartController::class, 'index'])->name('index');
+        Route::post('/add', [CartController::class, 'add'])->name('add');
+        Route::post('/quick-add', [CartController::class, 'quickAdd'])->name('quick-add');
+        Route::put('/update/{id}', [CartController::class, 'update'])->name('update');
+        Route::delete('/remove/{id}', [CartController::class, 'remove'])->name('remove');
+        Route::post('/clear', [CartController::class, 'clear'])->name('clear');
+        Route::get('/summary', [CartController::class, 'getSummary'])->name('summary');
+        Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+        Route::post('/process-checkout', [CartController::class, 'processCheckout'])->name('process-checkout');
+        Route::get('/confirmation/{order}', [CartController::class, 'orderConfirmation'])->name('confirmation');
     });
 });

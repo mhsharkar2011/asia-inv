@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Company;
+use App\Models\Admin\User;
 use App\Models\Sales\Invoice;
 use App\Models\Sales\SalesOrder;
 use Illuminate\Http\Request;
@@ -98,9 +99,11 @@ class CompanyController extends Controller
 
     public function edit(Company $Company)
     {
+        $users = User::with('roles')->orderBy('name')->get();
+        $assignedUserIds = $Company->users->pluck('id')->toArray();
         $types = Company::select('type')->distinct()->pluck('type')->toArray();
 
-        return view('admin.companies.edit', compact('types', 'Company'));
+        return view('admin.companies.edit', compact('types', 'Company', 'users', 'assignedUserIds'));
     }
 
     public function update(Request $request, Company $Company)
