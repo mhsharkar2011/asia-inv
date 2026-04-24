@@ -57,7 +57,7 @@
                 $stats = [
                     [
                         'title' => 'Total Customers',
-                        'value' => $totalCustomers ?? 0,
+                        'value' => $customerCount ?? 0,
                         'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0c-.281.046-.562.086-.844.119A10.04 10.04 0 0115 19.5a10.01 10.01 0 01-5.656-1.724m10.656-8.776A10.023 10.023 0 0115 3.5c.67 0 1.32.087 1.944.249m10.656 8.776A10.023 10.023 0 0021 12.5c0 .527-.043 1.047-.124 1.558M3.5 10.5h.01m13.49 5h.01M3.5 15.5h.01',
                         'color' => 'blue',
                         'trend' => '+12.5%',
@@ -66,7 +66,7 @@
                     ],
                     [
                         'title' => 'Total Products',
-                        'value' => $totalProducts ?? 0,
+                        'value' => $productCount ?? 0,
                         'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
                         'color' => 'green',
                         'trend' => '+8.2%',
