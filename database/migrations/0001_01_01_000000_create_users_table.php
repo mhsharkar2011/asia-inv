@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->foreignId('company_id')->nullable()->constrained('companies');
-            $table->foreignId('branch_id')->nullable()->constrained('branches');
-            $table->foreignId('department_id')->nullable()->constrained('departments');
+            $table->foreignId('branch_id')->nullable();
+            $table->foreignId('department_id')->nullable();
             $table->string('name');
             $table->string('username')->unique()->nullable();
             $table->string('two_factor_enabled')->default(false);

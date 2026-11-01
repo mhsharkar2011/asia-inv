@@ -79,17 +79,24 @@ class DatabaseSeeder extends Seeder
         // }
 
         // Run the PermissionsSeeder (the better one)
-        $this->call(RolePermissionSeeder::class);
-        $this->call(UnitSeeder::class);
-        $this->call(CategorySeeder::class);
-        $this->call(BranchSeeder::class);
-        $this->call(UserSeeder::class);
-        $this->call(BrandSeeder::class);
-        $this->call(DepartmentSeeder::class);
-        $this->call(ProductSeeder::class);
-        $this->call(LoginLogsSeeder::class);
+
+
+        $this->call([
+            RolePermissionSeeder::class,
+            CompanySeeder::class,
+            UnitSeeder::class,
+            CategorySeeder::class,
+            BranchSeeder::class,
+            UserSeeder::class,
+            BrandSeeder::class,
+            DepartmentSeeder::class,
+            ProductSeeder::class,
+            LoginLogsSeeder::class,
+        ]);
+
         $this->command->info('Database seeded successfully!');
         $this->command->info('Admin login: admin@asiaenterprise.com / admin@123');
         $this->command->info('Password: admin@123');
+
     }
 }
