@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
             $table->foreignId('parent_id')->nullable()->constrained('departments')->onDelete('set null');
             $table->foreignId('manager_id')->nullable();
-            $table->string('code')->unique()->comment('Department code e.g., DEPT001');
+            $table->string('code')->comment('Department code e.g., DEPT001');
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
@@ -25,6 +25,8 @@ return new class extends Migration
             $table->integer('sort_order')->default(0);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['company_id', 'code']);
 
             // Indexes
             $table->index(['is_active', 'sort_order']);

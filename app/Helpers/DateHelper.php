@@ -6,7 +6,7 @@ use Carbon\Carbon;
 
 class DateHelper
 {
-    public static function format($date = null, string $format = 'Y-m-d', string $timezone = null): ?string
+    public static function format($date = null, string $format = 'Y-m-d', ?string $timezone = null): ?string
     {
         if (is_null($date)) {
             $date = now();

@@ -48,5 +48,49 @@ composer dump-autoload
 
 php artisan queue:work
 
+## Docker Build
 
+# Build images
+docker compose build
 
+# Start all services
+docker compose up -d
+
+# Install dependencies
+docker compose exec app composer install
+
+# Generate app key (first time)
+docker compose exec app php artisan key:generate
+
+# Run migrations
+docker compose exec app php artisan migrate
+
+# Create storage symlink
+docker compose exec app php artisan storage:link
+
+# Access app
+# → http://localhost:8080
+
+# View logs
+docker compose logs -f app
+
+# Shell into PHP container
+docker compose exec app bash
+
+# Stop everything
+docker compose down
+
+# Stop and remove volumes (⚠️ deletes DB data)
+docker compose down -v
+
+Menu → Comm → Cloud Server Setting (or ADMS)
+
+  Server Address:    192.168.1.9        ← LAN IP, no http:// prefix
+  Server Port:       8080
+  Server Path:       (leave blank)
+  Enable Push:       ON  ← critical
+  Enable Real-Time:  ON
+  Enable Domain Name: No
+  Enable Proxy:      No
+  Heartbeat:         10 seconds
+  Save → Reboot
